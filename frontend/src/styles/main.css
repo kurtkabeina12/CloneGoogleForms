@@ -62,6 +62,6 @@
     display: flex !important;
 }
 
-.css-zow5z4-MuiGrid-root{
+.MuiGrid-root.MuiGrid-container.MuiGrid-spacing-xs-3.body-CreateFormPage.css-zow5z4-MuiGrid-root{
     flex-direction: column !important;
 }

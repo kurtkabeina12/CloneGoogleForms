@@ -55,7 +55,7 @@ const CreateFormPage: React.FC = () => {
 
 	return (
 		<form>
-			<Grid container spacing={3} className='header-CreateFormPage' sx={{ flexGrow: 1 }} >
+			<Grid container spacing={3} className='header-CreateFormPage'  >
 				<Grid item xs={12} sm={8} md={6}>
 					<Box sx={{ mb: 3 }}>
 						<Paper className="header-paper" elevation={2} sx={{ p: 3, borderTop: "8px solid #00862b" }}>
@@ -72,7 +72,7 @@ const CreateFormPage: React.FC = () => {
 				<DragDropContext onDragEnd={handleDragEnd}>
 					<Droppable droppableId="droppable">
 						{(provided) => (
-							<Grid container spacing={3} className='body-CreateFormPage' ref={provided.innerRef} {...provided.droppableProps} sx={{ height: "100%" }}>
+							<Grid container spacing={3} className='body-CreateFormPage' ref={provided.innerRef} {...provided.droppableProps} >
 								{cards.map((card, index) => (
 									<Draggable key={index} draggableId={index.toString()} index={index}>
 										{(provided) => (
