@@ -1,18 +1,38 @@
+import React, { useEffect } from 'react';
 import { Button, FormControlLabel, FormGroup, Input } from '@mui/material';
-import React from 'react'
 import Checkbox from '@mui/material/Checkbox';
+import useList from '../hooks/UseList';
 
-interface CheckboxesComponent {
+const CheckboxesComponent: React.FC = () => {
+  const { list, addItem, updateItem } = useList<string>('');
 
-}
-
-const CheckboxesComponent: React.FC<CheckboxesComponent> = () => {
   return (
-    <FormGroup sx={{width: "-webkit-fill-available", marginTop:"1rem"}}>
-      <FormControlLabel disabled control={<Checkbox />} label={<Input placeholder='Вопрос'/>} />
-      <FormControlLabel disabled control={<Checkbox />} label={<Button color='success' variant="text">Добавить вариант</Button>} />
+    <FormGroup sx={{ width: '-webkit-fill-available', marginTop: '1rem' }}>
+      {list.map((item, index) => (
+        <FormControlLabel
+          key={index}
+          disabled
+          control={<Checkbox />}
+          label={
+            <Input
+              placeholder='Ответ'
+              value={item || ''}
+              onChange={(e) => updateItem(index, e.target.value)}
+            />
+          }
+        />
+      ))}
+      <FormControlLabel
+        disabled
+        control={<Checkbox />}
+        label={
+          <Button color='success' variant="text" onClick={addItem}>
+            Добавить вариант
+          </Button>
+        }
+      />
     </FormGroup>
-  )
-}
+  );
+};
 
 export default CheckboxesComponent;
