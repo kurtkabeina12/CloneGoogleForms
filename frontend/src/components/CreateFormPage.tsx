@@ -26,6 +26,7 @@ interface Card {
 
 const CreateFormPage: React.FC = () => {
 	const [cards, setCards] = useState<Card[]>([{ selectedComponent: 'Input', question: '', isRequired: false }]);
+	const [activeCardIndex, setActiveCardIndex] = useState<number | null>(null);
 
 	const handleSelectChange = (event: SelectChangeEvent<string>, index: number) => {
 		const newCards = [...cards];
@@ -53,6 +54,10 @@ const CreateFormPage: React.FC = () => {
 		setCards(items);
 	};
 
+	const handleCardClick = (index: number) => {
+    setActiveCardIndex(index);
+};
+
 	return (
 		<form>
 			<Grid container spacing={3} className='header-CreateFormPage'  >
@@ -76,9 +81,9 @@ const CreateFormPage: React.FC = () => {
 								{cards.map((card, index) => (
 									<Draggable key={index} draggableId={index.toString()} index={index}>
 										{(provided) => (
-											<Grid item xs={12} sm={8} md={6} className='body-card' ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
+											<Grid item xs={12} sm={8} md={6} className='body-card' onClick={() => handleCardClick(index)} ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
 												<Box sx={{ mb: 3 }}>
-													<Paper elevation={2} sx={{ p: 3, paddingTop: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", borderLeft: "8px solid #00862b", minWidth: 200, height: "100%" }}>
+													<Paper elevation={2} sx={{ p: 3, paddingTop: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", borderLeft: activeCardIndex === index ? "8px solid #00862b" : "none" }}>
 														<DragIndicatorIcon style={{ transform: "rotate(90deg)", marginBottom: '10px' }} />
 														<Box sx={{ display: 'flex', flexDirection: "row", width: "-webkit-fill-available", gap: 1 }}>
 															<TextField
