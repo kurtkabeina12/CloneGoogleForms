@@ -18,7 +18,7 @@ const HomePage: React.FC<HomePageProps> = ({onNavigate}) => {
   return (
     <div className="home-page">
       <div className='home-header'>
-        <DescriptionIcon fontSize='large' sx={{ color: '#3f3f46' }} />
+        <DescriptionIcon fontSize='large' sx={{ color: '#00862b' }} />
         <h4>Формы</h4>
       </div>
       <div className='home-body'>

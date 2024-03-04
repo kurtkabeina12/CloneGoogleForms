@@ -1,3 +1,8 @@
+body {
+    margin: 0;
+    padding: 0;
+}
+
 .home-page {
     /* background-image: url('../../public/фон.png'); */
     background-size: cover;
@@ -26,42 +31,41 @@
     justify-content: center;
 }
 
-.body-card{
+.body-card {
     padding-left: 30px !important;
     margin-left: 15px !important;
 }
 
-.header-CreateFormPage, .body-CreateFormPage {
+.FormCenter {
     display: flex;
     justify-content: center;
     align-items: center;
-    height:  100%;
 }
 
-.header-CreateFormPage > .MuiGrid-item, .body-CreateFormPage > .MuiGrid-item {
-    flex:  1;
-}
-
-.css-1eed5fa-MuiInputBase-root-MuiInput-root::after{
+.css-1eed5fa-MuiInputBase-root-MuiInput-root::after {
     border-bottom: 2px solid #299d2e !important;
 }
 
-.css-953pxc-MuiInputBase-root-MuiInput-root::after{
+.css-953pxc-MuiInputBase-root-MuiInput-root::after {
     border-bottom: 2px solid #299d2e !important;
 }
 
-.css-bz5ng3-MuiInputBase-root-MuiInput-root::after{
+.css-bz5ng3-MuiInputBase-root-MuiInput-root::after {
     border-bottom: 2px solid #299d2e !important;
 }
 
-.css-11u53oe-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input.css-11u53oe-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input.css-11u53oe-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input{
+.css-11u53oe-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input.css-11u53oe-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input.css-11u53oe-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input {
     display: flex !important;
 }
 
-.css-11u53oe-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input.css-11u53oe-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input.css-11u53oe-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input{
+.css-11u53oe-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input.css-11u53oe-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input.css-11u53oe-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input {
     display: flex !important;
 }
 
-.MuiGrid-root.MuiGrid-container.MuiGrid-spacing-xs-3.body-CreateFormPage.css-zow5z4-MuiGrid-root{
+.MuiGrid-root.MuiGrid-container.MuiGrid-spacing-xs-3.body-CreateFormPage.css-zow5z4-MuiGrid-root {
     flex-direction: column !important;
+}
+
+.MuiTabs-indicator {
+    background: #00862b !important;
 }
