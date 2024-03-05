@@ -11,6 +11,7 @@ import SubjectIcon from '@mui/icons-material/Subject';
 import ShortTextIcon from '@mui/icons-material/ShortText';
 import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
 import CheckBoxOutlinedIcon from '@mui/icons-material/CheckBoxOutlined';
+import LinearScaleIcon from '@mui/icons-material/LinearScale';
 import EventIcon from '@mui/icons-material/Event';
 import InputCopmponent from './InputCopmponent';
 import TextareaComponent from './TextareaComponent';
@@ -19,6 +20,7 @@ import CheckboxesComponent from './CheckboxesComponent';
 import DataComponent from './DataComponent';
 import DescriptionIcon from '@mui/icons-material/Description';
 import { CustomTab } from './CustomTab';
+import SliderComponent from './SliderComponent';
 
 interface Card {
 	selectedComponent: string;
@@ -168,6 +170,15 @@ const CreateFormPage: React.FC = () => {
 																			/>
 																			Множество из списка
 																		</MenuItem>
+																		<MenuItem value="Slider">
+																			<LinearScaleIcon
+																				sx={{
+																					color: "#6b6b6b",
+																					marginRight: "5px",
+																				}}
+																			/>
+																			Шкала
+																		</MenuItem>
 																		<MenuItem value="Data">
 																			<EventIcon
 																				sx={{
@@ -184,6 +195,7 @@ const CreateFormPage: React.FC = () => {
 															{card.selectedComponent === 'Textarea' && <TextareaComponent />}
 															{card.selectedComponent === 'Radio' && <RadioComponent />}
 															{card.selectedComponent === 'Checkbox' && <CheckboxesComponent />}
+															{card.selectedComponent === 'Slider' && <SliderComponent />}
 															{card.selectedComponent === 'Data' && <DataComponent />}
 															<Grid item xs={12}>
 																<Box sx={{ mt: 3, display: 'flex', justifyContent: 'center', borderTopColor: "black" }}>
