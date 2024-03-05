@@ -3,18 +3,18 @@ import { useState } from 'react';
 // Определение типа для элементов списка
 type ListType<T> = {
   list: T[];
-  addItem: () => void;
+  addItem: (item: T) => void;
   updateItem: (index: number, value: T) => void;
 };
 
 // Создание кастомного хука
-const useList = <T extends string | number | boolean>(initialValue: T): ListType<T> => {
+const useList = <T extends string | number | boolean | string[] | number[] | boolean[]>(initialValue: T[]): ListType<T> => {
   // Состояние для списка
-  const [list, setList] = useState<T[]>([initialValue]); // Добавляем начальное значение в список
+  const [list, setList] = useState<T[]>(initialValue); // Добавляем начальное значение в список
 
   // Функция для добавления нового элемента в список
-  const addItem = () => {
-    setList([...list, initialValue]); // Добавляем пустой элемент при нажатии на кнопку
+  const addItem = (item: T) => {
+    setList([...list, item]);
   };
 
   // Функция для обновления значения элемента по индексу

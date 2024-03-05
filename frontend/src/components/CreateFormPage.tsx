@@ -21,20 +21,28 @@ import DataComponent from './DataComponent';
 import DescriptionIcon from '@mui/icons-material/Description';
 import { CustomTab } from './CustomTab';
 import SliderComponent from './SliderComponent';
+import { useDispatch } from 'react-redux';
+import { Card } from '../types/types';
+import { sendCardAsync } from '../store/action/actionSendForm';
+import { AppDispatch } from '../store/reducers/reducerRoot';
 
-interface Card {
-	selectedComponent: string;
-	question: string;
-	isRequired: boolean;
-}
+
 
 const CreateFormPage: React.FC = () => {
-	const [cards, setCards] = useState<Card[]>([{ selectedComponent: 'Input', question: '', isRequired: false }]);
+	const [cards, setCards] = useState<Card[]>([{ selectedComponent: 'Input', question: '', isRequired: false, answer: "" }]);
 	const [activeCardIndex, setActiveCardIndex] = useState<number | null>(null);
 	const [value, setValue] = React.useState('Questions');
+	const dispatch = useDispatch<AppDispatch>();
 
 	const handleChange = (event: React.SyntheticEvent, newValue: string) => {
 		setValue(newValue);
+	};
+
+	//смена переключателя isRequired
+	const handleQuestionChange = (index: number, newQuestion: string) => {
+		const newCards = [...cards];
+		newCards[index].question = newQuestion;
+		setCards(newCards);
 	};
 
 	const handleSelectChange = (event: SelectChangeEvent<string>, index: number) => {
@@ -55,6 +63,19 @@ const CreateFormPage: React.FC = () => {
 		setCards(newCards); // Обновляем состояние с новым массивом
 	};
 
+	const updateCardAnswers = (index: number, answers: string[]) => {
+		const newCards = [...cards];
+		newCards[index].answer = answers;
+		setCards(newCards);
+	 };
+
+	 const handleSwitchChange = (index: number, isRequired: boolean) => {
+		const newCards = [...cards];
+		newCards[index].isRequired = isRequired;
+		setCards(newCards);
+	 };
+	 
+
 	const handleDragEnd = (result: any) => {
 		if (!result.destination) return;
 		const items = [...cards];
@@ -67,6 +88,11 @@ const CreateFormPage: React.FC = () => {
 		setActiveCardIndex(index);
 	};
 
+	const SendCards = () => {
+		dispatch(sendCardAsync(cards));
+		console.log(cards)
+	}
+
 	return (
 		<>
 			<Box sx={{ flexGrow: 1 }}>
@@ -76,7 +102,7 @@ const CreateFormPage: React.FC = () => {
 							<DescriptionIcon fontSize='large' sx={{ color: '#00862b' }} />
 							<Typography variant='h5' color="black">Новая форма</Typography>
 						</Box>
-						<Button variant="contained" color="success">Отправить</Button>
+						<Button variant="contained" onClick={SendCards} color="success">Отправить</Button>
 					</Toolbar>
 					<Toolbar sx={{ justifyContent: 'center' }}>
 						<Tabs
@@ -121,6 +147,8 @@ const CreateFormPage: React.FC = () => {
 																	variant="standard"
 																	placeholder="Напишите вопрос"
 																	name="title"
+																	value={card.question}
+																	onChange={(event) => handleQuestionChange(index, event.target.value)}
 																	sx={{ mb: 3 }}
 																	fullWidth
 																/>
@@ -193,13 +221,13 @@ const CreateFormPage: React.FC = () => {
 															</Box>
 															{card.selectedComponent === 'Input' && <InputCopmponent />}
 															{card.selectedComponent === 'Textarea' && <TextareaComponent />}
-															{card.selectedComponent === 'Radio' && <RadioComponent />}
-															{card.selectedComponent === 'Checkbox' && <CheckboxesComponent />}
+															{card.selectedComponent === 'Radio' && <RadioComponent cardIndex={index} updateCardAnswers={updateCardAnswers} />}
+															{card.selectedComponent === 'Checkbox' && <CheckboxesComponent  cardIndex={index} updateCardAnswers={updateCardAnswers} />}
 															{card.selectedComponent === 'Slider' && <SliderComponent />}
 															{card.selectedComponent === 'Data' && <DataComponent />}
 															<Grid item xs={12}>
 																<Box sx={{ mt: 3, display: 'flex', justifyContent: 'center', borderTopColor: "black" }}>
-																	<FormControlLabel control={<Switch color='success' />} style={{ whiteSpace: 'nowrap' }} label="Обязательный вопрос*" />
+																	<FormControlLabel control={<Switch color='success' onChange={(event) => handleSwitchChange(index, event.target.checked)} checked={card.isRequired} />} style={{ whiteSpace: 'nowrap' }} label="Обязательный вопрос*" />
 																	<Tooltip title="Удалить карточку">
 																		<IconButton aria-label="delete" color="warning" size="small" onClick={() => handleDeleteCard(index)}>
 																			<DeleteIcon style={{ color: "red" }} />
@@ -228,7 +256,7 @@ const CreateFormPage: React.FC = () => {
 							size="medium"
 							color="success"
 							aria-label="add"
-							onClick={() => setCards([...cards, { selectedComponent: 'Input', question: '', isRequired: false }])}
+							onClick={() => setCards([...cards, { selectedComponent: 'Input', question: '', isRequired: false, answer: "" }])}
 						>
 							<AddIcon />
 						</Fab>
