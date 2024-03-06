@@ -5,7 +5,6 @@ const cardSlice = createSlice({
  name: 'cards',
  initialState: { cards: [], status: 'idle', error: null as string | null },
  reducers: {
-    // Your existing reducers
  },
  extraReducers: (builder) => {
     builder
