@@ -13,18 +13,19 @@ import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
 import CheckBoxOutlinedIcon from '@mui/icons-material/CheckBoxOutlined';
 import LinearScaleIcon from '@mui/icons-material/LinearScale';
 import EventIcon from '@mui/icons-material/Event';
-import InputCopmponent from './InputCopmponent';
-import TextareaComponent from './TextareaComponent';
-import RadioComponent from './RadioComponent';
-import CheckboxesComponent from './CheckboxesComponent';
-import DataComponent from './DataComponent';
+import InputCopmponent from '../components/InputCopmponent';
+import TextareaComponent from '../components/TextareaComponent';
+import RadioComponent from '../components/RadioComponent';
+import CheckboxesComponent from '../components/CheckboxesComponent';
+import DataComponent from '../components/DataComponent';
 import DescriptionIcon from '@mui/icons-material/Description';
-import { CustomTab } from './CustomTab';
-import SliderComponent from './SliderComponent';
+import { CustomTab } from '../components/CustomTab';
+import SliderComponent from '../components/SliderComponent';
 import { useDispatch } from 'react-redux';
 import { Card } from '../types/types';
 import { sendCardAsync } from '../store/action/actionSendForm';
 import { AppDispatch } from '../store/reducers/reducerRoot';
+import { useNavigate } from 'react-router-dom';
 
 
 
@@ -33,7 +34,7 @@ const CreateFormPage: React.FC = () => {
 	const [activeCardIndex, setActiveCardIndex] = useState<number | null>(null);
 	const [value, setValue] = React.useState('Questions');
 	const dispatch = useDispatch<AppDispatch>();
-
+	const navigate = useNavigate();
 	const handleChange = (event: React.SyntheticEvent, newValue: string) => {
 		setValue(newValue);
 	};
@@ -90,6 +91,7 @@ const CreateFormPage: React.FC = () => {
 
 	const SendCards = () => {
 		dispatch(sendCardAsync(cards));
+		navigate('/form');
 		console.log(cards)
 	}
 

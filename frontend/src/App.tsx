@@ -1,24 +1,25 @@
 import React from 'react';
-import { Provider } from 'react-redux';
-import HomePage from './components/HomePage';
-import CreateFormPage from './components/CreateFormPage';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import HomePage from './pages/HomePage';
+import CreateFormPage from './pages/CreateFormPage';
 import store from './store/reducers/reducerRoot';
+import { Provider } from 'react-redux';
+import FormPage from './pages/FormPage';
 
 function App() {
-  const [currentPage, setCurrentPage] = React.useState('HomePage');
-
-  const handleNavigation = (page: string) => {
-    setCurrentPage(page);
-  };
-  
-  return (
+ return (
     <Provider store={store}>
-      <div className='App'>
-        {currentPage === 'HomePage' && <HomePage onNavigate={handleNavigation} />}
-        {currentPage === 'CreateFormPage' && <CreateFormPage />}
-      </div>
+      <Router>
+        <div className='App'>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/create-form" element={<CreateFormPage />} />
+            <Route path="/form" element={<FormPage/>} />
+          </Routes>
+        </div>
+      </Router>
     </Provider>
-  );
+ );
 }
 
 export default App;
