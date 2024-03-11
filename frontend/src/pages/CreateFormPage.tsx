@@ -35,6 +35,8 @@ const CreateFormPage: React.FC = () => {
 	const [value, setValue] = React.useState('Questions');
 	const dispatch = useDispatch<AppDispatch>();
 	const navigate = useNavigate();
+	const [title, setTitle] = useState('');
+
 	const handleChange = (event: React.SyntheticEvent, newValue: string) => {
 		setValue(newValue);
 	};
@@ -68,14 +70,14 @@ const CreateFormPage: React.FC = () => {
 		const newCards = [...cards];
 		newCards[index].answer = answers;
 		setCards(newCards);
-	 };
+	};
 
-	 const handleSwitchChange = (index: number, isRequired: boolean) => {
+	const handleSwitchChange = (index: number, isRequired: boolean) => {
 		const newCards = [...cards];
 		newCards[index].isRequired = isRequired;
 		setCards(newCards);
-	 };
-	 
+	};
+
 
 	const handleDragEnd = (result: any) => {
 		if (!result.destination) return;
@@ -89,9 +91,14 @@ const CreateFormPage: React.FC = () => {
 		setActiveCardIndex(index);
 	};
 
-	const SendCards = () => {
-		dispatch(sendCardAsync(cards));
-		navigate('/form');
+	const SendCards = async () => {
+		try {
+			const actionResult = await dispatch(sendCardAsync({ cards, title }));
+			const formId = actionResult.payload.formId;
+			navigate('/form', {state: {formId}});
+		} catch (error) {
+			console.log('Error get Id forms')
+		}
 		console.log(cards)
 	}
 
@@ -127,6 +134,8 @@ const CreateFormPage: React.FC = () => {
 									variant="standard"
 									placeholder="Название опроса"
 									name="title"
+									value={title}
+									onChange={(event) => setTitle(event.target.value)}
 									sx={{ mb: 3 }}
 									fullWidth
 								/>
@@ -224,7 +233,7 @@ const CreateFormPage: React.FC = () => {
 															{card.selectedComponent === 'Input' && <InputCopmponent />}
 															{card.selectedComponent === 'Textarea' && <TextareaComponent />}
 															{card.selectedComponent === 'Radio' && <RadioComponent cardIndex={index} updateCardAnswers={updateCardAnswers} />}
-															{card.selectedComponent === 'Checkbox' && <CheckboxesComponent  cardIndex={index} updateCardAnswers={updateCardAnswers} />}
+															{card.selectedComponent === 'Checkbox' && <CheckboxesComponent cardIndex={index} updateCardAnswers={updateCardAnswers} />}
 															{card.selectedComponent === 'Slider' && <SliderComponent />}
 															{card.selectedComponent === 'Data' && <DataComponent />}
 															<Grid item xs={12}>

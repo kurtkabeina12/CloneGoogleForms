@@ -2,15 +2,15 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import { Card } from '../../types/types';
 
 export const sendCardAsync = createAsyncThunk(
-	'cards/sendCard',
-	async (cards: Card[], thunkAPI) => {
+	'forms/saveForm',
+	async ({ cards, title }: { cards: Card[], title: string }, thunkAPI) => {
 		try {
-			const response = await fetch('http://localhost:8888/cards', {
+			const response = await fetch('http://localhost:8888/forms', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
 				},
-				body: JSON.stringify(cards),
+				body: JSON.stringify({ formHead: title, formBody: cards }),
 			});
 
 			if (!response.ok) {
@@ -18,9 +18,10 @@ export const sendCardAsync = createAsyncThunk(
 			}
 
 			const data = await response.json();
+			console.log(data, 'ответ с сервера')
 			return data;
 		} catch (error) {
-			const err = error as Error; 
+			const err = error as Error;
 			return thunkAPI.rejectWithValue({ error: err.message });
 		}
 	}
