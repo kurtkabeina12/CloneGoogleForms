@@ -1,6 +1,8 @@
-import { Box, Grid, Paper, Typography } from '@mui/material';
+import { Box, Grid, Paper, Typography, Checkbox, Radio, Slider } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import TextareaComponent from '../components/TextareaComponent';
+import InputCopmponent from '../components/InputCopmponent';
 
 interface FormData {
    formHeader: string;
@@ -40,7 +42,7 @@ export default function FormPage() {
 
    return (
       <>
-         <Grid container spacing={3} className='FormCenter'  >
+         <Grid container spacing={3} className='FormCenter'>
             <Grid item xs={12} sm={8} md={6}>
                <Box sx={{ mb: 3 }}>
                   <Paper className="header-paper" elevation={2} sx={{ p: 3, borderTop: "8px solid #00862b", textAlign: 'center' }}>
@@ -52,23 +54,29 @@ export default function FormPage() {
             </Grid>
          </Grid>
          {formData ? (
-            <Grid container spacing={3} className='FormCenter' >
-              {formData.cards.map((card, index) => {
-               return(
-                     <Grid key={index} item xs={12} sm={8} md={6} >
+            <Grid container spacing={3} className='FormCenter'>
+               {formData.cards.map((card, index) => {
+                  return (
+                     <Grid key={index} item xs={12} sm={8} md={6}>
                         <Box sx={{ mb: 3 }}>
                            <Paper elevation={2} sx={{ p: 3, paddingTop: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start" }}>
-                              <Box sx={{ display: 'flex', flexDirection: "row", width: "-webkit-fill-available", gap: 1, textAlign:'center' }}>
+                              <Box sx={{ display: 'flex', flexDirection: "row", width: "-webkit-fill-available", gap: 1, textAlign: 'center' }}>
                                  <Typography variant='h6' gutterBottom> {card.question} </Typography>
                               </Box>
+                              {card.selectedComponent === 'Input' && <InputCopmponent />}
+                              {card.selectedComponent === 'Textarea' &&  <TextareaComponent />}
+                              {card.selectedComponent === 'Radio' && <Radio />}
+                              {card.selectedComponent === 'Checkbox' && <Checkbox />}
+                              {card.selectedComponent === 'Slider' && <Slider />}
+                              {card.selectedComponent === 'Data' && <div>Data Component</div>}
                            </Paper>
                         </Box>
                      </Grid>
-               );
-              })}
-         </Grid>
+                  );
+               })}
+            </Grid>
          ) : (
-            <p>Loading form data...</p>
+            <p>Загружаем конечный вид формы...</p>
          )}
       </>
    );

@@ -13,7 +13,6 @@ const InputCopmponent: React.FC<InputComponent> = () => {
       name="title"
       sx={{ mb: 3, marginTop:"1rem" }}
       fullWidth
-      disabled
     />
   )
 }
