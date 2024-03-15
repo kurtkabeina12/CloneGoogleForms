@@ -1,9 +1,11 @@
 import React from 'react';
 import { FormGroup, TextField } from '@mui/material';
 
-interface DataComponentProps { }
+interface DataComponentProps {
+  disabled?:boolean
+ }
 
-const DataComponent: React.FC<DataComponentProps> = () => {
+const DataComponent: React.FC<DataComponentProps> = ({disabled = false}) => {
   return (
     <FormGroup sx={{ width: "-webkit-fill-available", marginTop: "1rem" }}>
       <TextField
@@ -12,7 +14,7 @@ const DataComponent: React.FC<DataComponentProps> = () => {
           shrink: true,
         }}
         color='success'
-        disabled
+        disabled = {disabled}
       />
     </FormGroup>
   );

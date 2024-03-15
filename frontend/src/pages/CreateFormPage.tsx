@@ -113,7 +113,7 @@ const CreateFormPage: React.FC = () => {
 						</Box>
 						<Button variant="contained" onClick={SendCards} color="success">Отправить</Button>
 					</Toolbar>
-					<Toolbar sx={{ justifyContent: 'center' }}>
+					<Toolbar sx={{ justifyContent: 'center', backgroundColor:"white" }}>
 						<Tabs
 							value={value}
 							onChange={handleChange}
@@ -125,7 +125,7 @@ const CreateFormPage: React.FC = () => {
 					</Toolbar>
 				</AppBar>
 			</Box>
-			<form style={{ marginTop: 15 }}>
+			<form style={{ marginTop: 15, }}>
 				<Grid container spacing={3} className='FormCenter'  >
 					<Grid item xs={12} sm={8} md={6}>
 						<Box sx={{ mb: 3 }}>
@@ -230,12 +230,12 @@ const CreateFormPage: React.FC = () => {
 																	</Select>
 																</FormControl>
 															</Box>
-															{card.selectedComponent === 'Input' && <InputCopmponent />}
-															{card.selectedComponent === 'Textarea' && <TextareaComponent />}
-															{card.selectedComponent === 'Radio' && <RadioComponent cardIndex={index} updateCardAnswers={updateCardAnswers} />}
-															{card.selectedComponent === 'Checkbox' && <CheckboxesComponent cardIndex={index} updateCardAnswers={updateCardAnswers} />}
+															{card.selectedComponent === 'Input' && <InputCopmponent disabled={true} />}
+															{card.selectedComponent === 'Textarea' && <TextareaComponent disabled={true} />}
+															{card.selectedComponent === 'Radio' && <RadioComponent cardIndex={index} updateCardAnswers={updateCardAnswers} disabled={true} />}
+															{card.selectedComponent === 'Checkbox' && <CheckboxesComponent cardIndex={index} updateCardAnswers={updateCardAnswers} disabled={true} />}
 															{card.selectedComponent === 'Slider' && <SliderComponent />}
-															{card.selectedComponent === 'Data' && <DataComponent />}
+															{card.selectedComponent === 'Data' && <DataComponent disabled={true} />}
 															<Grid item xs={12}>
 																<Box sx={{ mt: 3, display: 'flex', justifyContent: 'center', borderTopColor: "black" }}>
 																	<FormControlLabel control={<Switch color='success' onChange={(event) => handleSwitchChange(index, event.target.checked)} checked={card.isRequired} />} style={{ whiteSpace: 'nowrap' }} label="Обязательный вопрос*" />
