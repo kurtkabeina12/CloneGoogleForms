@@ -6,6 +6,7 @@ import InputCopmponent from '../components/InputCopmponent';
 import DataComponent from '../components/DataComponent';
 import RadioComponent from '../components/RadioComponent';
 import CheckboxesComponent from '../components/CheckboxesComponent';
+import SliderComponent from '../components/SliderComponent';
 
 interface FormData {
 	formHeader: string;
@@ -72,7 +73,7 @@ export default function FormPage() {
 													{card.selectedComponent === 'Textarea' && <TextareaComponent disabled={false} />}
 													{card.selectedComponent === 'Radio' && <RadioComponent disabled={false} answers={card.answer} />}
 													{card.selectedComponent === 'Checkbox' && <CheckboxesComponent disabled={false} answers={card.answer} />}
-													{card.selectedComponent === 'Slider' && <Slider />}
+													{card.selectedComponent === 'Slider' && <SliderComponent disabled={false} answers={card.answer} />}
 													{card.selectedComponent === 'Data' && <DataComponent disabled={false} />}
 												</Paper>
 											</Box>
