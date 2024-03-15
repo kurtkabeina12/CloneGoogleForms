@@ -1,9 +1,11 @@
 import React from 'react'
 import { TextareaAutosize as BaseTextareaAutosize } from '@mui/base/TextareaAutosize';
 import { styled } from '@mui/system';
-interface TextareaComponent {
+
+interface TextareaComponentProps {
   disabled?: boolean
 }
+
 const green = {
   100: '#DCF8C6',
   200: '#A5D6A7',
@@ -54,7 +56,7 @@ const Textarea = styled(BaseTextareaAutosize)(
   }
 `,
 );
-const TextareaComponent: React.FC<TextareaComponent> = ({disabled = false}) => {
+const TextareaComponent: React.FC<TextareaComponentProps> = ({disabled = false}) => {
   return (
     <Textarea sx={{ width: "-webkit-fill-available", marginTop: "1rem" }} aria-label="minimum height" placeholder='Напишите ответ' minRows={5} disabled={disabled} />
   )

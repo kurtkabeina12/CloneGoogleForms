@@ -1,4 +1,4 @@
-import { Box, Grid, Paper, Typography, Checkbox, Radio, Slider } from '@mui/material';
+import { Box, Grid, Paper, Typography, Slider } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import TextareaComponent from '../components/TextareaComponent';

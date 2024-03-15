@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { Box, FormGroup, MenuItem, Select, Slider, Typography } from '@mui/material';
 import { SelectChangeEvent } from '@mui/material/Select';
 
-interface SliderComponentProps { }
+interface SliderComponentProps { 
+	disabled?: boolean;
+}
 
-const SliderComponent: React.FC<SliderComponentProps> = () => {
+const SliderComponent: React.FC<SliderComponentProps> = ({disabled = false}) => {
 	const [startValue, setStartValue] = useState<number>(0);
 	const [lengthValue, setLengthValue] = useState<number>(2);
 

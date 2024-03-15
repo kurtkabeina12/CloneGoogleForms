@@ -234,7 +234,7 @@ const CreateFormPage: React.FC = () => {
 															{card.selectedComponent === 'Textarea' && <TextareaComponent disabled={true} />}
 															{card.selectedComponent === 'Radio' && <RadioComponent cardIndex={index} updateCardAnswers={updateCardAnswers} disabled={true} />}
 															{card.selectedComponent === 'Checkbox' && <CheckboxesComponent cardIndex={index} updateCardAnswers={updateCardAnswers} disabled={true} />}
-															{card.selectedComponent === 'Slider' && <SliderComponent />}
+															{card.selectedComponent === 'Slider' && <SliderComponent disabled={true} />}
 															{card.selectedComponent === 'Data' && <DataComponent disabled={true} />}
 															<Grid item xs={12}>
 																<Box sx={{ mt: 3, display: 'flex', justifyContent: 'center', borderTopColor: "black" }}>
