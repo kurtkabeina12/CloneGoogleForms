@@ -26,8 +26,7 @@ import { Card } from '../types/types';
 import { sendCardAsync } from '../store/action/actionSendForm';
 import { AppDispatch } from '../store/reducers/reducerRoot';
 import { useNavigate } from 'react-router-dom';
-
-
+import ConstructionIcon from '@mui/icons-material/Construction';
 
 const CreateFormPage: React.FC = () => {
 	const [cards, setCards] = useState<Card[]>([{ selectedComponent: 'Input', question: '', isRequired: false, answer: "" }]);
@@ -78,7 +77,6 @@ const CreateFormPage: React.FC = () => {
 		setCards(newCards);
 	};
 
-
 	const handleDragEnd = (result: any) => {
 		if (!result.destination) return;
 		const items = [...cards];
@@ -95,7 +93,7 @@ const CreateFormPage: React.FC = () => {
 		try {
 			const actionResult = await dispatch(sendCardAsync({ cards, title }));
 			const formId = actionResult.payload.formId;
-			navigate('/form', {state: {formId}});
+			navigate('/form', { state: { formId } });
 		} catch (error) {
 			console.log('Error get Id forms')
 		}
@@ -113,7 +111,7 @@ const CreateFormPage: React.FC = () => {
 						</Box>
 						<Button variant="contained" onClick={SendCards} color="success">Отправить</Button>
 					</Toolbar>
-					<Toolbar sx={{ justifyContent: 'center', backgroundColor:"white" }}>
+					<Toolbar sx={{ justifyContent: 'center', backgroundColor: "white" }}>
 						<Tabs
 							value={value}
 							onChange={handleChange}
@@ -149,10 +147,12 @@ const CreateFormPage: React.FC = () => {
 									{cards.map((card, index) => (
 										<Draggable key={index} draggableId={index.toString()} index={index}>
 											{(provided) => (
-												<Grid item xs={12} sm={8} md={6} className='body-card' onClick={() => handleCardClick(index)} ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
+												<Grid item xs={12} sm={8} md={6} className='body-card' onClick={() => handleCardClick(index)} ref={provided.innerRef} {...provided.draggableProps}>
 													<Box sx={{ mb: 3 }}>
 														<Paper elevation={2} sx={{ p: 3, paddingTop: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", borderLeft: activeCardIndex === index ? "8px solid #00862b" : "none" }}>
-															<DragIndicatorIcon style={{ transform: "rotate(90deg)", marginBottom: '10px' }} />
+															<div {...provided.dragHandleProps} style={{ display: 'flex', alignItems: 'center', cursor: 'move' }}>
+																<DragIndicatorIcon style={{ transform: "rotate(90deg)", marginBottom: '10px' }} />
+															</div>
 															<Box sx={{ display: 'flex', flexDirection: "row", width: "-webkit-fill-available", gap: 1 }}>
 																<TextField
 																	variant="standard"
@@ -234,7 +234,7 @@ const CreateFormPage: React.FC = () => {
 															{card.selectedComponent === 'Textarea' && <TextareaComponent disabled={true} />}
 															{card.selectedComponent === 'Radio' && <RadioComponent cardIndex={index} updateCardAnswers={updateCardAnswers} disabled={true} />}
 															{card.selectedComponent === 'Checkbox' && <CheckboxesComponent cardIndex={index} updateCardAnswers={updateCardAnswers} disabled={true} />}
-															{card.selectedComponent === 'Slider' && <SliderComponent disabled={true}  onSliderValuesChange={(values) => updateCardAnswers(index, [values])}  />}
+															{card.selectedComponent === 'Slider' && <SliderComponent disabled={true} onSliderValuesChange={(values) => updateCardAnswers(index, [values])} />}
 															{card.selectedComponent === 'Data' && <DataComponent disabled={true} />}
 															<Grid item xs={12}>
 																<Box sx={{ mt: 3, display: 'flex', justifyContent: 'center', borderTopColor: "black" }}>
@@ -247,6 +247,11 @@ const CreateFormPage: React.FC = () => {
 																	<Tooltip title="Дублировать карточку">
 																		<IconButton aria-label="duplicate" color="success" size="small" onClick={() => handleDuplicateCard(index)}>
 																			<FileCopyIcon />
+																		</IconButton>
+																	</Tooltip>
+																	<Tooltip title="Добавить условия">
+																		<IconButton aria-label="addLogic" size='small'>
+																			<ConstructionIcon />
 																		</IconButton>
 																	</Tooltip>
 																</Box>

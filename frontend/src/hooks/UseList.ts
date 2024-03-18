@@ -5,6 +5,7 @@ type ListType<T> = {
   list: T[];
   addItem: (item: T) => void;
   updateItem: (index: number, value: T) => void;
+  setList: (items: T[]) => void; 
 };
 
 // Создание кастомного хука
@@ -25,7 +26,7 @@ const useList = <T extends string | number | boolean | string[] | number[] | boo
   };
 
   // Возвращаем объект со списком и функциями для работы с ним
-  return { list, addItem, updateItem };
+  return { list, addItem, updateItem, setList };
 };
 
 export default useList;

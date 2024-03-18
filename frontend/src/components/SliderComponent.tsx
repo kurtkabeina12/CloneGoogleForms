@@ -35,12 +35,12 @@ const SliderComponent: React.FC<SliderComponentProps> = ({ disabled = false, onS
 
 	return (
 		<>
-			{!disabled && (
+			{!disabled && answers && (
 				<FormGroup sx={{ width: "-webkit-fill-available", marginTop: "1rem" }}>
 					<Slider
 						marks={marks}
-						max={lengthValue}
-						min={startValue}
+						max={Number(answers[1])}
+						min={Number(answers[0])}
 						color='success'
 						valueLabelDisplay="auto"
 					/>

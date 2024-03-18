@@ -47,8 +47,8 @@ export default function FormPage() {
 	return (
 		<>
 			<form style={{ marginTop: 15 }}>
-			<Grid container spacing={3} className='FormCenter' style={{ paddingLeft: 0 }}>
-				<Grid item xs={12} sm={8} md={6}>
+			<Grid container spacing={3} className='FormCenter' >
+				<Grid item xs={12} sm={8} md={6} style={{paddingLeft:0}}>
 					<Box sx={{ mb: 3 }}>
 						<Paper className="header-paper" elevation={2} sx={{ p: 3, borderTop: "8px solid #00862b" }}>
 							<Typography variant="h4" gutterBottom>
