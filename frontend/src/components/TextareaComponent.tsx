@@ -1,9 +1,12 @@
 import React from 'react'
 import { TextareaAutosize as BaseTextareaAutosize } from '@mui/base/TextareaAutosize';
 import { styled } from '@mui/system';
+import { Controller, useFormContext } from 'react-hook-form';
 
 interface TextareaComponentProps {
-  disabled?: boolean
+  disabled?: boolean,
+  required?: boolean;
+  quest?: string;
 }
 
 const green = {
@@ -56,9 +59,36 @@ const Textarea = styled(BaseTextareaAutosize)(
   }
 `,
 );
-const TextareaComponent: React.FC<TextareaComponentProps> = ({disabled = false}) => {
+const TextareaComponent: React.FC<TextareaComponentProps> = ({ disabled = false, required = false, quest }) => {
+
+  const { register } = useFormContext();
+
+  const questName = quest || 'ИмяВопросаНеБылоЗадано';
+
+  const { ref, onChange, onBlur } = register(questName, { required });
+
   return (
-    <Textarea sx={{ width: "-webkit-fill-available", marginTop: "1rem" }} aria-label="minimum height" placeholder='Напишите ответ' minRows={5} disabled={disabled} />
+    <>
+      {disabled &&
+        <Textarea sx={{ width: "-webkit-fill-available", marginTop: "1rem" }} aria-label="minimum height" placeholder='Напишите ответ' disabled minRows={5} />
+      }
+      {!disabled &&
+        <Controller
+        name={quest || 'ИмяВопросаНеБылоЗадано'}
+        rules={{ required }}
+        render={({ field }) => (
+          <Textarea
+            {...field}
+            sx={{ width: "-webkit-fill-available", marginTop: "1rem" }}
+            aria-label="minimum height"
+            placeholder='Напишите ответ'
+            minRows={5}
+            required={required}
+          />
+        )}
+      />
+      }
+    </>
   )
 }
 

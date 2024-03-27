@@ -1,16 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button, FormControlLabel, FormGroup, Input } from '@mui/material';
 import Checkbox from '@mui/material/Checkbox';
 import useList from '../hooks/UseList';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import CloseIcon from '@mui/icons-material/Close';
+import { Controller, useFormContext } from 'react-hook-form';
 
 interface CheckboxesComponentProps {
   cardIndex?: number;
   updateCardAnswers?: (index: number, answers: string[]) => void;
   disabled: boolean;
   answers?: string[];
+  required?: boolean;
+  quest?: string;
 }
 
 const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
@@ -18,8 +21,17 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
   updateCardAnswers,
   disabled = false,
   answers = [],
+  quest,
+  required = false,
 }) => {
   const { list, addItem, updateItem, setList } = useList<string[]>([['']]);
+
+
+  const { register, control, setValue, getValues } = useFormContext();
+
+  const questName = quest || 'ИмяВопросаНеБылоЗадано';
+
+  const { ref, onChange, onBlur } = register(questName, { required });
 
   const handleAddAnswer = () => {
     addItem(['']);
@@ -51,15 +63,35 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
         updateCardAnswers(cardIndex || 0, newList.map(answer => answer[0]));
       }
     }
- };
+  };
 
   return (
     <FormGroup sx={{ width: '-webkit-fill-available', marginTop: '1rem' }}>
       {!disabled && answers.length > 0 && (
         <FormGroup>
           {answers.map((answer, index) => (
-            <FormControlLabel key={index} value={answer} control={<Checkbox color='success' />} label={answer} />
-          ))}
+            <FormControlLabel
+            key={index}
+            control={
+              <Controller
+               name={`${questName}[${index}]`}
+               control={control}
+               defaultValue={false}
+               render={({ field }) => (
+                  <Checkbox
+                    {...field}
+                    onChange={(e) => {
+                      field.onChange(e);
+                      setValue(`${questName}[${index}]`, e.target.checked);
+                    }}
+                    color='success'
+                  />
+               )}
+              />
+            }
+            label={answer}
+          />
+            ))}
         </FormGroup>
       )}
       {disabled && (
@@ -88,8 +120,8 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
                                 />
                               }
                             />
-                             {list.length > 1 && (
-                              <CloseIcon  style={{ color: "rgb(0 0 0 / 42%)" }} onClick={() => handleRemoveAnswer(index)} />
+                            {list.length > 1 && (
+                              <CloseIcon style={{ color: "rgb(0 0 0 / 42%)" }} onClick={() => handleRemoveAnswer(index)} />
                             )}
                           </div>
                         </div>

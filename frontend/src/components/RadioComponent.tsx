@@ -4,21 +4,31 @@ import useList from '../hooks/UseList';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import CloseIcon from '@mui/icons-material/Close';
+import { useFormContext } from 'react-hook-form';
 
 interface RadioComponentProps {
   cardIndex?: number;
   updateCardAnswers?: (index: number, answers: string[]) => void;
   disabled: boolean;
   answers?: string[];
+  required?: boolean;
+  quest?: string;
 }
 
 const RadioComponent: React.FC<RadioComponentProps> = ({
   cardIndex,
   updateCardAnswers,
   disabled = false,
+  quest,
+  required = false,
   answers = [],
 }) => {
   const { list, addItem, updateItem, setList } = useList<string[]>([['']]);
+  const { register } = useFormContext();
+
+  const questName = quest || 'ИмяВопросаНеБылоЗадано';
+
+  const { ref, onChange, onBlur } = register(questName, { required });
 
   const handleAddAnswer = () => {
     addItem(['']);
@@ -50,14 +60,22 @@ const RadioComponent: React.FC<RadioComponentProps> = ({
         updateCardAnswers(cardIndex || 0, newList.map(answer => answer[0]));
       }
     }
- };
+  };
 
   return (
     <FormGroup sx={{ width: '-webkit-fill-available', marginTop: '1rem' }}>
       {!disabled && answers.length > 0 && (
-        <RadioGroup>
+        <RadioGroup {...register(questName, { required })}>
           {answers.map((answer, index) => (
-            <FormControlLabel key={index} value={answer} control={<Radio color='success' />} label={answer} />
+            <FormControlLabel key={index} value={answer} control={
+              <Radio
+                color='success'
+                inputRef={ref}
+                onChange={onChange}
+                onBlur={onBlur}
+              />}
+              label={answer}
+            />
           ))}
         </RadioGroup>
       )}
