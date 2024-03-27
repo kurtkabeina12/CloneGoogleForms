@@ -8,6 +8,10 @@ import RadioComponent from '../components/RadioComponent';
 import CheckboxesComponent from '../components/CheckboxesComponent';
 import SliderComponent from '../components/SliderComponent';
 import { FormProvider, useForm } from 'react-hook-form';
+import { useDispatch } from 'react-redux';
+import { AppDispatch } from '../store/reducers/reducerRoot';
+import { fetchGetForm } from '../store/action/actionGetForm';
+import { unwrapResult } from '@reduxjs/toolkit';
 
 interface FormData {
 	formHeader: string;
@@ -18,37 +22,37 @@ interface FormData {
 		selectedComponent: string;
 		id: string;
 	}[];
+
 }
 
 export default function FormPage() {
 	const location = useLocation();
 	const params = location.state?.formId;
 	const formId = params.formId;
- 
+	const dispatch = useDispatch<AppDispatch>();
+
 	const methods = useForm();
 	const [formData, setFormData] = useState<FormData | null>(null);
 
 	useEffect(() => {
-		const fetchForm = async () => {
+		const fetchFormData = async () => {
 			try {
-				const response = await fetch(`http://localhost:8888/forms/${formId}`);
-				if (!response.ok) {
-					throw new Error('Failed to fetch form');
-				}
-				const data = await response.json();
-				console.log(data, 'ответ с сервера в formPage');
-				setFormData(data);
+				const actionResult = await dispatch(fetchGetForm({ formId }));
+				const formData = unwrapResult(actionResult);
+				setFormData(formData);
 			} catch (error) {
 				console.error('Failed to fetch form:', error);
 			}
 		};
 
-		fetchForm();
-	}, [formId]);
+		fetchFormData();
+	}, [dispatch, formId]);
+
+
 
 	const onSubmit = methods.handleSubmit((data) => {
-    console.log(data); 
- });
+		console.log(data);
+	});
 
 	return (
 		<FormProvider {...methods}>
@@ -75,11 +79,11 @@ export default function FormPage() {
 														<Box sx={{ display: 'flex', flexDirection: "row", width: "-webkit-fill-available", gap: 1, textAlign: 'center' }}>
 															<Typography variant='h6' gutterBottom> {card.question} </Typography>
 														</Box>
-														{card.selectedComponent === 'Input' && <InputCopmponent disabled={false} quest={card.question} required={card.isRequired}/>}
+														{card.selectedComponent === 'Input' && <InputCopmponent disabled={false} quest={card.question} required={card.isRequired} />}
 														{card.selectedComponent === 'Textarea' && <TextareaComponent disabled={false} quest={card.question} required={card.isRequired} />}
-														{card.selectedComponent === 'Radio' && <RadioComponent disabled={false} answers={card.answer}  quest={card.question} required={card.isRequired} />}
+														{card.selectedComponent === 'Radio' && <RadioComponent disabled={false} answers={card.answer} quest={card.question} required={card.isRequired} />}
 														{card.selectedComponent === 'Checkbox' && <CheckboxesComponent disabled={false} answers={card.answer} quest={card.question} required={card.isRequired} />}
-														{card.selectedComponent === 'Slider' && <SliderComponent disabled={false} answers={card.answer}  />}
+														{card.selectedComponent === 'Slider' && <SliderComponent disabled={false} answers={card.answer} />}
 														{card.selectedComponent === 'Data' && <DataComponent disabled={false} />}
 													</Paper>
 												</Box>

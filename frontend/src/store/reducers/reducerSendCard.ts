@@ -2,11 +2,11 @@ import { createSlice } from '@reduxjs/toolkit';
 import { sendCardAsync } from '../action/actionSendForm';
 
 const cardSlice = createSlice({
- name: 'cards',
- initialState: { cards: [], status: 'idle', error: null as string | null },
- reducers: {
- },
- extraReducers: (builder) => {
+  name: 'cards',
+  initialState: { cards: [], status: 'idle', error: null as string | null },
+  reducers: {
+  },
+  extraReducers: (builder) => {
     builder
       .addCase(sendCardAsync.pending, (state) => {
         state.status = 'loading';
@@ -19,7 +19,7 @@ const cardSlice = createSlice({
         state.status = 'failed';
         state.error = action.error.message as string;
       });
- },
+  },
 });
 
 export default cardSlice.reducer;
