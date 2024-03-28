@@ -1,4 +1,4 @@
-import { Box, Grid, Paper, Typography, Slider } from '@mui/material';
+import { Box, Grid, Paper, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import TextareaComponent from '../components/TextareaComponent';
@@ -83,8 +83,8 @@ export default function FormPage() {
 														{card.selectedComponent === 'Textarea' && <TextareaComponent disabled={false} quest={card.question} required={card.isRequired} />}
 														{card.selectedComponent === 'Radio' && <RadioComponent disabled={false} answers={card.answer} quest={card.question} required={card.isRequired} />}
 														{card.selectedComponent === 'Checkbox' && <CheckboxesComponent disabled={false} answers={card.answer} quest={card.question} required={card.isRequired} />}
-														{card.selectedComponent === 'Slider' && <SliderComponent disabled={false} answers={card.answer} />}
-														{card.selectedComponent === 'Data' && <DataComponent disabled={false} />}
+														{card.selectedComponent === 'Slider' && <SliderComponent disabled={false} answers={card.answer} quest={card.question} required={card.isRequired} />}
+														{card.selectedComponent === 'Data' && <DataComponent disabled={false} quest={card.question} required={card.isRequired} />}
 													</Paper>
 												</Box>
 											</Grid>

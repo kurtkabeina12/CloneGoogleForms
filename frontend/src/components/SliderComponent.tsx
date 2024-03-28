@@ -6,9 +6,11 @@ interface SliderComponentProps {
 	disabled: boolean;
 	onSliderValuesChange?: (values: string) => void;
 	answers?: string[];
+	required?: boolean;
+	quest?: string;
 }
 
-const SliderComponent: React.FC<SliderComponentProps> = ({ disabled = false, onSliderValuesChange, answers }) => {
+const SliderComponent: React.FC<SliderComponentProps> = ({ disabled = false, onSliderValuesChange, answers, required=false, quest }) => {
 	const [startValue, setStartValue] = useState<number>(answers ? parseInt(answers[0], 10) : 0);
 	const [lengthValue, setLengthValue] = useState<number>(answers ? parseInt(answers[1], 10) : 2);
 

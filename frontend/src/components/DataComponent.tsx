@@ -2,7 +2,9 @@ import React from 'react';
 import { FormGroup, TextField } from '@mui/material';
 
 interface DataComponentProps {
-  disabled?:boolean
+  disabled?:boolean;
+  required?: boolean;
+  quest?: string;
  }
 
 const DataComponent: React.FC<DataComponentProps> = ({disabled = false}) => {

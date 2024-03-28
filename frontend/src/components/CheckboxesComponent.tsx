@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Button, FormControlLabel, FormGroup, Input } from '@mui/material';
 import Checkbox from '@mui/material/Checkbox';
 import useList from '../hooks/UseList';
@@ -71,27 +71,32 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
         <FormGroup>
           {answers.map((answer, index) => (
             <FormControlLabel
-            key={index}
-            control={
-              <Controller
-               name={`${questName}[${index}]`}
-               control={control}
-               defaultValue={false}
-               render={({ field }) => (
-                  <Checkbox
-                    {...field}
-                    onChange={(e) => {
-                      field.onChange(e);
-                      setValue(`${questName}[${index}]`, e.target.checked);
-                    }}
-                    color='success'
-                  />
-               )}
-              />
-            }
-            label={answer}
-          />
-            ))}
+              key={index}
+              control={
+                <Controller
+                  name={`${questName}[${index}]`}
+                  control={control}
+                  defaultValue={false}
+                  render={({ field }) => (
+                    <Checkbox
+                      {...field}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setValue(`${questName}[${index}]`, answer);
+                        } else {
+                          const values = getValues();
+                          const newValues = values[questName].filter((_ : any, i : any) => i !== index);
+                          setValue(questName, newValues);
+                        }
+                      }}
+                      color='success'
+                    />
+                  )}
+                />
+              }
+              label={answer}
+            />
+          ))}
         </FormGroup>
       )}
       {disabled && (
