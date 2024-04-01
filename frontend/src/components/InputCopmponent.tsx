@@ -1,4 +1,4 @@
-import { TextField } from '@mui/material';
+import { TextField, Typography } from '@mui/material';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 
@@ -8,12 +8,12 @@ interface InputComponentProps {
   quest?: string;
 }
 
-const InputCopmponent: React.FC<InputComponentProps> = ({ disabled = false, required = false, quest }) => {
-  const { register } = useFormContext();
+const InputComponent: React.FC<InputComponentProps> = ({ disabled = false, required = false, quest }) => {
+  const { register, formState: { errors } } = useFormContext();
 
   const questName = quest || 'ИмяВопросаНеБылоЗадано';
 
-  const { ref, onChange, onBlur } = register(questName, { required });
+  const { ref, onChange, onBlur } = register(questName, { required: required ? "Заполните поле" : false });
 
   return (
     <>
@@ -28,20 +28,27 @@ const InputCopmponent: React.FC<InputComponentProps> = ({ disabled = false, requ
         />
       }
       {!disabled &&
-        <TextField
-          variant="standard"
-          placeholder="Напишите ответ"
-          name={quest}
-          sx={{ mb: 3, marginTop: "1rem" }}
-          fullWidth
-          required={required}
-          inputRef={ref} 
-          onChange={onChange}
-          onBlur={onBlur}
-        />
+        <>
+          <TextField
+            variant="standard"
+            placeholder="Напишите ответ"
+            name={quest}
+            sx={{ mb: 3, marginTop: "1rem" }}
+            fullWidth
+            required={required}
+            inputRef={ref}
+            onChange={onChange}
+            onBlur={onBlur}
+          />
+          {errors[questName] && (
+            <Typography color="error">
+              {errors[questName]?.message?.toString() || ''}
+            </Typography>
+          )}
+        </>
       }
     </>
   );
 };
 
-export default InputCopmponent;
+export default InputComponent;

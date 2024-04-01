@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Box, FormGroup, MenuItem, Select, Slider, Typography } from '@mui/material';
 import { SelectChangeEvent } from '@mui/material/Select';
+import { Controller, useFormContext } from 'react-hook-form';
 
 interface SliderComponentProps {
 	disabled: boolean;
@@ -10,9 +11,15 @@ interface SliderComponentProps {
 	quest?: string;
 }
 
-const SliderComponent: React.FC<SliderComponentProps> = ({ disabled = false, onSliderValuesChange, answers, required=false, quest }) => {
+const SliderComponent: React.FC<SliderComponentProps> = ({ disabled = false, onSliderValuesChange, answers, required = false, quest }) => {
 	const [startValue, setStartValue] = useState<number>(answers ? parseInt(answers[0], 10) : 0);
 	const [lengthValue, setLengthValue] = useState<number>(answers ? parseInt(answers[1], 10) : 2);
+
+	const { register, control,  formState: { errors } } = useFormContext();
+
+	const questName = quest || 'ИмяВопросаНеБылоЗадано';
+
+	const { ref, onChange, onBlur } = register(questName, { required });
 
 	useEffect(() => {
 		if (onSliderValuesChange) {
@@ -38,15 +45,25 @@ const SliderComponent: React.FC<SliderComponentProps> = ({ disabled = false, onS
 	return (
 		<>
 			{!disabled && answers && (
-				<FormGroup sx={{ width: "-webkit-fill-available", marginTop: "1rem" }}>
-					<Slider
-						marks={marks}
-						max={Number(answers[1])}
-						min={Number(answers[0])}
-						color='success'
-						valueLabelDisplay="auto"
-					/>
-				</FormGroup>
+				        <FormGroup sx={{ width: "-webkit-fill-available", marginTop: "1rem" }}>
+						<Controller
+						  name={questName}
+						  control={control}
+						  defaultValue={`${startValue},${lengthValue}`}
+						  rules={{ required: required ? "Выберите ответ" : false }}
+						  render={({ field }) => (
+							<Slider
+							  {...field}
+							  marks={marks}
+							  max={Number(answers[1])}
+							  min={Number(answers[0])}
+							  color='success'
+							  valueLabelDisplay="auto"
+							/>
+						  )}
+						/>
+						 {errors[questName] && <Typography color="error">{errors[questName]?.message?.toString() || ''}</Typography>}
+					  </FormGroup>
 			)}
 			{disabled && (
 				<>

@@ -27,7 +27,7 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
   const { list, addItem, updateItem, setList } = useList<string[]>([['']]);
 
 
-  const { register, control, setValue, getValues } = useFormContext();
+  const { register, control, setValue, getValues, formState: { errors }  } = useFormContext();
 
   const questName = quest || 'ИмяВопросаНеБылоЗадано';
 
