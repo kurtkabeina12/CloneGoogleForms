@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, FormGroup, FormControlLabel, Input, Radio, RadioGroup } from '@mui/material';
+import { Button, FormGroup, FormControlLabel, Input, Radio, RadioGroup, Typography } from '@mui/material';
 import useList from '../hooks/UseList';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
@@ -24,7 +24,7 @@ const RadioComponent: React.FC<RadioComponentProps> = ({
   answers = [],
 }) => {
   const { list, addItem, updateItem, setList } = useList<string[]>([['']]);
-  const { register } = useFormContext();
+  const { register, formState: { errors }  } = useFormContext();
 
   const questName = quest || 'ИмяВопросаНеБылоЗадано';
 
@@ -77,6 +77,7 @@ const RadioComponent: React.FC<RadioComponentProps> = ({
               label={answer}
             />
           ))}
+          {errors[questName] && <Typography color="error">Выберите ответ</Typography>}
         </RadioGroup>
       )}
       {disabled && (

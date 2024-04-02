@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, FormControlLabel, FormGroup, Input } from '@mui/material';
+import { Button, FormControlLabel, FormGroup, Input, Typography } from '@mui/material';
 import Checkbox from '@mui/material/Checkbox';
 import useList from '../hooks/UseList';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
@@ -26,8 +26,7 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
 }) => {
   const { list, addItem, updateItem, setList } = useList<string[]>([['']]);
 
-
-  const { register, control, setValue, getValues, formState: { errors }  } = useFormContext();
+  const { register, formState: { errors }, setValue, getValues  } = useFormContext();
 
   const questName = quest || 'ИмяВопросаНеБылоЗадано';
 
@@ -68,36 +67,29 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
   return (
     <FormGroup sx={{ width: '-webkit-fill-available', marginTop: '1rem' }}>
       {!disabled && answers.length > 0 && (
-        <FormGroup>
-          {answers.map((answer, index) => (
-            <FormControlLabel
-              key={index}
-              control={
-                <Controller
-                  name={`${questName}[${index}]`}
-                  control={control}
-                  defaultValue={false}
-                  render={({ field }) => (
-                    <Checkbox
-                      {...field}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setValue(`${questName}[${index}]`, answer);
-                        } else {
-                          const values = getValues();
-                          const newValues = values[questName].filter((_ : any, i : any) => i !== index);
-                          setValue(questName, newValues);
-                        }
-                      }}
-                      color='success'
-                    />
-                  )}
-                />
-              }
-              label={answer}
-            />
-          ))}
-        </FormGroup>
+         <FormGroup {...register(questName, { required })}>
+         {answers.map((answer, index) => (
+           <FormControlLabel key={index} value={answer} control={
+             <Checkbox
+               color='success'
+               defaultChecked={false}
+               inputRef={ref}
+               onChange={(e) => {
+                if (e.target.checked) {
+                  setValue(`${questName}[${index}]`, answer);
+                } else {
+                  const values = getValues();
+                  const newValues = values[questName].filter((_ : any, i : any) => i !== index);
+                  setValue(questName, newValues);
+                }
+              }}
+               onBlur={onBlur}
+             />}
+             label={answer}
+           />
+         ))}
+         {errors[questName] && <Typography color="error">Выберите ответ</Typography>}
+       </FormGroup>
       )}
       {disabled && (
         <>

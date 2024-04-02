@@ -15,7 +15,7 @@ const SliderComponent: React.FC<SliderComponentProps> = ({ disabled = false, onS
 	const [startValue, setStartValue] = useState<number>(answers ? parseInt(answers[0], 10) : 0);
 	const [lengthValue, setLengthValue] = useState<number>(answers ? parseInt(answers[1], 10) : 2);
 
-	const { register, control,  formState: { errors } } = useFormContext();
+	const { register, control, formState: { errors } } = useFormContext();
 
 	const questName = quest || 'ИмяВопросаНеБылоЗадано';
 
@@ -45,25 +45,25 @@ const SliderComponent: React.FC<SliderComponentProps> = ({ disabled = false, onS
 	return (
 		<>
 			{!disabled && answers && (
-				        <FormGroup sx={{ width: "-webkit-fill-available", marginTop: "1rem" }}>
-						<Controller
-						  name={questName}
-						  control={control}
-						  defaultValue={`${startValue},${lengthValue}`}
-						  rules={{ required: required ? "Выберите ответ" : false }}
-						  render={({ field }) => (
+				<FormGroup sx={{ width: "-webkit-fill-available", marginTop: "1rem" }}>
+					<Controller
+						name={questName}
+						control={control}
+						defaultValue={`${startValue},${lengthValue}`}
+						rules={{ required: required ? "Выберите ответ" : false }}
+						render={({ field }) => (
 							<Slider
-							  {...field}
-							  marks={marks}
-							  max={Number(answers[1])}
-							  min={Number(answers[0])}
-							  color='success'
-							  valueLabelDisplay="auto"
+								{...field}
+								marks={marks}
+								max={Number(answers[1])}
+								min={Number(answers[0])}
+								color='success'
+								valueLabelDisplay="auto"
 							/>
-						  )}
-						/>
-						 {errors[questName] && <Typography color="error">{errors[questName]?.message?.toString() || ''}</Typography>}
-					  </FormGroup>
+						)}
+					/>
+					{errors[questName] && <Typography color="error">{errors[questName]?.message?.toString() || ''}</Typography>}
+				</FormGroup>
 			)}
 			{disabled && (
 				<>
