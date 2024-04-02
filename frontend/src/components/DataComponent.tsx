@@ -13,7 +13,7 @@ const DataComponent: React.FC<DataComponentProps> = ({ disabled = false, require
 
   const questName = quest || 'ИмяВопросаНеБылоЗадано';
 
-  const { ref, onChange, onBlur } = register(questName, { required });
+  register(questName, { required });
 
   return (
     <FormGroup sx={{ width: "-webkit-fill-available", marginTop: "1rem" }}>

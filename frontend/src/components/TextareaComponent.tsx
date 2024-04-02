@@ -62,11 +62,11 @@ const Textarea = styled(BaseTextareaAutosize)(
 );
 
 const TextareaComponent: React.FC<TextareaComponentProps> = ({ disabled = false, required = false, quest }) => {
-  const { register, control, formState: { errors } } = useFormContext();
+  const { register, formState: { errors } } = useFormContext();
 
   const questName = quest || 'ИмяВопросаНеБылоЗадано';
 
-  const { ref, onChange, onBlur } = register(questName, { required: required ? "Заполните поле" : false });
+  register(questName, { required: required ? "Заполните поле" : false });
 
   return (
     <>

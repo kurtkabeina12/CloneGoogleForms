@@ -19,7 +19,7 @@ const SliderComponent: React.FC<SliderComponentProps> = ({ disabled = false, onS
 
 	const questName = quest || 'ИмяВопросаНеБылоЗадано';
 
-	const { ref, onChange, onBlur } = register(questName, { required });
+	register(questName, { required });
 
 	useEffect(() => {
 		if (onSliderValuesChange) {

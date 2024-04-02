@@ -5,7 +5,7 @@ import useList from '../hooks/UseList';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import CloseIcon from '@mui/icons-material/Close';
-import { Controller, useFormContext } from 'react-hook-form';
+import { useFormContext } from 'react-hook-form';
 
 interface CheckboxesComponentProps {
   cardIndex?: number;
@@ -30,7 +30,7 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
 
   const questName = quest || 'ИмяВопросаНеБылоЗадано';
 
-  const { ref, onChange, onBlur } = register(questName, { required });
+  const { ref,  onBlur } = register(questName, { required });
 
   const handleAddAnswer = () => {
     addItem(['']);
