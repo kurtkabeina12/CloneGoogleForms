@@ -1,11 +1,12 @@
 import React from 'react';
-import { Button, FormControlLabel, FormGroup, Input, Typography } from '@mui/material';
+import { Box, Button, FormControlLabel, FormGroup, Input, TextField, Typography } from '@mui/material';
 import Checkbox from '@mui/material/Checkbox';
 import useList from '../hooks/UseList';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import CloseIcon from '@mui/icons-material/Close';
 import { useFormContext } from 'react-hook-form';
+import CustomSelect from './CustomOptions';
 
 interface CheckboxesComponentProps {
   cardIndex?: number;
@@ -14,6 +15,7 @@ interface CheckboxesComponentProps {
   answers?: string[];
   required?: boolean;
   quest?: string;
+  addLogic?: boolean;
 }
 
 const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
@@ -23,14 +25,15 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
   answers = [],
   quest,
   required = false,
+  addLogic = false,
 }) => {
   const { list, addItem, updateItem, setList } = useList<string[]>([['']]);
 
-  const { register, formState: { errors }, setValue, getValues  } = useFormContext();
+  const { register, formState: { errors }, setValue, getValues } = useFormContext();
 
   const questName = quest || 'ИмяВопросаНеБылоЗадано';
 
-  const { ref,  onBlur } = register(questName, { required });
+  const { ref, onBlur } = register(questName, { required });
 
   const handleAddAnswer = () => {
     addItem(['']);
@@ -67,30 +70,31 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
   return (
     <FormGroup sx={{ width: '-webkit-fill-available', marginTop: '1rem' }}>
       {!disabled && answers.length > 0 && (
-         <FormGroup {...register(questName, { required })}>
-         {answers.map((answer, index) => (
-           <FormControlLabel key={index} value={answer} control={
-             <Checkbox
-               color='success'
-               defaultChecked={false}
-               inputRef={ref}
-               onChange={(e) => {
-                if (e.target.checked) {
-                  setValue(`${questName}[${index}]`, answer);
-                } else {
-                  const values = getValues();
-                  const newValues = values[questName].filter((_ : any, i : any) => i !== index);
-                  setValue(questName, newValues);
-                }
-              }}
-               onBlur={onBlur}
-             />}
-             label={answer}
-           />
-         ))}
-         {errors[questName] && <Typography color="error">Выберите ответ</Typography>}
-       </FormGroup>
+        <FormGroup {...register(questName, { required })}>
+          {answers.map((answer, index) => (
+            <FormControlLabel key={index} value={answer} control={
+              <Checkbox
+                color='success'
+                defaultChecked={false}
+                inputRef={ref}
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    setValue(`${questName}[${index}]`, answer);
+                  } else {
+                    const values = getValues();
+                    const newValues = values[questName].filter((_: any, i: any) => i !== index);
+                    setValue(questName, newValues);
+                  }
+                }}
+                onBlur={onBlur}
+              />}
+              label={answer}
+            />
+          ))}
+          {errors[questName] && <Typography color="error">Выберите ответ</Typography>}
+        </FormGroup>
       )}
+
       {disabled && (
         <>
           <DragDropContext onDragEnd={handleDragEnd}>
@@ -141,6 +145,19 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
             }
           />
         </>
+      )}
+      {addLogic && (
+        <Box sx={{ display: 'flex', alignItems: 'center', mt: 2, mb: 3 }}>
+          <CustomSelect/>
+          <TextField
+            variant="standard"
+            placeholder="Введите число"
+            name="addLogic"
+            type='number'
+            fullWidth
+            sx={{ml:1}}
+          />
+        </Box>
       )}
     </FormGroup>
   );

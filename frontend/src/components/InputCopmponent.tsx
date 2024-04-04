@@ -8,7 +8,7 @@ interface InputComponentProps {
   quest?: string;
 }
 
-const InputComponent: React.FC<InputComponentProps> = ({ disabled = false, required = false, quest }) => {
+const InputComponent: React.FC<InputComponentProps> = ({ disabled = false, required = false, quest}) => {
   const { register, formState: { errors } } = useFormContext();
 
   const questName = quest || 'ИмяВопросаНеБылоЗадано';

@@ -30,7 +30,7 @@ import ConstructionIcon from '@mui/icons-material/Construction';
 import { FormProvider, useForm } from 'react-hook-form';
 
 const CreateFormPage: React.FC = () => {
-	const [cards, setCards] = useState<Card[]>([{ selectedComponent: 'Input', question: '', isRequired: false, answer: "" }]);
+	const [cards, setCards] = useState<Card[]>([{ selectedComponent: 'Input', question: '', isRequired: false, answer: "", addLogic: false }]);
 	const [activeCardIndex, setActiveCardIndex] = useState<number | null>(null);
 	const [value, setValue] = React.useState('Questions');
 	const dispatch = useDispatch<AppDispatch>();
@@ -38,28 +38,32 @@ const CreateFormPage: React.FC = () => {
 	const [title, setTitle] = useState('');
 	const methods = useForm();
 
+	//изменения выбора элемента для карточки
 	const handleChange = (event: React.SyntheticEvent, newValue: string) => {
 		setValue(newValue);
 	};
 
-	//смена переключателя isRequired
+	//обновления текста вопроса в карточке
 	const handleQuestionChange = (index: number, newQuestion: string) => {
 		const newCards = [...cards];
 		newCards[index].question = newQuestion;
 		setCards(newCards);
 	};
 
+	//изменения типа компонента ответа в карточке
 	const handleSelectChange = (event: SelectChangeEvent<string>, index: number) => {
 		const newCards = [...cards];
 		newCards[index].selectedComponent = event.target.value;
 		setCards(newCards);
 	};
 
+	//удаление карточки 
 	const handleDeleteCard = (index: number) => {
 		const newCards = cards.filter((_, cardIndex) => cardIndex !== index); // Убираем карточку с поля
 		setCards(newCards); // Обновляем сосояние 
 	};
 
+	//дублирование карточки
 	const handleDuplicateCard = (index: number) => {
 		const newCards = [...cards]; // Создаем копию массива
 		const duplicatedCard = { ...newCards[index] }; // Создаем копию карточки
@@ -67,18 +71,21 @@ const CreateFormPage: React.FC = () => {
 		setCards(newCards); // Обновляем состояние с новым массивом
 	};
 
+	//обновления ответов в карточке
 	const updateCardAnswers = (index: number, answers: string[]) => {
 		const newCards = [...cards];
 		newCards[index].answer = answers;
 		setCards(newCards);
 	};
 
+	//переключения статуса обязательности карточки
 	const handleSwitchChange = (index: number, isRequired: boolean) => {
 		const newCards = [...cards];
 		newCards[index].isRequired = isRequired;
 		setCards(newCards);
 	};
 
+	//перетаскивания карточек для их переупорядочивания
 	const handleDragEnd = (result: any) => {
 		if (!result.destination) return;
 		const items = [...cards];
@@ -87,10 +94,19 @@ const CreateFormPage: React.FC = () => {
 		setCards(items);
 	};
 
+	//отслеживания активной карточки
 	const handleCardClick = (index: number) => {
 		setActiveCardIndex(index);
 	};
 
+	//добавить логику в карточку
+	const handleAddLogicClick = (index: number) => {
+		const newCards = [...cards];
+		newCards[index].addLogic = !newCards[index].addLogic;
+		setCards(newCards);
+	 };
+
+	//отправка данных о карточках с redux
 	const SendCards = async () => {
 		try {
 			const actionResult = await dispatch(sendCardAsync({ cards, title }));
@@ -236,7 +252,7 @@ const CreateFormPage: React.FC = () => {
 																{card.selectedComponent === 'Input' && <InputCopmponent disabled={true} />}
 																{card.selectedComponent === 'Textarea' && <TextareaComponent disabled={true} />}
 																{card.selectedComponent === 'Radio' && <RadioComponent cardIndex={index} updateCardAnswers={updateCardAnswers} disabled={true} />}
-																{card.selectedComponent === 'Checkbox' && <CheckboxesComponent cardIndex={index} updateCardAnswers={updateCardAnswers} disabled={true} />}
+																{card.selectedComponent === 'Checkbox' && <CheckboxesComponent cardIndex={index} updateCardAnswers={updateCardAnswers} addLogic={card.addLogic} disabled={true} />}
 																{card.selectedComponent === 'Slider' && <SliderComponent disabled={true} onSliderValuesChange={(values) => updateCardAnswers(index, [values])} />}
 																{card.selectedComponent === 'Data' && <DataComponent disabled={true} />}
 																<Grid item xs={12}>
@@ -252,9 +268,9 @@ const CreateFormPage: React.FC = () => {
 																				<FileCopyIcon />
 																			</IconButton>
 																		</Tooltip>
-																		{(card.selectedComponent === 'Radio' || card.selectedComponent === 'Checkbox') && (
+																		{(card.selectedComponent === 'Checkbox') && (
 																			<Tooltip title="Добавить условия">
-																				<IconButton aria-label="addLogic" size='small'>
+																				<IconButton aria-label="addLogic" size='small' onClick={() => handleAddLogicClick(index)}>
 																					<ConstructionIcon />
 																				</IconButton>
 																			</Tooltip>
@@ -277,7 +293,7 @@ const CreateFormPage: React.FC = () => {
 								size="medium"
 								color="success"
 								aria-label="add"
-								onClick={() => setCards([...cards, { selectedComponent: 'Input', question: '', isRequired: false, answer: "" }])}
+								onClick={() => setCards([...cards, { selectedComponent: 'Input', question: '', isRequired: false, answer: "", addLogic: false}])}
 							>
 								<AddIcon />
 							</Fab>
