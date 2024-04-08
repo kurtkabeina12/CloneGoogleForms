@@ -20,6 +20,8 @@ interface FormData {
 		answer: string[];
 		isRequired: boolean;
 		selectedComponent: string;
+		addLogic: boolean;
+		Logic: string | string[];
 		id: string;
 	}[];
 
@@ -82,7 +84,7 @@ export default function FormPage() {
 														{card.selectedComponent === 'Input' && <InputCopmponent disabled={false} quest={card.question} required={card.isRequired} />}
 														{card.selectedComponent === 'Textarea' && <TextareaComponent disabled={false} quest={card.question} required={card.isRequired} />}
 														{card.selectedComponent === 'Radio' && <RadioComponent disabled={false} answers={card.answer} quest={card.question} required={card.isRequired} />}
-														{card.selectedComponent === 'Checkbox' && <CheckboxesComponent disabled={false} answers={card.answer} quest={card.question} required={card.isRequired} />}
+														{card.selectedComponent === 'Checkbox' && <CheckboxesComponent disabled={false} answers={card.answer} quest={card.question} required={card.isRequired} addLogic={card.addLogic} GetLogic={card.Logic} />}
 														{card.selectedComponent === 'Slider' && <SliderComponent disabled={false} answers={card.answer} quest={card.question} required={card.isRequired} />}
 														{card.selectedComponent === 'Data' && <DataComponent disabled={false} quest={card.question} required={card.isRequired} />}
 													</Paper>

@@ -13,6 +13,7 @@ export interface Card {
   isRequired: boolean;
   answer: string | string[];
 	addLogic: boolean;
+  Logic: string | string[];
 }
 
 export interface FormState {

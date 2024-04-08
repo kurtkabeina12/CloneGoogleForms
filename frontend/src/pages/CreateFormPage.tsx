@@ -28,9 +28,10 @@ import { AppDispatch } from '../store/reducers/reducerRoot';
 import { useNavigate } from 'react-router-dom';
 import ConstructionIcon from '@mui/icons-material/Construction';
 import { FormProvider, useForm } from 'react-hook-form';
+import { CustomSwitch } from '../components/CustomSwitch';
 
 const CreateFormPage: React.FC = () => {
-	const [cards, setCards] = useState<Card[]>([{ selectedComponent: 'Input', question: '', isRequired: false, answer: "", addLogic: false }]);
+	const [cards, setCards] = useState<Card[]>([{ selectedComponent: 'Input', question: '', isRequired: false, answer: "", addLogic: false, Logic: '' }]);
 	const [activeCardIndex, setActiveCardIndex] = useState<number | null>(null);
 	const [value, setValue] = React.useState('Questions');
 	const dispatch = useDispatch<AppDispatch>();
@@ -104,7 +105,14 @@ const CreateFormPage: React.FC = () => {
 		const newCards = [...cards];
 		newCards[index].addLogic = !newCards[index].addLogic;
 		setCards(newCards);
-	 };
+	};
+
+	//обновить логику в карточке
+	const updateCardLogic = (index: number, logic: string) => {
+		const newCards = [...cards];
+		newCards[index].Logic = logic;
+		setCards(newCards);
+	};
 
 	//отправка данных о карточках с redux
 	const SendCards = async () => {
@@ -123,9 +131,16 @@ const CreateFormPage: React.FC = () => {
 			<Box sx={{ flexGrow: 1 }}>
 				<AppBar position="static" sx={{ backgroundColor: "white" }}>
 					<Toolbar sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
-						<Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-							<DescriptionIcon fontSize='large' sx={{ color: '#00862b' }} />
-							<Typography variant='h5' color="black">Новая форма</Typography>
+						<Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+							<Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+								<DescriptionIcon fontSize='large' sx={{ color: '#00862b' }} />
+								<Typography variant='h5' color="black">Новая форма</Typography>
+							</Box>
+							<Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+								<Typography variant='body1' color="black">Авторизация <br/> обязательная</Typography>
+								<CustomSwitch />
+								<Typography variant='body1' color="black">Анонимный <br/> опрос</Typography>
+							</Box>
 						</Box>
 						<Button variant="contained" onClick={SendCards} color="success">Отправить</Button>
 					</Toolbar>
@@ -252,7 +267,7 @@ const CreateFormPage: React.FC = () => {
 																{card.selectedComponent === 'Input' && <InputCopmponent disabled={true} />}
 																{card.selectedComponent === 'Textarea' && <TextareaComponent disabled={true} />}
 																{card.selectedComponent === 'Radio' && <RadioComponent cardIndex={index} updateCardAnswers={updateCardAnswers} disabled={true} />}
-																{card.selectedComponent === 'Checkbox' && <CheckboxesComponent cardIndex={index} updateCardAnswers={updateCardAnswers} addLogic={card.addLogic} disabled={true} />}
+																{card.selectedComponent === 'Checkbox' && <CheckboxesComponent cardIndex={index} updateCardAnswers={updateCardAnswers} addLogic={card.addLogic} disabled={true} updateCardLogic={updateCardLogic} />}
 																{card.selectedComponent === 'Slider' && <SliderComponent disabled={true} onSliderValuesChange={(values) => updateCardAnswers(index, [values])} />}
 																{card.selectedComponent === 'Data' && <DataComponent disabled={true} />}
 																<Grid item xs={12}>
@@ -293,7 +308,7 @@ const CreateFormPage: React.FC = () => {
 								size="medium"
 								color="success"
 								aria-label="add"
-								onClick={() => setCards([...cards, { selectedComponent: 'Input', question: '', isRequired: false, answer: "", addLogic: false}])}
+								onClick={() => setCards([...cards, { selectedComponent: 'Input', question: '', isRequired: false, answer: "", addLogic: false, Logic: '' }])}
 							>
 								<AddIcon />
 							</Fab>

@@ -9,6 +9,11 @@ import { Option as BaseOption, optionClasses } from '@mui/base/Option';
 import { styled } from '@mui/system';
 import UnfoldMoreRoundedIcon from '@mui/icons-material/UnfoldMoreRounded';
 
+interface CustomSelectProps {
+  value: string | string[] | null;
+  onChange: (event: React.MouseEvent<Element, MouseEvent> | React.KeyboardEvent<Element> | React.FocusEvent<Element, Element> | null, value: string | string[] | null) => void;
+ }
+
 const Select = React.forwardRef(function Select<
   TValue extends {},
   Multiple extends boolean,
@@ -25,15 +30,15 @@ const Select = React.forwardRef(function Select<
   props: SelectProps<TValue, Multiple> & React.RefAttributes<HTMLButtonElement>,
 ) => JSX.Element;
 
-export default function CustomSelect() {
+export const CustomSelect: React.FC<CustomSelectProps> = ({ value, onChange }) => {
   return (
-    <Select defaultValue={10}>
-      <Option value={10}>Выберите ровно: </Option>
-      <Option value={20}>Выберите не более: </Option>
-      <Option value={30}>Выберите не менее: </Option>
-    </Select>
+     <Select value={value} onChange={onChange}>
+       <Option value={'smooth'}>Выберите ровно: </Option>
+       <Option value={'no more'}>Выберите не более: </Option>
+       <Option value={'no less'}>Выберите не менее: </Option>
+     </Select>
   );
-}
+ };
 
 const green = {
   100: '#DCF8C6',
@@ -87,9 +92,8 @@ const StyledButton = styled('button', { shouldForwardProp: () => true })(
   background: ${theme.palette.mode === 'dark' ? grey[900] : '#fff'};
   border: 1px solid ${theme.palette.mode === 'dark' ? grey[700] : grey[200]};
   color: ${theme.palette.mode === 'dark' ? grey[300] : grey[900]};
-  box-shadow: 0px 2px 4px ${
-    theme.palette.mode === 'dark' ? 'rgba(0,0,0, 0.5)' : 'rgba(0,0,0, 0.05)'
-  };
+  box-shadow: 0px 2px 4px ${theme.palette.mode === 'dark' ? 'rgba(0,0,0, 0.5)' : 'rgba(0,0,0, 0.05)'
+    };
 
   transition-property: all;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
@@ -130,9 +134,8 @@ const Listbox = styled('ul')(
   background: ${theme.palette.mode === 'dark' ? grey[900] : '#fff'};
   border: 1px solid ${theme.palette.mode === 'dark' ? grey[700] : grey[200]};
   color: ${theme.palette.mode === 'dark' ? grey[300] : grey[900]};
-  box-shadow: 0px 2px 4px ${
-    theme.palette.mode === 'dark' ? 'rgba(0,0,0, 0.5)' : 'rgba(0,0,0, 0.05)'
-  };
+  box-shadow: 0px 2px 4px ${theme.palette.mode === 'dark' ? 'rgba(0,0,0, 0.5)' : 'rgba(0,0,0, 0.05)'
+    };
   `,
 );
 

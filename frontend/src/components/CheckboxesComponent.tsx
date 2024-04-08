@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box, Button, FormControlLabel, FormGroup, Input, TextField, Typography } from '@mui/material';
 import Checkbox from '@mui/material/Checkbox';
 import useList from '../hooks/UseList';
@@ -6,7 +6,7 @@ import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import CloseIcon from '@mui/icons-material/Close';
 import { useFormContext } from 'react-hook-form';
-import CustomSelect from './CustomOptions';
+import { CustomSelect } from './CustomOptions';
 
 interface CheckboxesComponentProps {
   cardIndex?: number;
@@ -16,6 +16,8 @@ interface CheckboxesComponentProps {
   required?: boolean;
   quest?: string;
   addLogic?: boolean;
+  updateCardLogic?: (index: number, logic: string) => void;
+  GetLogic?: string | string[];
 }
 
 const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
@@ -26,6 +28,8 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
   quest,
   required = false,
   addLogic = false,
+  updateCardLogic,
+  GetLogic,
 }) => {
   const { list, addItem, updateItem, setList } = useList<string[]>([['']]);
 
@@ -35,10 +39,32 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
 
   const { ref, onBlur } = register(questName, { required });
 
+  const [selectValue, setSelectValue] = useState<string | string[] | null>('smooth');
+
+  const [inputLogicValue, setInputLogicValue] = useState('');
+
+  const [selectedCheckboxes, setSelectedCheckboxes] = useState(new Array(answers.length).fill(false));
+ 
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const [isValidLogicInput, setIsValidLogicInput] = useState(true)
+
+  //отслеживаем кол-во ответов и число в input 
+  useEffect(() => {
+    console.log(list.length);
+    const numValue = parseInt(inputLogicValue, 10);
+    if (numValue > list.length) {
+       setIsValidLogicInput(false);
+    } else {
+       setIsValidLogicInput(true);
+    }
+   }, [list, inputLogicValue]); 
+
   const handleAddAnswer = () => {
     addItem(['']);
   };
 
+  
   const handleDragEnd = (result: any) => {
     if (!result.destination) return;
     const items = Array.from(list);
@@ -57,6 +83,30 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
     }
   };
 
+  //если меняется Select обновляем значение
+  const handleSelectChange = (event: React.MouseEvent<Element, MouseEvent> | React.KeyboardEvent<Element> | React.FocusEvent<Element, Element> | null, value: string | string[] | null) => {
+    if (value) {
+      setSelectValue(value);
+      const newLogic = `${value} ${inputLogicValue}`;
+      if (updateCardLogic && cardIndex !== undefined) {
+        updateCardLogic(cardIndex, newLogic);
+      }
+      setValue('addLogic', newLogic);
+    }
+  };
+
+  //если меняется input Logic обновляем значение
+  const handleInputLogicChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    setInputLogicValue(value);
+    const newLogic = `${selectValue} ${value}`;
+    if (updateCardLogic && cardIndex !== undefined) {
+       updateCardLogic(cardIndex, newLogic);
+    }
+    setValue('addLogic', newLogic);
+   };
+   
+  //удалить ответ
   const handleRemoveAnswer = (index: number) => {
     if (list.length > 1) {
       const newList = list.filter((_, i) => i !== index);
@@ -67,31 +117,101 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
     }
   };
 
+// Функция обработки изменения состояния чекбокса
+const handleCheckboxChange = (index: number) => {
+  // Создаем новый массив выбранных чекбоксов, инвертируя состояние выбранного
+  const newSelectedCheckboxes = [...selectedCheckboxes];
+  newSelectedCheckboxes[index] = !newSelectedCheckboxes[index];
+  setSelectedCheckboxes(newSelectedCheckboxes);
+ 
+  // Определяем логику и максимальное количество выбранных элементов
+  let maxSelections = 0;
+  let errorMessage = '';
+ 
+  if (GetLogic?.[0]?.startsWith('no more')) {
+     maxSelections = parseInt(GetLogic?.[0]?.split(' ')[2] ?? '0');
+     const selectedCount = newSelectedCheckboxes.filter(Boolean).length;
+     if (selectedCount > maxSelections) {
+       errorMessage = `Вы можете выбрать не более ${maxSelections} вариантов`;
+     }
+  } else if (GetLogic?.[0]?.startsWith('no less')) {
+     maxSelections = parseInt(GetLogic?.[0]?.split(' ')[2] ?? '0');
+     const selectedCount = newSelectedCheckboxes.filter(Boolean).length;
+     if (selectedCount < maxSelections) {
+       errorMessage = `Вы можете выбрать не менее ${maxSelections} вариантов`;
+     } 
+  } else if (GetLogic?.[0]?.startsWith('smooth')) {
+     maxSelections = parseInt(GetLogic?.[0]?.split(' ')[1] ?? '0');
+     const selectedCount = newSelectedCheckboxes.filter(Boolean).length;
+     if (selectedCount !== maxSelections) {
+       errorMessage = `Вы можете выбрать ровно ${maxSelections} вариантов`;
+     } 
+  }
+ 
+  // Обновляем сообщение об ошибке
+  setErrorMessage(errorMessage);
+ 
+  // Обновляем значения в форме
+  const newValues = newSelectedCheckboxes.map((isChecked, i) => isChecked ? answers[i] : null).filter(Boolean);
+  setValue(questName, newValues);
+ };
+
   return (
     <FormGroup sx={{ width: '-webkit-fill-available', marginTop: '1rem' }}>
       {!disabled && answers.length > 0 && (
         <FormGroup {...register(questName, { required })}>
-          {answers.map((answer, index) => (
-            <FormControlLabel key={index} value={answer} control={
-              <Checkbox
-                color='success'
-                defaultChecked={false}
-                inputRef={ref}
-                onChange={(e) => {
-                  if (e.target.checked) {
-                    setValue(`${questName}[${index}]`, answer);
-                  } else {
-                    const values = getValues();
-                    const newValues = values[questName].filter((_: any, i: any) => i !== index);
-                    setValue(questName, newValues);
+          <>
+            {!addLogic && (
+              <>
+                {answers.map((answer, index) => (
+                  <FormControlLabel key={index} value={answer} control={
+                    <Checkbox
+                      color='success'
+                      defaultChecked={false}
+                      inputRef={ref}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setValue(`${questName}[${index}]`, answer);
+                        } else {
+                          const values = getValues();
+                          const newValues = values[questName].filter((_: any, i: any) => i !== index);
+                          setValue(questName, newValues);
+                        }
+                      }}
+                      onBlur={onBlur}
+                    />
                   }
-                }}
-                onBlur={onBlur}
-              />}
-              label={answer}
-            />
-          ))}
-          {errors[questName] && <Typography color="error">Выберите ответ</Typography>}
+                    label={answer}
+                  />
+                ))}
+                {errors[questName] && <Typography color="error">Выберите ответ</Typography>}
+              </>
+            )}
+            {addLogic && (
+              <>
+                <FormGroup>
+                  {answers.map((answer, index) => (
+                    <FormControlLabel
+                      key={index}
+                      value={answer}
+                      control={
+                        <Checkbox
+                          color='success'
+                          defaultChecked={false}
+                          inputRef={ref}
+                          checked={selectedCheckboxes[index]}
+                          onChange={() => handleCheckboxChange(index)}
+                          onBlur={onBlur}
+                        />
+                      }
+                      label={answer}
+                    />
+                  ))}
+                  {errorMessage && <Typography color="error">{errorMessage}</Typography>}
+                </FormGroup>
+              </>
+            )}
+          </>
         </FormGroup>
       )}
 
@@ -144,20 +264,22 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
               </Button>
             }
           />
+          {addLogic && (
+            <Box sx={{ display: 'flex', alignItems: 'center', mt: 2, mb: 3 }}>
+              <CustomSelect value={selectValue} onChange={handleSelectChange} />
+              <TextField
+                variant="standard"
+                placeholder="Введите число"
+                name="addLogic"
+                type='number'
+                fullWidth
+                sx={{ ml: 1 }}
+                onChange={handleInputLogicChange}
+              />
+            </Box>
+          )}
+          {!isValidLogicInput && <Typography color="error">Число больше чем колличество ответов.</Typography>}
         </>
-      )}
-      {addLogic && (
-        <Box sx={{ display: 'flex', alignItems: 'center', mt: 2, mb: 3 }}>
-          <CustomSelect/>
-          <TextField
-            variant="standard"
-            placeholder="Введите число"
-            name="addLogic"
-            type='number'
-            fullWidth
-            sx={{ml:1}}
-          />
-        </Box>
       )}
     </FormGroup>
   );
