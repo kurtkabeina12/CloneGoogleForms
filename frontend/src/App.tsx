@@ -7,19 +7,19 @@ import { Provider } from 'react-redux';
 import FormPage from './pages/FormPage';
 
 function App() {
- return (
+  return (
     <Provider store={store}>
       <Router>
         <div className='App'>
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/create-form" element={<CreateFormPage />} />
-            <Route path="/form" element={<FormPage/>} />
+            <Route path="/form/:formId" element={<FormPage />} />
           </Routes>
         </div>
       </Router>
     </Provider>
- );
+  );
 }
 
 export default App;

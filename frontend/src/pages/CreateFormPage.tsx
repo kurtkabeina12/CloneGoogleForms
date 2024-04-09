@@ -119,7 +119,7 @@ const CreateFormPage: React.FC = () => {
 		try {
 			const actionResult = await dispatch(sendCardAsync({ cards, title }));
 			const formId = actionResult.payload.formId;
-			navigate('/form', { state: { formId } });
+			navigate(`/form/${formId.formId}`, { state: { formId } });
 		} catch (error) {
 			console.log('Error get Id forms')
 		}

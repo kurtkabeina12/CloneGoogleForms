@@ -1,6 +1,6 @@
 import { Box, Grid, Paper, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import TextareaComponent from '../components/TextareaComponent';
 import InputCopmponent from '../components/InputCopmponent';
 import DataComponent from '../components/DataComponent';
@@ -28,9 +28,7 @@ interface FormData {
 }
 
 export default function FormPage() {
-	const location = useLocation();
-	const params = location.state?.formId;
-	const formId = params.formId;
+	const { formId } = useParams();
 	const dispatch = useDispatch<AppDispatch>();
 
 	const methods = useForm();
@@ -39,7 +37,7 @@ export default function FormPage() {
 	useEffect(() => {
 		const fetchFormData = async () => {
 			try {
-				const actionResult = await dispatch(fetchGetForm({ formId }));
+				const actionResult = await dispatch(fetchGetForm({ formId: formId ?? '' }));
 				const formData = unwrapResult(actionResult);
 				setFormData(formData);
 			} catch (error) {
