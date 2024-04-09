@@ -38,6 +38,7 @@ const CreateFormPage: React.FC = () => {
 	const navigate = useNavigate();
 	const [title, setTitle] = useState('');
 	const methods = useForm();
+	const [isMandatoryAuth, setIsMandatoryAuth] = useState(false);
 
 	//изменения выбора элемента для карточки
 	const handleChange = (event: React.SyntheticEvent, newValue: string) => {
@@ -114,17 +115,23 @@ const CreateFormPage: React.FC = () => {
 		setCards(newCards);
 	};
 
+	//отслеживаем какую авторизацию выбрал пользователь
+	const handleAuthTypeChange = (event: { target: { checked: boolean | ((prevState: boolean) => boolean); }; }) => {
+		setIsMandatoryAuth(event.target.checked);
+	};
+
 	//отправка данных о карточках с redux
 	const SendCards = async () => {
 		try {
-			const actionResult = await dispatch(sendCardAsync({ cards, title }));
+			const actionResult = await dispatch(sendCardAsync({ cards, title, isMandatoryAuth }));
+			console.log(isMandatoryAuth)
 			const formId = actionResult.payload.formId;
 			navigate(`/form/${formId.formId}`, { state: { formId } });
 		} catch (error) {
-			console.log('Error get Id forms')
+			console.log('Error get Id forms');
 		}
-		console.log(cards)
-	}
+		console.log(cards);
+	};
 
 	return (
 		<>
@@ -137,9 +144,9 @@ const CreateFormPage: React.FC = () => {
 								<Typography variant='h5' color="black">Новая форма</Typography>
 							</Box>
 							<Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-								<Typography variant='body1' color="black">Авторизация <br/> обязательная</Typography>
-								<CustomSwitch />
-								<Typography variant='body1' color="black">Анонимный <br/> опрос</Typography>
+								<Typography variant='body2' color="black">Анонимный <br /> опрос</Typography>
+								<CustomSwitch onChange={handleAuthTypeChange} />
+								<Typography variant='body1' color="black">Авторизация <br /> обязательная</Typography>
 							</Box>
 						</Box>
 						<Button variant="contained" onClick={SendCards} color="success">Отправить</Button>
