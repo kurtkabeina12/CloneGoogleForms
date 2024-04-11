@@ -203,11 +203,11 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
                       value={answer}
                       control={
                         <Checkbox
-                        color='success'
-                        defaultChecked={false}
-                        inputRef={ref}
+                          color='success'
+                          defaultChecked={false}
+                          inputRef={ref}
                           {...register(questName, {
-                            required: required || addLogic || (addLogic && required), 
+                            required: required || addLogic || (addLogic && required),
                             validate: () => {
                               if (GetLogic?.[0]?.startsWith('no more')) {
                                 const maxSelections = parseInt(GetLogic?.[0]?.split(' ')[2] ?? '0');
@@ -223,7 +223,7 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
                                 if (selectedCheckboxes.filter(Boolean).length < maxSelections) {
                                   console.log('условие действует no less')
                                   return `Вы можете выбрать не менее ${maxSelections} вариантов`;
-                                }
+                                } 
                               } else if (GetLogic?.[0]?.startsWith('smooth')) {
                                 const maxSelections = parseInt(GetLogic?.[0]?.split(' ')[1] ?? '0');
                                 if (selectedCheckboxes.filter(Boolean).length !== maxSelections) {
@@ -240,7 +240,7 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
                       }
                       label={answer}
                     />
-                  ))} 
+                  ))}
                   {errors[questName] && <Typography color="error">{errors[questName]?.message as String}</Typography>}
                 </FormGroup>
               </>
