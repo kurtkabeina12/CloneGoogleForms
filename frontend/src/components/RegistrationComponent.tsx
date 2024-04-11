@@ -52,6 +52,7 @@ function RegistrationComponent() {
                     onChange={handlePhoneNumberChange}
                     error={error}
                     sx={{ mb: 3, marginTop: "1rem" }}
+										required
                 />
             </Box>
         </>

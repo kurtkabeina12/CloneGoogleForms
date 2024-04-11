@@ -44,27 +44,27 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
   const [inputLogicValue, setInputLogicValue] = useState('');
 
   const [selectedCheckboxes, setSelectedCheckboxes] = useState(new Array(answers.length).fill(false));
- 
-  const [errorMessage, setErrorMessage] = useState('');
+
+  const [errorMessageNoLogic, setErrorMessageNoLogic] = useState('Выберите ответ');
+
+  const [errorMessageAddLogic, setErrorMessageAddLogic] = useState('');
 
   const [isValidLogicInput, setIsValidLogicInput] = useState(true)
 
   //отслеживаем кол-во ответов и число в input 
   useEffect(() => {
-    console.log(list.length);
     const numValue = parseInt(inputLogicValue, 10);
     if (numValue > list.length) {
-       setIsValidLogicInput(false);
+      setIsValidLogicInput(false);
     } else {
-       setIsValidLogicInput(true);
+      setIsValidLogicInput(true);
     }
-   }, [list, inputLogicValue]); 
+  }, [list, inputLogicValue]);
 
   const handleAddAnswer = () => {
     addItem(['']);
   };
 
-  
   const handleDragEnd = (result: any) => {
     if (!result.destination) return;
     const items = Array.from(list);
@@ -101,11 +101,11 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
     setInputLogicValue(value);
     const newLogic = `${selectValue} ${value}`;
     if (updateCardLogic && cardIndex !== undefined) {
-       updateCardLogic(cardIndex, newLogic);
+      updateCardLogic(cardIndex, newLogic);
     }
     setValue('addLogic', newLogic);
-   };
-   
+  };
+
   //удалить ответ
   const handleRemoveAnswer = (index: number) => {
     if (list.length > 1) {
@@ -117,44 +117,44 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
     }
   };
 
-// Функция обработки изменения состояния чекбокса
-const handleCheckboxChange = (index: number) => {
-  // Создаем новый массив выбранных чекбоксов, инвертируя состояние выбранного
-  const newSelectedCheckboxes = [...selectedCheckboxes];
-  newSelectedCheckboxes[index] = !newSelectedCheckboxes[index];
-  setSelectedCheckboxes(newSelectedCheckboxes);
- 
-  // Определяем логику и максимальное количество выбранных элементов
-  let maxSelections = 0;
-  let errorMessage = '';
- 
-  if (GetLogic?.[0]?.startsWith('no more')) {
-     maxSelections = parseInt(GetLogic?.[0]?.split(' ')[2] ?? '0');
-     const selectedCount = newSelectedCheckboxes.filter(Boolean).length;
-     if (selectedCount > maxSelections) {
-       errorMessage = `Вы можете выбрать не более ${maxSelections} вариантов`;
-     }
-  } else if (GetLogic?.[0]?.startsWith('no less')) {
-     maxSelections = parseInt(GetLogic?.[0]?.split(' ')[2] ?? '0');
-     const selectedCount = newSelectedCheckboxes.filter(Boolean).length;
-     if (selectedCount < maxSelections) {
-       errorMessage = `Вы можете выбрать не менее ${maxSelections} вариантов`;
-     } 
-  } else if (GetLogic?.[0]?.startsWith('smooth')) {
-     maxSelections = parseInt(GetLogic?.[0]?.split(' ')[1] ?? '0');
-     const selectedCount = newSelectedCheckboxes.filter(Boolean).length;
-     if (selectedCount !== maxSelections) {
-       errorMessage = `Вы можете выбрать ровно ${maxSelections} вариантов`;
-     } 
-  }
- 
-  // Обновляем сообщение об ошибке
-  setErrorMessage(errorMessage);
- 
-  // Обновляем значения в форме
-  const newValues = newSelectedCheckboxes.map((isChecked, i) => isChecked ? answers[i] : null).filter(Boolean);
-  setValue(questName, newValues);
- };
+  // Функция обработки изменения состояния чекбокса
+  const handleCheckboxChange = (index: number) => {
+    // Создаем новый массив выбранных чекбоксов, инвертируя состояние выбранного
+    const newSelectedCheckboxes = [...selectedCheckboxes];
+    newSelectedCheckboxes[index] = !newSelectedCheckboxes[index];
+    setSelectedCheckboxes(newSelectedCheckboxes);
+
+    // Определяем логику и максимальное количество выбранных элементов
+    let maxSelections = 0;
+    let errorMessage = '';
+
+    if (GetLogic?.[0]?.startsWith('no more')) {
+      maxSelections = parseInt(GetLogic?.[0]?.split(' ')[2] ?? '0');
+      const selectedCount = newSelectedCheckboxes.filter(Boolean).length;
+      if (selectedCount > maxSelections) {
+        errorMessage = `Вы можете выбрать не более ${maxSelections} вариантов`;
+      }
+    } else if (GetLogic?.[0]?.startsWith('no less')) {
+      maxSelections = parseInt(GetLogic?.[0]?.split(' ')[2] ?? '0');
+      const selectedCount = newSelectedCheckboxes.filter(Boolean).length;
+      if (selectedCount < maxSelections) {
+        errorMessage = `Вы можете выбрать не менее ${maxSelections} вариантов`;
+      }
+    } else if (GetLogic?.[0]?.startsWith('smooth')) {
+      maxSelections = parseInt(GetLogic?.[0]?.split(' ')[1] ?? '0');
+      const selectedCount = newSelectedCheckboxes.filter(Boolean).length;
+      if (selectedCount !== maxSelections) {
+        errorMessage = `Вы можете выбрать ровно ${maxSelections} вариантов`;
+      }
+    }
+
+    // Обновляем сообщение об ошибке
+    setErrorMessageAddLogic(errorMessage);
+
+    // Обновляем значения в форме
+    const newValues = newSelectedCheckboxes.map((isChecked, i) => isChecked ? answers[i] : null).filter(Boolean);
+    setValue(questName, newValues);
+  };
 
   return (
     <FormGroup sx={{ width: '-webkit-fill-available', marginTop: '1rem' }}>
@@ -172,10 +172,17 @@ const handleCheckboxChange = (index: number) => {
                       onChange={(e) => {
                         if (e.target.checked) {
                           setValue(`${questName}[${index}]`, answer);
+                          // Проверяем, были ли выбраны какие-либо чекбоксы, и обновляем состояние ошибки
+                          const selectedAnswers = getValues()[questName] || [];
+                          console.log(selectedAnswers.length)
+                          if (selectedAnswers.length > 0) {
+                            setErrorMessageNoLogic('');
+                          }
                         } else {
                           const values = getValues();
                           const newValues = values[questName].filter((_: any, i: any) => i !== index);
                           setValue(questName, newValues);
+                          setErrorMessageNoLogic('Выберите ответ');
                         }
                       }}
                       onBlur={onBlur}
@@ -184,7 +191,7 @@ const handleCheckboxChange = (index: number) => {
                     label={answer}
                   />
                 ))}
-                {errors[questName] && <Typography color="error">Выберите ответ</Typography>}
+                {errors[questName] && <Typography color="error">{errorMessageNoLogic}</Typography>}
               </>
             )}
             {addLogic && (
@@ -196,18 +203,45 @@ const handleCheckboxChange = (index: number) => {
                       value={answer}
                       control={
                         <Checkbox
-                          color='success'
-                          defaultChecked={false}
-                          inputRef={ref}
+                        color='success'
+                        defaultChecked={false}
+                        inputRef={ref}
+                          {...register(questName, {
+                            required: required || addLogic || (addLogic && required), 
+                            validate: () => {
+                              if (GetLogic?.[0]?.startsWith('no more')) {
+                                const maxSelections = parseInt(GetLogic?.[0]?.split(' ')[2] ?? '0');
+                                console.log(maxSelections, 'no more')
+                                if (selectedCheckboxes.filter(Boolean).length > maxSelections) {
+                                  console.log('условие действует no more')
+                                  return `Вы можете выбрать не более ${maxSelections} вариантов`;
+                                } else if (selectedCheckboxes.filter(Boolean).length === 0) {
+                                  return `Вы можете выбрать не более ${maxSelections} вариантов`;
+                                }
+                              } else if (GetLogic?.[0]?.startsWith('no less')) {
+                                const maxSelections = parseInt(GetLogic?.[0]?.split(' ')[2] ?? '0');
+                                if (selectedCheckboxes.filter(Boolean).length < maxSelections) {
+                                  console.log('условие действует no less')
+                                  return `Вы можете выбрать не менее ${maxSelections} вариантов`;
+                                }
+                              } else if (GetLogic?.[0]?.startsWith('smooth')) {
+                                const maxSelections = parseInt(GetLogic?.[0]?.split(' ')[1] ?? '0');
+                                if (selectedCheckboxes.filter(Boolean).length !== maxSelections) {
+                                  console.log('условие действует smooth')
+                                  return `Вы можете выбрать ровно ${maxSelections} вариантов`;
+                                }
+                              }
+                              return true;
+                            }
+                          })}
                           checked={selectedCheckboxes[index]}
                           onChange={() => handleCheckboxChange(index)}
-                          onBlur={onBlur}
                         />
                       }
                       label={answer}
                     />
-                  ))}
-                  {errorMessage && <Typography color="error">{errorMessage}</Typography>}
+                  ))} 
+                  {errors[questName] && <Typography color="error">{errors[questName]?.message as String}</Typography>}
                 </FormGroup>
               </>
             )}

@@ -278,8 +278,15 @@ const CreateFormPage: React.FC = () => {
 																{card.selectedComponent === 'Slider' && <SliderComponent disabled={true} onSliderValuesChange={(values) => updateCardAnswers(index, [values])} />}
 																{card.selectedComponent === 'Data' && <DataComponent disabled={true} />}
 																<Grid item xs={12}>
-																	<Box sx={{ mt: 3, display: 'flex', justifyContent: 'center', borderTopColor: "black" }}>
-																		<FormControlLabel control={<Switch color='success' onChange={(event) => handleSwitchChange(index, event.target.checked)} checked={card.isRequired} />} style={{ whiteSpace: 'nowrap' }} label="Обязательный вопрос*" />
+																	<Box sx={{ mt: 3, display: 'flex', justifyContent: 'center', borderTopColor: "black", alignItems:'center' }}>
+																		{card.selectedComponent === 'Checkbox' && card.addLogic && (
+																			<Typography variant="body1">
+																				Вопрос будет обязательным*
+																			</Typography>
+																		)}
+																		{((card.selectedComponent !== 'Checkbox') || (!card.addLogic)) && (
+																			<FormControlLabel control={<Switch color='success' onChange={(event) => handleSwitchChange(index, event.target.checked)} checked={card.isRequired} />} style={{ whiteSpace: 'nowrap' }} label="Обязательный вопрос*" />
+																		)}
 																		<Tooltip title="Удалить карточку">
 																			<IconButton aria-label="delete" color="warning" size="small" onClick={() => handleDeleteCard(index)}>
 																				<DeleteIcon style={{ color: "red" }} />
