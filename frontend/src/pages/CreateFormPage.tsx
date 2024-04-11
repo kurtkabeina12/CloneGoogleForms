@@ -105,6 +105,12 @@ const CreateFormPage: React.FC = () => {
 	const handleAddLogicClick = (index: number) => {
 		const newCards = [...cards];
 		newCards[index].addLogic = !newCards[index].addLogic;
+
+		//обнуляем switch обязательного поля
+		if (newCards[index].addLogic) {
+			newCards[index].isRequired = false;
+		}
+
 		setCards(newCards);
 	};
 
@@ -278,7 +284,7 @@ const CreateFormPage: React.FC = () => {
 																{card.selectedComponent === 'Slider' && <SliderComponent disabled={true} onSliderValuesChange={(values) => updateCardAnswers(index, [values])} />}
 																{card.selectedComponent === 'Data' && <DataComponent disabled={true} />}
 																<Grid item xs={12}>
-																	<Box sx={{ mt: 3, display: 'flex', justifyContent: 'center', borderTopColor: "black", alignItems:'center' }}>
+																	<Box sx={{ mt: 3, display: 'flex', justifyContent: 'center', borderTopColor: "black", alignItems: 'center' }}>
 																		{card.selectedComponent === 'Checkbox' && card.addLogic && (
 																			<Typography variant="body1">
 																				Вопрос будет обязательным*
