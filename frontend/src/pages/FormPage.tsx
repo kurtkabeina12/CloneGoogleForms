@@ -1,4 +1,4 @@
-import { Box, Divider, Grid, Paper, Typography } from '@mui/material';
+import { Box, Button, Divider, Grid, Paper, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import TextareaComponent from '../components/TextareaComponent';
@@ -13,6 +13,7 @@ import { AppDispatch } from '../store/reducers/reducerRoot';
 import { fetchGetForm } from '../store/action/actionGetForm';
 import { unwrapResult } from '@reduxjs/toolkit';
 import RegistrationComponent from '../components/RegistrationComponent';
+import SendIcon from '@mui/icons-material/Send';
 
 interface FormData {
 	formHeader: string;
@@ -70,7 +71,7 @@ export default function FormPage() {
 												{formData?.formHeader}
 											</Typography>
 											<Divider />
-											<RegistrationComponent />
+											<RegistrationComponent  />
 										</Paper>
 									</Box>
 								</Grid>
@@ -103,8 +104,10 @@ export default function FormPage() {
 										)
 									}
 								</Grid>
+								<Button type="submit" onClick={onSubmit} variant="contained" endIcon={<SendIcon />} color="success">
+									Отправить
+								</Button>
 							</Grid>
-							<button type="submit" onClick={onSubmit}>Submit</button>
 						</form >
 					</FormProvider>
 				</>
@@ -151,8 +154,10 @@ export default function FormPage() {
 									)
 								}
 							</Grid>
+							<Button type="submit" onClick={onSubmit} variant="contained" endIcon={<SendIcon />} color="success">
+								Отправить
+							</Button>
 						</Grid>
-						<button type="submit" onClick={onSubmit}>Submit</button>
 					</form >
 				</FormProvider>
 			)}
