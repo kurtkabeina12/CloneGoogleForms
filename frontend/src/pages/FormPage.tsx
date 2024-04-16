@@ -14,6 +14,7 @@ import { fetchGetForm } from '../store/action/actionGetForm';
 import { unwrapResult } from '@reduxjs/toolkit';
 import RegistrationComponent from '../components/RegistrationComponent';
 import SendIcon from '@mui/icons-material/Send';
+import { sendFormData } from '../store/action/actionSendPassedForm';
 
 interface FormData {
 	formHeader: string;
@@ -43,6 +44,7 @@ export default function FormPage() {
 				const actionResult = await dispatch(fetchGetForm({ formId: formId ?? '' }));
 				const formData = unwrapResult(actionResult);
 				setFormData(formData);
+				console.log(formData, 'данные с сервера')
 			} catch (error) {
 				console.error('Failed to fetch form:', error);
 			}
@@ -53,16 +55,21 @@ export default function FormPage() {
 
 	const isMandatory = formData?.isMandatoryAuth;
 
-	const onSubmit = methods.handleSubmit((data) => {
-		console.log(data);
-	});
+const onSubmit = async (data: any) => {
+    try {
+        const rezultSendData = await dispatch(sendFormData(data));
+        console.log(rezultSendData);
+    } catch (error) {
+        console.error('Failed to send form data:', error);
+    }
+};
 
 	return (
 		<>
 			{isMandatory && (
 				<>
 					<FormProvider {...methods}>
-						<form onSubmit={onSubmit} style={{ marginTop: 15 }} >
+						<form onSubmit={methods.handleSubmit(onSubmit)} style={{ marginTop: 15 }} >
 							<Grid container spacing={3} className='FormCenter' >
 								<Grid item xs={12} sm={8} md={6} style={{ paddingLeft: 0 }}>
 									<Box sx={{ mb: 3 }}>
@@ -114,7 +121,7 @@ export default function FormPage() {
 			)}
 			{!isMandatory && (
 				<FormProvider {...methods}>
-					<form onSubmit={onSubmit} style={{ marginTop: 15 }} >
+					<form onSubmit={methods.handleSubmit(onSubmit)} style={{ marginTop: 15 }} >
 						<Grid container spacing={3} className='FormCenter' >
 							<Grid item xs={12} sm={8} md={6} style={{ paddingLeft: 0 }}>
 								<Box sx={{ mb: 3 }}>
