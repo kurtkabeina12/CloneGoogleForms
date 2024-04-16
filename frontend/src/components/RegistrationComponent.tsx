@@ -1,10 +1,8 @@
 import { Box, TextField, Typography } from "@mui/material";
-import { useState } from "react";
 import { useFormContext } from "react-hook-form";
 
 function RegistrationComponent() {
- const { register, formState: { errors } } = useFormContext();
- const [phoneNumber, setPhoneNumber] = useState('+7');
+ const { register, formState: { errors }, trigger, setValue, watch } = useFormContext();
 
  // Функция валидации для номера телефона
  const validatePhoneNumber = (value: string) => {
@@ -12,8 +10,11 @@ function RegistrationComponent() {
     if (!regex.test(value)) {
       return "Неправильный формат телефона";
     }
-    return true;
+    return true; 
  };
+
+ // Получаем текущее значение поля "registerPhone"
+ const phoneNumber = watch("registerPhone", '+7');
 
  return (
     <>
@@ -30,7 +31,8 @@ function RegistrationComponent() {
           onChange={(event) => {
             let val = event.target.value.replace(/\D/g, "");
             let formattedVal = "+7" + val.slice(1, 11); 
-            setPhoneNumber(formattedVal);
+            setValue("registerPhone", formattedVal);
+            trigger("registerPhone");
           }}
           value={phoneNumber}
           error={Boolean(errors.registerPhone)}
