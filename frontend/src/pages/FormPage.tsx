@@ -57,7 +57,7 @@ export default function FormPage() {
 
 const onSubmit = async (data: any) => {
     try {
-        const rezultSendData = await dispatch(sendFormData(data));
+			const rezultSendData = await dispatch(sendFormData({ formData: data, formId: formId ?? '' }));
         console.log(rezultSendData);
     } catch (error) {
         console.error('Failed to send form data:', error);
