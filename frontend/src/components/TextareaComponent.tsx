@@ -8,6 +8,7 @@ interface TextareaComponentProps {
   disabled?: boolean;
   required?: boolean;
   quest?: string;
+  idQuestion?: string;
 }
 
 const green = {
@@ -61,12 +62,12 @@ const Textarea = styled(BaseTextareaAutosize)(
 `,
 );
 
-const TextareaComponent: React.FC<TextareaComponentProps> = ({ disabled = false, required = false, quest }) => {
+const TextareaComponent: React.FC<TextareaComponentProps> = ({ disabled = false, required = false, quest, idQuestion }) => {
   const { register, formState: { errors } } = useFormContext();
 
-  const questName = quest || 'ИмяВопросаНеБылоЗадано';
+  const inputName = idQuestion || 'defaultIdQuestion';
 
-  register(questName, { required: required ? "Заполните поле" : false });
+  register(inputName, { required: required ? "Заполните поле" : false });
 
   return (
     <>
@@ -75,7 +76,7 @@ const TextareaComponent: React.FC<TextareaComponentProps> = ({ disabled = false,
       }
       {!disabled &&
         <Controller
-          name={quest || 'ИмяВопросаНеБылоЗадано'}
+          name={inputName || 'ИмяВопросаНеБылоЗадано'}
           rules={{ required: required ? "Заполните поле" : false }}
           render={({ field }) => (
             <>
@@ -87,7 +88,7 @@ const TextareaComponent: React.FC<TextareaComponentProps> = ({ disabled = false,
                 minRows={5}
                 required={required}
               />
-              {errors[questName] && <Typography color="error">{errors[questName]?.message?.toString() || ''}</Typography>}
+              {errors[inputName] && <Typography color="error">{errors[inputName]?.message?.toString() || ''}</Typography>}
             </>
           )}
         />

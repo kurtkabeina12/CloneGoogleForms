@@ -3,19 +3,20 @@ import React from 'react';
 import { useFormContext } from 'react-hook-form';
 
 interface InputComponentProps {
-  disabled?: boolean;
-  required?: boolean;
-  quest?: string;
+ disabled?: boolean;
+ required?: boolean;
+ quest?: string;
+ idQuestion?: string; 
 }
 
-const InputComponent: React.FC<InputComponentProps> = ({ disabled = false, required = false, quest}) => {
-  const { register, formState: { errors } } = useFormContext();
+const InputComponent: React.FC<InputComponentProps> = ({ disabled = false, required = false, quest, idQuestion }) => {
+ const { register, formState: { errors } } = useFormContext();
 
-  const questName = quest || 'ИмяВопросаНеБылоЗадано';
+ const inputName = idQuestion || 'defaultIdQuestion';
 
-  const { ref, onChange, onBlur } = register(questName, { required: required ? "Заполните поле" : false });
+ const { ref, onChange, onBlur } = register(inputName, { required: required ? "Заполните поле" : false });
 
-  return (
+ return (
     <>
       {disabled &&
         <TextField
@@ -32,7 +33,7 @@ const InputComponent: React.FC<InputComponentProps> = ({ disabled = false, requi
           <TextField
             variant="standard"
             placeholder="Напишите ответ"
-            name={quest}
+            name={inputName}
             sx={{ mb: 3, marginTop: "1rem" }}
             fullWidth
             required={required}
@@ -40,15 +41,15 @@ const InputComponent: React.FC<InputComponentProps> = ({ disabled = false, requi
             onChange={onChange}
             onBlur={onBlur}
           />
-          {errors[questName] && (
+          {errors[inputName] && ( 
             <Typography color="error">
-              {errors[questName]?.message?.toString() || ''}
+              {errors[inputName]?.message?.toString() || ''}
             </Typography>
           )}
         </>
       }
     </>
-  );
+ );
 };
 
 export default InputComponent;

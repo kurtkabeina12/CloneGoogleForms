@@ -9,17 +9,18 @@ interface SliderComponentProps {
 	answers?: string[];
 	required?: boolean;
 	quest?: string;
+	idQuestion?: string;
 }
 
-const SliderComponent: React.FC<SliderComponentProps> = ({ disabled = false, onSliderValuesChange, answers, required = false, quest }) => {
+const SliderComponent: React.FC<SliderComponentProps> = ({ disabled = false, onSliderValuesChange, answers, required = false, quest, idQuestion }) => {
 	const [startValue, setStartValue] = useState<number>(answers ? parseInt(answers[0], 10) : 0);
 	const [lengthValue, setLengthValue] = useState<number>(answers ? parseInt(answers[1], 10) : 2);
 
 	const { register, control, formState: { errors } } = useFormContext();
 
-	const questName = quest || 'ИмяВопросаНеБылоЗадано';
+	const inputName = idQuestion || 'defaultIdQuestion';
 
-	register(questName, { required });
+	register(inputName, { required });
 
 	useEffect(() => {
 		if (onSliderValuesChange) {
@@ -47,7 +48,7 @@ const SliderComponent: React.FC<SliderComponentProps> = ({ disabled = false, onS
 			{!disabled && answers && (
 				<FormGroup sx={{ width: "-webkit-fill-available", marginTop: "1rem" }}>
 					<Controller
-						name={questName}
+						name={inputName}
 						control={control}
 						defaultValue={`${startValue},${lengthValue}`}
 						rules={{ required: required ? "Выберите ответ" : false }}
@@ -62,7 +63,7 @@ const SliderComponent: React.FC<SliderComponentProps> = ({ disabled = false, onS
 							/>
 						)}
 					/>
-					{errors[questName] && <Typography color="error">{errors[questName]?.message?.toString() || ''}</Typography>}
+					{errors[inputName] && <Typography color="error">{errors[inputName]?.message?.toString() || ''}</Typography>}
 				</FormGroup>
 			)}
 			{disabled && (

@@ -15,6 +15,7 @@ interface CheckboxesComponentProps {
   answers?: string[];
   required?: boolean;
   quest?: string;
+  idQuestion?: string;
   addLogic?: boolean;
   updateCardLogic?: (index: number, logic: string) => void;
   GetLogic?: string | string[];
@@ -26,6 +27,7 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
   disabled = false,
   answers = [],
   quest,
+  idQuestion,
   required = false,
   addLogic = false,
   updateCardLogic,
@@ -35,9 +37,9 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
 
   const { register, formState: { errors }, setValue, getValues } = useFormContext();
 
-  const questName = quest || 'ИмяВопросаНеБылоЗадано';
+  const inputName = idQuestion || 'defaultIdQuestion';
 
-  const { ref, onBlur } = register(questName, { required });
+  const { ref, onBlur } = register(inputName, { required });
 
   const [selectValue, setSelectValue] = useState<string | string[] | null>('smooth');
 
@@ -153,13 +155,13 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
 
     // Обновляем значения в форме
     const newValues = newSelectedCheckboxes.map((isChecked, i) => isChecked ? answers[i] : null).filter(Boolean);
-    setValue(questName, newValues);
+    setValue(inputName, newValues);
   };
 
   return (
     <FormGroup sx={{ width: '-webkit-fill-available', marginTop: '1rem' }}>
       {!disabled && answers.length > 0 && (
-        <FormGroup {...register(questName, { required })}>
+        <FormGroup {...register(inputName, { required })}>
           <>
             {!addLogic && (
               <>
@@ -171,17 +173,17 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
                       inputRef={ref}
                       onChange={(e) => {
                         if (e.target.checked) {
-                          setValue(`${questName}[${index}]`, answer);
+                          setValue(`${inputName}[${index}]`, answer);
                           // Проверяем, были ли выбраны какие-либо чекбоксы, и обновляем состояние ошибки
-                          const selectedAnswers = getValues()[questName] || [];
+                          const selectedAnswers = getValues()[inputName] || [];
                           console.log(selectedAnswers.length)
                           if (selectedAnswers.length > 0) {
                             setErrorMessageNoLogic('');
                           }
                         } else {
                           const values = getValues();
-                          const newValues = values[questName].filter((_: any, i: any) => i !== index);
-                          setValue(questName, newValues);
+                          const newValues = values[inputName].filter((_: any, i: any) => i !== index);
+                          setValue(inputName, newValues);
                           setErrorMessageNoLogic('Выберите ответ');
                         }
                       }}
@@ -191,7 +193,7 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
                     label={answer}
                   />
                 ))}
-                {errors[questName] && <Typography color="error">{errorMessageNoLogic}</Typography>}
+                {errors[inputName] && <Typography color="error">{errorMessageNoLogic}</Typography>}
               </>
             )}
             {addLogic && (
@@ -206,7 +208,7 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
                           color='success'
                           defaultChecked={false}
                           inputRef={ref}
-                          {...register(questName, {
+                          {...register(inputName, {
                             required: required || addLogic || (addLogic && required),
                             validate: () => {
                               if (GetLogic?.[0]?.startsWith('no more')) {
@@ -241,7 +243,7 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
                       label={answer}
                     />
                   ))}
-                  {errors[questName] && <Typography color="error">{errors[questName]?.message as String}</Typography>}
+                  {errors[inputName] && <Typography color="error">{errors[inputName]?.message as String}</Typography>}
                 </FormGroup>
               </>
             )}

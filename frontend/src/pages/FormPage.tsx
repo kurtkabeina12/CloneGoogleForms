@@ -26,7 +26,7 @@ interface FormData {
 		selectedComponent: string;
 		addLogic: boolean;
 		Logic: string | string[];
-		id: string;
+		idQuestion: string;
 	}[];
 
 }
@@ -55,14 +55,15 @@ export default function FormPage() {
 
 	const isMandatory = formData?.isMandatoryAuth;
 
-const onSubmit = async (data: any) => {
-    try {
+	const onSubmit = async (data: any) => {
+		console.log(data)
+		try {
 			const rezultSendData = await dispatch(sendFormData({ formData: data, formId: formId ?? '' }));
-        console.log(rezultSendData);
-    } catch (error) {
-        console.error('Failed to send form data:', error);
-    }
-};
+			console.log(rezultSendData);
+		} catch (error) {
+			console.error('Failed to send form data:', error);
+		}
+	};
 
 	return (
 		<>
@@ -78,7 +79,7 @@ const onSubmit = async (data: any) => {
 												{formData?.formHeader}
 											</Typography>
 											<Divider />
-											<RegistrationComponent  />
+											<RegistrationComponent />
 										</Paper>
 									</Box>
 								</Grid>
@@ -94,12 +95,12 @@ const onSubmit = async (data: any) => {
 																	<Box sx={{ display: 'flex', flexDirection: "row", width: "-webkit-fill-available", gap: 1, textAlign: 'center' }}>
 																		<Typography variant='h6' gutterBottom> {card.question} </Typography>
 																	</Box>
-																	{card.selectedComponent === 'Input' && <InputCopmponent disabled={false} quest={card.question} required={card.isRequired} />}
-																	{card.selectedComponent === 'Textarea' && <TextareaComponent disabled={false} quest={card.question} required={card.isRequired} />}
-																	{card.selectedComponent === 'Radio' && <RadioComponent disabled={false} answers={card.answer} quest={card.question} required={card.isRequired} />}
-																	{card.selectedComponent === 'Checkbox' && <CheckboxesComponent disabled={false} answers={card.answer} quest={card.question} required={card.isRequired} addLogic={card.addLogic} GetLogic={card.Logic} />}
-																	{card.selectedComponent === 'Slider' && <SliderComponent disabled={false} answers={card.answer} quest={card.question} required={card.isRequired} />}
-																	{card.selectedComponent === 'Data' && <DataComponent disabled={false} quest={card.question} required={card.isRequired} />}
+																	{card.selectedComponent === 'Input' && <InputCopmponent idQuestion={card.idQuestion} disabled={false} quest={card.question} required={card.isRequired} />}
+																	{card.selectedComponent === 'Textarea' && <TextareaComponent idQuestion={card.idQuestion} disabled={false} quest={card.question} required={card.isRequired} />}
+																	{card.selectedComponent === 'Radio' && <RadioComponent idQuestion={card.idQuestion} disabled={false} answers={card.answer} quest={card.question} required={card.isRequired} />}
+																	{card.selectedComponent === 'Checkbox' && <CheckboxesComponent idQuestion={card.idQuestion} disabled={false} answers={card.answer} quest={card.question} required={card.isRequired} addLogic={card.addLogic} GetLogic={card.Logic} />}
+																	{card.selectedComponent === 'Slider' && <SliderComponent idQuestion={card.idQuestion} disabled={false} answers={card.answer} quest={card.question} required={card.isRequired} />}
+																	{card.selectedComponent === 'Data' && <DataComponent idQuestion={card.idQuestion} disabled={false} quest={card.question} required={card.isRequired} />}
 																</Paper>
 															</Box>
 														</Grid>
@@ -144,12 +145,12 @@ const onSubmit = async (data: any) => {
 																<Box sx={{ display: 'flex', flexDirection: "row", width: "-webkit-fill-available", gap: 1, textAlign: 'center' }}>
 																	<Typography variant='h6' gutterBottom> {card.question} </Typography>
 																</Box>
-																{card.selectedComponent === 'Input' && <InputCopmponent disabled={false} quest={card.question} required={card.isRequired} />}
-																{card.selectedComponent === 'Textarea' && <TextareaComponent disabled={false} quest={card.question} required={card.isRequired} />}
-																{card.selectedComponent === 'Radio' && <RadioComponent disabled={false} answers={card.answer} quest={card.question} required={card.isRequired} />}
-																{card.selectedComponent === 'Checkbox' && <CheckboxesComponent disabled={false} answers={card.answer} quest={card.question} required={card.isRequired} addLogic={card.addLogic} GetLogic={card.Logic} />}
-																{card.selectedComponent === 'Slider' && <SliderComponent disabled={false} answers={card.answer} quest={card.question} required={card.isRequired} />}
-																{card.selectedComponent === 'Data' && <DataComponent disabled={false} quest={card.question} required={card.isRequired} />}
+																{card.selectedComponent === 'Input' && <InputCopmponent idQuestion={card.idQuestion} disabled={false} quest={card.question} required={card.isRequired} />}
+																{card.selectedComponent === 'Textarea' && <TextareaComponent idQuestion={card.idQuestion} disabled={false} quest={card.question} required={card.isRequired} />}
+																{card.selectedComponent === 'Radio' && <RadioComponent idQuestion={card.idQuestion} disabled={false} answers={card.answer} quest={card.question} required={card.isRequired} />}
+																{card.selectedComponent === 'Checkbox' && <CheckboxesComponent idQuestion={card.idQuestion} disabled={false} answers={card.answer} quest={card.question} required={card.isRequired} addLogic={card.addLogic} GetLogic={card.Logic} />}
+																{card.selectedComponent === 'Slider' && <SliderComponent idQuestion={card.idQuestion} disabled={false} answers={card.answer} quest={card.question} required={card.isRequired} />}
+																{card.selectedComponent === 'Data' && <DataComponent idQuestion={card.idQuestion} disabled={false} quest={card.question} required={card.isRequired} />}
 															</Paper>
 														</Box>
 													</Grid>

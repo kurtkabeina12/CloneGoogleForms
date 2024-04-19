@@ -13,6 +13,7 @@ interface RadioComponentProps {
   answers?: string[];
   required?: boolean;
   quest?: string;
+  idQuestion?: string;
 }
 
 const RadioComponent: React.FC<RadioComponentProps> = ({
@@ -20,15 +21,16 @@ const RadioComponent: React.FC<RadioComponentProps> = ({
   updateCardAnswers,
   disabled = false,
   quest,
+  idQuestion,
   required = false,
   answers = [],
 }) => {
   const { list, addItem, updateItem, setList } = useList<string[]>([['']]);
   const { register, formState: { errors }  } = useFormContext();
 
-  const questName = quest || 'ИмяВопросаНеБылоЗадано';
+  const inputName = idQuestion || 'defaultIdQuestion';
 
-  const { ref, onChange, onBlur } = register(questName, { required });
+  const { ref, onChange, onBlur } = register(inputName, { required });
 
   const handleAddAnswer = () => {
     addItem(['']);
@@ -65,7 +67,7 @@ const RadioComponent: React.FC<RadioComponentProps> = ({
   return (
     <FormGroup sx={{ width: '-webkit-fill-available', marginTop: '1rem' }}>
       {!disabled && answers.length > 0 && (
-        <RadioGroup {...register(questName, { required })}>
+        <RadioGroup {...register(inputName, { required })}>
           {answers.map((answer, index) => (
             <FormControlLabel key={index} value={answer} control={
               <Radio
@@ -77,7 +79,7 @@ const RadioComponent: React.FC<RadioComponentProps> = ({
               label={answer}
             />
           ))}
-          {errors[questName] && <Typography color="error">Выберите ответ</Typography>}
+          {errors[inputName] && <Typography color="error">Выберите ответ</Typography>}
         </RadioGroup>
       )}
       {disabled && (

@@ -6,14 +6,15 @@ interface DataComponentProps {
   disabled?: boolean;
   required?: boolean;
   quest?: string;
+  idQuestion?: string;
 }
 
-const DataComponent: React.FC<DataComponentProps> = ({ disabled = false, required = false, quest }) => {
+const DataComponent: React.FC<DataComponentProps> = ({ disabled = false, required = false, quest, idQuestion }) => {
   const {register, control, formState: { errors } } = useFormContext();
 
-  const questName = quest || 'ИмяВопросаНеБылоЗадано';
+  const inputName = idQuestion || 'defaultIdQuestion';
 
-  register(questName, { required });
+  register(inputName, { required });
 
   return (
     <FormGroup sx={{ width: "-webkit-fill-available", marginTop: "1rem" }}>
@@ -29,7 +30,7 @@ const DataComponent: React.FC<DataComponentProps> = ({ disabled = false, require
       }
       {!disabled &&
        <Controller
-       name={questName}
+       name={inputName}
        control={control}
        defaultValue=""
        rules={{ required: required ? "Заполните поле" : false }}
@@ -43,8 +44,8 @@ const DataComponent: React.FC<DataComponentProps> = ({ disabled = false, require
            disabled={disabled}
            color='success'
            required={required}
-           error={!!errors[questName]}
-           helperText={errors[questName]?.message?.toString() || ''}
+           error={!!errors[inputName]}
+           helperText={errors[inputName]?.message?.toString() || ''}
          />
        )}
      />
