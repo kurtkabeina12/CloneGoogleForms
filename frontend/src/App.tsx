@@ -5,6 +5,7 @@ import CreateFormPage from './pages/CreateFormPage';
 import store from './store/reducers/reducerRoot';
 import { Provider } from 'react-redux';
 import FormPage from './pages/FormPage';
+import StubPage from './pages/StubPage';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/create-form" element={<CreateFormPage />} />
             <Route path="/form/:formId" element={<FormPage />} />
+            <Route path="/stub" element={<StubPage />} />
           </Routes>
         </div>
       </Router>

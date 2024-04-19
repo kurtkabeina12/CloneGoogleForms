@@ -17,7 +17,6 @@ export const sendFormData = createAsyncThunk(
 			}
 
 			const data = await response.json();
-			console.log(data, 'ответ с сервера')
 			return data;
 		} catch (error) {
 			const err = error as Error;
