@@ -1,32 +1,28 @@
 import React from 'react';
 import '../styles/main.css';
-import DescriptionIcon from '@mui/icons-material/Description';
-import { Box } from '@mui/material';
-import Card from '@mui/material/Card';
-import AddIcon from '@mui/icons-material/Add';
-import { useNavigate } from 'react-router-dom';
+import { Box, Typography } from '@mui/material';
 
 const StubPage: React.FC = () => {
- const navigate = useNavigate();
+ const LogoImage = require('../img/LogoVita.png');
 
- const handleAddClick = () => {
-    navigate('/create-form');
- };
-  
  return (
-    <div className="home-page">
-      <div className='home-header'>
-        <DescriptionIcon fontSize='large' sx={{ color: '#00862b' }} />
-        <h4>Формы</h4>
-      </div>
-      <div className='home-body'>
-        <Box sx={{ backgroundColor: "#cbd5e1" }}>
-          <Card sx={{width:'4rem', height:"4rem", display:'flex', justifyContent:'center', alignItems:'center'}} onClick={handleAddClick}>
-            <AddIcon />
-          </Card>
-        </Box>
-      </div>
-    </div>
+    <>
+      <Box sx={{display:'flex', flexDirection:'column', alignItems:'center'}}>
+        <Box
+          component="img"
+          src={LogoImage}
+          alt='Logo'
+          sx={{
+            marginTop: "5rem",
+            height: { xs: "50%", sm: "40%", md: "30%", lg: "20%", xl: "15%" },
+            width: { xs: "50%", sm: "40%", md: "30%", lg: "20%", xl: "15%" },
+          }}
+        />
+        <Typography variant="h4" component="h2" sx={{mt:"5rem"}}>
+          Ваши ответы записаны
+        </Typography>
+      </Box>
+    </>
  );
 };
 

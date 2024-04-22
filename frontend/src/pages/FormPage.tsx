@@ -1,6 +1,6 @@
 import { Box, Button, Divider, Grid, Paper, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import TextareaComponent from '../components/TextareaComponent';
 import InputCopmponent from '../components/InputCopmponent';
 import DataComponent from '../components/DataComponent';
@@ -34,6 +34,7 @@ interface FormData {
 export default function FormPage() {
 	const { formId } = useParams();
 	const dispatch = useDispatch<AppDispatch>();
+	const navigate = useNavigate();
 
 	const methods = useForm();
 	const [formData, setFormData] = useState<FormData | null>(null);
@@ -60,6 +61,7 @@ export default function FormPage() {
 		try {
 			const rezultSendData = await dispatch(sendFormData({ formData: data, formId: formId ?? '' }));
 			console.log(rezultSendData);
+			navigate("/stub")
 		} catch (error) {
 			console.error('Failed to send form data:', error);
 		}
@@ -112,7 +114,7 @@ export default function FormPage() {
 										)
 									}
 								</Grid>
-								<Button type="submit" onClick={onSubmit} variant="contained" endIcon={<SendIcon />} color="success">
+								<Button type="submit" variant="contained" endIcon={<SendIcon />} color="success">
 									Отправить
 								</Button>
 							</Grid>
@@ -162,7 +164,7 @@ export default function FormPage() {
 									)
 								}
 							</Grid>
-							<Button type="submit" onClick={onSubmit} variant="contained" endIcon={<SendIcon />} color="success">
+							<Button type="submit" variant="contained" endIcon={<SendIcon />} color="success">
 								Отправить
 							</Button>
 						</Grid>
