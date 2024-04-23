@@ -1,12 +1,39 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import '../styles/main.css';
 import DescriptionIcon from '@mui/icons-material/Description';
-import { Box, CardActionArea, CardContent, CardMedia, Divider, Typography } from '@mui/material';
+import { Box, CardActionArea, CardContent, CardMedia, Divider, Grid, Typography } from '@mui/material';
 import Card from '@mui/material/Card';
 import AddIcon from '@mui/icons-material/Add';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { GetAllForms } from '../store/action/actionGetAllForms';
+import { AppDispatch } from '../store/reducers/reducerRoot';
+import { unwrapResult } from '@reduxjs/toolkit';
+
+interface Forms {
+  id: string,
+  formHeader: string,
+}
 
 const HomePage: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const [forms, setForms] = useState<Forms[]>([]);
+
+  useEffect(() => {
+    const fetchFormData = async () => {
+      try {
+        const actionResult = await dispatch(GetAllForms());
+        const formData = unwrapResult(actionResult);
+        setForms(formData);
+        console.log(formData, 'данные с сервера');
+      } catch (error) {
+        console.error('Failed to fetch form:', error);
+      }
+    };
+
+    fetchFormData();
+  }, [dispatch]);
+
   const navigate = useNavigate();
 
   const handleAddClick = () => {
@@ -35,24 +62,32 @@ const HomePage: React.FC = () => {
         <Typography variant='h4'>
           Ваши формы
         </Typography>
-        <Card sx={{ maxWidth: 345 }}>
-          <CardActionArea>
-            <CardMedia
-              component="img"
-              height="140"
-              image={BackgroundImage}
-            />
-            <CardContent>
-              <Typography gutterBottom variant="h5" component="div">
-                Lizard
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Lizards are a widespread group of squamate reptiles, with over 6,000
-                species, ranging across all continents except Antarctica
-              </Typography>
-            </CardContent>
-          </CardActionArea>
-        </Card>
+        <Grid container spacing={2}>
+          {forms.map((form, index) => {
+            return (
+              <Grid item xs={12} sm={6} md={4} key={index} onClick={() => navigate(`/report/${form.id}`)}>
+                <Card sx={{ maxWidth: 345 }}>
+                  <CardActionArea>
+                    <CardMedia
+                      component="img"
+                      height="140"
+                      image={BackgroundImage}
+                    />
+                    <CardContent>
+                      <Typography gutterBottom variant="h5" component="div">
+                        {form.formHeader}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Дата окончания опроса
+                        {/* Add more form details here */}
+                      </Typography>
+                    </CardContent>
+                  </CardActionArea>
+                </Card>
+              </Grid>
+            )
+          })}
+        </Grid>
       </Box>
     </div>
   );

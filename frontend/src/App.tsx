@@ -6,6 +6,7 @@ import store from './store/reducers/reducerRoot';
 import { Provider } from 'react-redux';
 import FormPage from './pages/FormPage';
 import StubPage from './pages/StubPage';
+import SurveyReportPage from './pages/SurveyReportPage';
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
             <Route path="/create-form" element={<CreateFormPage />} />
             <Route path="/form/:formId" element={<FormPage />} />
             <Route path="/stub" element={<StubPage />} />
+            <Route path="/report/:formId" element={<SurveyReportPage />} />
           </Routes>
         </div>
       </Router>

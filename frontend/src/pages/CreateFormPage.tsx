@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AppBar, Box, Button, Fab, FormControl, FormControlLabel, Grid, IconButton, InputLabel, MenuItem, Paper, Switch, Tabs, TextField, Toolbar, Tooltip, Typography } from '@mui/material';
+import { AppBar, Box, Button, Fab, FormControl, FormControlLabel, Grid, IconButton, InputLabel, MenuItem, Paper, Switch, TextField, Toolbar, Tooltip, Typography } from '@mui/material';
 import '../styles/main.css';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
@@ -19,7 +19,6 @@ import RadioComponent from '../components/RadioComponent';
 import CheckboxesComponent from '../components/CheckboxesComponent';
 import DataComponent from '../components/DataComponent';
 import DescriptionIcon from '@mui/icons-material/Description';
-import { CustomTab } from '../components/CustomTab';
 import SliderComponent from '../components/SliderComponent';
 import { useDispatch } from 'react-redux';
 import { Card } from '../types/types';
@@ -33,17 +32,17 @@ import { CustomSwitch } from '../components/CustomSwitch';
 const CreateFormPage: React.FC = () => {
 	const [cards, setCards] = useState<Card[]>([{ selectedComponent: 'Input', question: '', isRequired: false, answer: "", addLogic: false, Logic: '' }]);
 	const [activeCardIndex, setActiveCardIndex] = useState<number | null>(null);
-	const [value, setValue] = React.useState('Questions');
+	// const [value, setValue] = React.useState('Questions');
 	const dispatch = useDispatch<AppDispatch>();
 	const navigate = useNavigate();
 	const [title, setTitle] = useState('');
 	const methods = useForm();
 	const [isMandatoryAuth, setIsMandatoryAuth] = useState(false);
 
-	//изменения выбора элемента для карточки
-	const handleChange = (event: React.SyntheticEvent, newValue: string) => {
-		setValue(newValue);
-	};
+	// //изменения выбора элемента для карточки
+	// const handleChange = (event: React.SyntheticEvent, newValue: string) => {
+	// 	setValue(newValue);
+	// };
 
 	//обновления текста вопроса в карточке
 	const handleQuestionChange = (index: number, newQuestion: string) => {
@@ -149,7 +148,7 @@ const CreateFormPage: React.FC = () => {
 								<DescriptionIcon fontSize='large' sx={{ color: '#00862b' }} />
 								<Typography variant='h5' color="black">Новая форма</Typography>
 							</Box>
-							<Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+							<Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb:3 }}>
 								<Typography variant='body2' color="black">Анонимный <br /> опрос</Typography>
 								<CustomSwitch onChange={handleAuthTypeChange} />
 								<Typography variant='body1' color="black">Авторизация <br /> обязательная</Typography>
@@ -157,7 +156,7 @@ const CreateFormPage: React.FC = () => {
 						</Box>
 						<Button variant="contained" onClick={SendCards} color="success">Отправить</Button>
 					</Toolbar>
-					<Toolbar sx={{ justifyContent: 'center', backgroundColor: "white" }}>
+					{/* <Toolbar sx={{ justifyContent: 'center', backgroundColor: "white" }}>
 						<Tabs
 							value={value}
 							onChange={handleChange}
@@ -166,7 +165,7 @@ const CreateFormPage: React.FC = () => {
 							<CustomTab label="Вопросы" value="Questions" />
 							<CustomTab label="Ответы" value="Answers" />
 						</Tabs>
-					</Toolbar>
+					</Toolbar> */}
 				</AppBar>
 			</Box>
 			<FormProvider {...methods}>
