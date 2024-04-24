@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/alt-text */
 import React, { useState } from 'react';
 import { AppBar, Box, Button, Fab, FormControl, FormControlLabel, Grid, IconButton, InputLabel, MenuItem, Paper, Switch, TextField, Toolbar, Tooltip, Typography } from '@mui/material';
 import '../styles/main.css';
@@ -28,9 +29,10 @@ import { useNavigate } from 'react-router-dom';
 import ConstructionIcon from '@mui/icons-material/Construction';
 import { FormProvider, useForm } from 'react-hook-form';
 import { CustomSwitch } from '../components/CustomSwitch';
+import ImageIcon from '@mui/icons-material/Image';
 
 const CreateFormPage: React.FC = () => {
-	const [cards, setCards] = useState<Card[]>([{ selectedComponent: 'Input', question: '', isRequired: false, answer: "", addLogic: false, Logic: '' }]);
+	const [cards, setCards] = useState<Card[]>([{ selectedComponent: 'Input', question: '', isRequired: false, answer: "", addLogic: false, Logic: '', addImg:false, imageUrl: '' }]);
 	const [activeCardIndex, setActiveCardIndex] = useState<number | null>(null);
 	// const [value, setValue] = React.useState('Questions');
 	const dispatch = useDispatch<AppDispatch>();
@@ -38,7 +40,6 @@ const CreateFormPage: React.FC = () => {
 	const [title, setTitle] = useState('');
 	const methods = useForm();
 	const [isMandatoryAuth, setIsMandatoryAuth] = useState(false);
-
 	// //изменения выбора элемента для карточки
 	// const handleChange = (event: React.SyntheticEvent, newValue: string) => {
 	// 	setValue(newValue);
@@ -125,6 +126,71 @@ const CreateFormPage: React.FC = () => {
 		setIsMandatoryAuth(event.target.checked);
 	};
 
+	const compressImage = (file: Blob, maxSize: number) => {
+    return new Promise<Blob>((resolve, reject) => {
+        const img = new Image();
+        img.src = URL.createObjectURL(file);
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d')!;
+            let width = img.width;
+            let height = img.height;
+
+            if (width > height) {
+                if (width > maxSize) {
+                    height *= maxSize / width;
+                    width = maxSize;
+                }
+            } else {
+                if (height > maxSize) {
+                    width *= maxSize / height;
+                    height = maxSize;
+                }
+            }
+            canvas.width = width;
+            canvas.height = height;
+            ctx.drawImage(img, 0, 0, width, height);
+
+            canvas.toBlob(blob => {
+                if (blob) {
+                    resolve(blob);
+                } else {
+                    reject(new Error('Не удалось сжать изображение'));
+                }
+            }, file.type);
+        };
+        img.onerror = reject;
+    });
+};
+
+const handleAddImage = (index: number) => {
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'image/*';
+    fileInput.onchange = async (event) => {
+        const target = event.target as HTMLInputElement;
+        if (target && target.files && target.files.length > 0) {
+            const file = target.files[0];
+            try {
+                const compressedBlob = await compressImage(file, 500);
+                const compressedFile = new File([compressedBlob], file.name, { type: file.type });
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    const newCards = [...cards];
+                    newCards[index].imageUrl = reader.result as string;
+                    newCards[index].addImg = true; 
+                    setCards(newCards);
+                };
+                reader.readAsDataURL(compressedFile);
+            } catch (error) {
+                console.error('Ошибка при сжатии изображения:', error);
+            }
+        }
+    };
+    fileInput.click();
+};
+
+	 
 	//отправка данных о карточках с redux
 	const SendCards = async () => {
 		try {
@@ -135,7 +201,7 @@ const CreateFormPage: React.FC = () => {
 		} catch (error) {
 			console.log('Error get Id forms');
 		}
-		console.log(cards);
+		console.log(cards, "cards");
 	};
 
 	return (
@@ -148,7 +214,7 @@ const CreateFormPage: React.FC = () => {
 								<DescriptionIcon fontSize='large' sx={{ color: '#00862b' }} />
 								<Typography variant='h5' color="black">Новая форма</Typography>
 							</Box>
-							<Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb:3 }}>
+							<Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
 								<Typography variant='body2' color="black">Анонимный <br /> опрос</Typography>
 								<CustomSwitch onChange={handleAuthTypeChange} />
 								<Typography variant='body1' color="black">Авторизация <br /> обязательная</Typography>
@@ -195,7 +261,19 @@ const CreateFormPage: React.FC = () => {
 												{(provided) => (
 													<Grid item xs={12} sm={8} md={6} className='body-card' onClick={() => handleCardClick(index)} ref={provided.innerRef} {...provided.draggableProps}>
 														<Box sx={{ mb: 3 }}>
-															<Paper elevation={2} sx={{ p: 3, paddingTop: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", borderLeft: activeCardIndex === index ? "8px solid #00862b" : "none" }}>
+															<Paper elevation={2} sx={{
+																p: 3,
+																paddingTop: 0,
+																display: "flex",
+																flexDirection: "column",
+																alignItems: "center",
+																justifyContent: "flex-start",
+																borderLeft: activeCardIndex === index ? "8px solid #00862b" : "none",
+																// backgroundImage: `url(${backgroundImageUrl})`,
+																// backgroundSize: 'cover',
+																// backgroundPosition: 'center',
+																// backgroundRepeat: 'no-repeat'
+															}}>
 																<div {...provided.dragHandleProps} style={{ display: 'flex', alignItems: 'center', cursor: 'move' }}>
 																	<DragIndicatorIcon style={{ transform: "rotate(90deg)", marginBottom: '10px' }} />
 																</div>
@@ -209,6 +287,9 @@ const CreateFormPage: React.FC = () => {
 																		sx={{ mb: 3 }}
 																		fullWidth
 																	/>
+																	<IconButton aria-label="addImage" size='small' onClick={() => handleAddImage(index)}>
+																		<ImageIcon />
+																	</IconButton>
 																	<FormControl fullWidth>
 																		<InputLabel id="demo-simple-select-label">Тип ответа</InputLabel>
 																		<Select
@@ -276,6 +357,7 @@ const CreateFormPage: React.FC = () => {
 																		</Select>
 																	</FormControl>
 																</Box>
+																<img src={card.imageUrl} style={{maxWidth:"-webkit-fill-available", marginTop:5}}></img>
 																{card.selectedComponent === 'Input' && <InputCopmponent disabled={true} />}
 																{card.selectedComponent === 'Textarea' && <TextareaComponent disabled={true} />}
 																{card.selectedComponent === 'Radio' && <RadioComponent cardIndex={index} updateCardAnswers={updateCardAnswers} disabled={true} />}
@@ -327,7 +409,7 @@ const CreateFormPage: React.FC = () => {
 								size="medium"
 								color="success"
 								aria-label="add"
-								onClick={() => setCards([...cards, { selectedComponent: 'Input', question: '', isRequired: false, answer: "", addLogic: false, Logic: '' }])}
+								onClick={() => setCards([...cards, { selectedComponent: 'Input', question: '', isRequired: false, answer: "", addLogic: false, Logic: '', addImg: false, imageUrl: '' }])}
 							>
 								<AddIcon />
 							</Fab>

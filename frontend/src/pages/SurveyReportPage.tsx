@@ -5,7 +5,7 @@ import { useDispatch } from 'react-redux';
 import { fetchGetReportForm } from '../store/action/actionGetReportForm';
 import { AppDispatch } from '../store/reducers/reducerRoot';
 import { unwrapResult } from '@reduxjs/toolkit';
-import { Box, Typography } from '@mui/material';
+import { Box, Paper, Typography } from '@mui/material';
 
 interface ReportItem {
 	question: string;
@@ -44,14 +44,16 @@ const SurveyReportPage: React.FC = () => {
 		<Box>
 			{reportData.map((item: ReportItem, index: number) => (
 				<Box key={index}>
-					<Typography variant='h4'>{item.question}</Typography>
-					<ul>
-						{item.answers.map((answer, answerIndex) => (
-							<li key={answerIndex}>
-								{Array.isArray(answer.answers) ? answer.answers.join(', ') : answer.answers}
-							</li>
-						))}
-					</ul>
+					<Paper elevation={2} sx={{ p: 3, m:4 }}>
+						<Typography variant='h4'>{item.question}</Typography>
+						<ul>
+							{item.answers.map((answer, answerIndex) => (
+								<li key={answerIndex}>
+									{Array.isArray(answer.answers) ? answer.answers.join(', ') : answer.answers}
+								</li>
+							))}
+						</ul>
+					</Paper>
 				</Box>
 			))}
 		</Box>

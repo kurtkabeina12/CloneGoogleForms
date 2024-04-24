@@ -14,6 +14,8 @@ export interface Card {
   answer: string | string[];
 	addLogic: boolean;
   Logic: string | string[];
+  addImg: boolean,
+	imageUrl: string;
 }
 
 export interface FormState {
