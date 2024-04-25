@@ -27,6 +27,8 @@ interface FormData {
 		addLogic: boolean;
 		Logic: string | string[];
 		idQuestion: string;
+		addImg: boolean;
+		imageUrl: string;
 	}[];
 
 }
@@ -39,21 +41,24 @@ export default function FormPage() {
 	const methods = useForm();
 	const [formData, setFormData] = useState<FormData | null>(null);
 
+	
 	useEffect(() => {
 		const fetchFormData = async () => {
 			try {
 				const actionResult = await dispatch(fetchGetForm({ formId: formId ?? '' }));
 				const formData = unwrapResult(actionResult);
 				setFormData(formData);
+				const selectedColor = formData.selectedColor
+				document.body.style.backgroundColor = selectedColor;
 				console.log(formData, 'данные с сервера')
 			} catch (error) {
 				console.error('Failed to fetch form:', error);
 			}
 		};
-
+		
 		fetchFormData();
 	}, [dispatch, formId]);
-
+	
 	const isMandatory = formData?.isMandatoryAuth;
 
 	const onSubmit = async (data: any) => {
@@ -97,6 +102,9 @@ export default function FormPage() {
 																	<Box sx={{ display: 'flex', flexDirection: "row", width: "-webkit-fill-available", gap: 1, textAlign: 'center' }}>
 																		<Typography variant='h6' gutterBottom> {card.question} </Typography>
 																	</Box>
+																	{card.addImg && (
+																		<img src={card.imageUrl} style={{maxWidth:"-webkit-fill-available", marginTop:5}} />
+																	)}
 																	{card.selectedComponent === 'Input' && <InputCopmponent idQuestion={card.idQuestion} disabled={false} quest={card.question} required={card.isRequired} />}
 																	{card.selectedComponent === 'Textarea' && <TextareaComponent idQuestion={card.idQuestion} disabled={false} quest={card.question} required={card.isRequired} />}
 																	{card.selectedComponent === 'Radio' && <RadioComponent idQuestion={card.idQuestion} disabled={false} answers={card.answer} quest={card.question} required={card.isRequired} />}

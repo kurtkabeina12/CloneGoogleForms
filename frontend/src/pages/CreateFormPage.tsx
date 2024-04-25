@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/alt-text */
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { AppBar, Box, Button, Fab, FormControl, FormControlLabel, Grid, IconButton, InputLabel, MenuItem, Paper, Switch, TextField, Toolbar, Tooltip, Typography } from '@mui/material';
 import '../styles/main.css';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
@@ -32,7 +32,7 @@ import { CustomSwitch } from '../components/CustomSwitch';
 import ImageIcon from '@mui/icons-material/Image';
 
 const CreateFormPage: React.FC = () => {
-	const [cards, setCards] = useState<Card[]>([{ selectedComponent: 'Input', question: '', isRequired: false, answer: "", addLogic: false, Logic: '', addImg:false, imageUrl: '' }]);
+	const [cards, setCards] = useState<Card[]>([{ selectedComponent: 'Input', question: '', isRequired: false, answer: "", addLogic: false, Logic: '', addImg: false, imageUrl: '' }]);
 	const [activeCardIndex, setActiveCardIndex] = useState<number | null>(null);
 	// const [value, setValue] = React.useState('Questions');
 	const dispatch = useDispatch<AppDispatch>();
@@ -40,6 +40,13 @@ const CreateFormPage: React.FC = () => {
 	const [title, setTitle] = useState('');
 	const methods = useForm();
 	const [isMandatoryAuth, setIsMandatoryAuth] = useState(false);
+	const [selectedColor, setSelectedColor] = useState('#9fe5ae87');
+	const [showTooltip, setShowTooltip] = useState(false);
+
+	useEffect(() => {
+		document.body.style.backgroundColor = selectedColor;
+	}, [selectedColor]);
+
 	// //изменения выбора элемента для карточки
 	// const handleChange = (event: React.SyntheticEvent, newValue: string) => {
 	// 	setValue(newValue);
@@ -63,6 +70,11 @@ const CreateFormPage: React.FC = () => {
 	const handleDeleteCard = (index: number) => {
 		const newCards = cards.filter((_, cardIndex) => cardIndex !== index); // Убираем карточку с поля
 		setCards(newCards); // Обновляем сосояние 
+	};
+
+	const handleColorChange = (color: string) => {
+		setSelectedColor(color);
+		setShowTooltip(false);
 	};
 
 	//дублирование карточки
@@ -127,74 +139,73 @@ const CreateFormPage: React.FC = () => {
 	};
 
 	const compressImage = (file: Blob, maxSize: number) => {
-    return new Promise<Blob>((resolve, reject) => {
-        const img = new Image();
-        img.src = URL.createObjectURL(file);
-        img.onload = () => {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d')!;
-            let width = img.width;
-            let height = img.height;
+		return new Promise<Blob>((resolve, reject) => {
+			const img = new Image();
+			img.src = URL.createObjectURL(file);
+			img.onload = () => {
+				const canvas = document.createElement('canvas');
+				const ctx = canvas.getContext('2d')!;
+				let width = img.width;
+				let height = img.height;
 
-            if (width > height) {
-                if (width > maxSize) {
-                    height *= maxSize / width;
-                    width = maxSize;
-                }
-            } else {
-                if (height > maxSize) {
-                    width *= maxSize / height;
-                    height = maxSize;
-                }
-            }
-            canvas.width = width;
-            canvas.height = height;
-            ctx.drawImage(img, 0, 0, width, height);
+				if (width > height) {
+					if (width > maxSize) {
+						height *= maxSize / width;
+						width = maxSize;
+					}
+				} else {
+					if (height > maxSize) {
+						width *= maxSize / height;
+						height = maxSize;
+					}
+				}
+				canvas.width = width;
+				canvas.height = height;
+				ctx.drawImage(img, 0, 0, width, height);
 
-            canvas.toBlob(blob => {
-                if (blob) {
-                    resolve(blob);
-                } else {
-                    reject(new Error('Не удалось сжать изображение'));
-                }
-            }, file.type);
-        };
-        img.onerror = reject;
-    });
-};
+				canvas.toBlob(blob => {
+					if (blob) {
+						resolve(blob);
+					} else {
+						reject(new Error('Не удалось сжать изображение'));
+					}
+				}, file.type);
+			};
+			img.onerror = reject;
+		});
+	};
 
-const handleAddImage = (index: number) => {
-    const fileInput = document.createElement('input');
-    fileInput.type = 'file';
-    fileInput.accept = 'image/*';
-    fileInput.onchange = async (event) => {
-        const target = event.target as HTMLInputElement;
-        if (target && target.files && target.files.length > 0) {
-            const file = target.files[0];
-            try {
-                const compressedBlob = await compressImage(file, 500);
-                const compressedFile = new File([compressedBlob], file.name, { type: file.type });
-                const reader = new FileReader();
-                reader.onloadend = () => {
-                    const newCards = [...cards];
-                    newCards[index].imageUrl = reader.result as string;
-                    newCards[index].addImg = true; 
-                    setCards(newCards);
-                };
-                reader.readAsDataURL(compressedFile);
-            } catch (error) {
-                console.error('Ошибка при сжатии изображения:', error);
-            }
-        }
-    };
-    fileInput.click();
-};
+	const handleAddImage = (index: number) => {
+		const fileInput = document.createElement('input');
+		fileInput.type = 'file';
+		fileInput.accept = 'image/*';
+		fileInput.onchange = async (event) => {
+			const target = event.target as HTMLInputElement;
+			if (target && target.files && target.files.length > 0) {
+				const file = target.files[0];
+				try {
+					const compressedBlob = await compressImage(file, 500);
+					const compressedFile = new File([compressedBlob], file.name, { type: file.type });
+					const reader = new FileReader();
+					reader.onloadend = () => {
+						const newCards = [...cards];
+						newCards[index].imageUrl = reader.result as string;
+						newCards[index].addImg = true;
+						setCards(newCards);
+					};
+					reader.readAsDataURL(compressedFile);
+				} catch (error) {
+					console.error('Ошибка при сжатии изображения:', error);
+				}
+			}
+		};
+		fileInput.click();
+	};
 
-	 
 	//отправка данных о карточках с redux
 	const SendCards = async () => {
 		try {
-			const actionResult = await dispatch(sendCardAsync({ cards, title, isMandatoryAuth }));
+			const actionResult = await dispatch(sendCardAsync({ cards, title, isMandatoryAuth, selectedColor }));
 			console.log(isMandatoryAuth)
 			const formId = actionResult.payload.formId;
 			navigate(`/form/${formId.formId}`, { state: { formId } });
@@ -220,6 +231,27 @@ const handleAddImage = (index: number) => {
 								<Typography variant='body1' color="black">Авторизация <br /> обязательная</Typography>
 							</Box>
 						</Box>
+						<div style={{ display: 'inline-block', cursor: 'pointer' }} onClick={() => setShowTooltip(!showTooltip)}>
+							<div style={{
+								width: '50px',
+								height: '50px',
+								borderRadius: '50%',
+								backgroundColor: selectedColor,
+								border: "1px solid rgba(0, 0, 0, 0.26)"
+							}}></div>
+							{showTooltip && (
+								<div style={{ position: 'absolute', zIndex: 2, backgroundColor: 'white', border: '1px solid #ccc', padding: '10px', marginTop: '10px' }}>
+									<div style={{ display: 'flex', justifyContent: 'space-around' }}>
+										<div style={{ width: '20px', height: '20px', borderRadius: '50%',  border: '1px solid #ccc', backgroundColor: 'rgb(255 0 0 / 34%)', cursor: 'pointer' }} onClick={() => handleColorChange('rgb(255 0 0 / 34%)')}></div>
+										<div style={{ width: '20px', height: '20px', borderRadius: '50%', border: '1px solid #ccc', backgroundColor: '#9fe5ae87', cursor: 'pointer' }} onClick={() => handleColorChange('#9fe5ae87')}></div>
+										<div style={{ width: '20px', height: '20px', borderRadius: '50%', border: '1px solid #ccc', backgroundColor: '#0072ff47', cursor: 'pointer' }} onClick={() => handleColorChange('#0072ff47')}></div>
+										<div style={{ width: '20px', height: '20px', borderRadius: '50%', border: '1px solid #ccc', backgroundColor: '#ffa50040', cursor: 'pointer' }} onClick={() => handleColorChange('#ffa50040')}></div>
+										<div style={{ width: '20px', height: '20px', borderRadius: '50%', border: '1px solid #ccc', backgroundColor: '#0000003d', cursor: 'pointer' }} onClick={() => handleColorChange('#0000003d')}></div>
+										<div style={{ width: '20px', height: '20px', borderRadius: '50%', border: '1px solid #ccc', backgroundColor: '#fff', cursor: 'pointer' }} onClick={() => handleColorChange('#fff')}></div>
+									</div>
+								</div>
+							)}
+						</div>
 						<Button variant="contained" onClick={SendCards} color="success">Отправить</Button>
 					</Toolbar>
 					{/* <Toolbar sx={{ justifyContent: 'center', backgroundColor: "white" }}>
@@ -357,7 +389,7 @@ const handleAddImage = (index: number) => {
 																		</Select>
 																	</FormControl>
 																</Box>
-																<img src={card.imageUrl} style={{maxWidth:"-webkit-fill-available", marginTop:5}}></img>
+																<img src={card.imageUrl} style={{ maxWidth: "-webkit-fill-available", marginTop: 5 }}></img>
 																{card.selectedComponent === 'Input' && <InputCopmponent disabled={true} />}
 																{card.selectedComponent === 'Textarea' && <TextareaComponent disabled={true} />}
 																{card.selectedComponent === 'Radio' && <RadioComponent cardIndex={index} updateCardAnswers={updateCardAnswers} disabled={true} />}
