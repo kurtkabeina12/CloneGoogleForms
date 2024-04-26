@@ -37,14 +37,16 @@ body {
 }
 
 .body-card {
-    padding-left: 30px !important;
-    margin-left: 15px !important;
+    margin-top: 2rem !important;
+    max-width: 100% !important;
 }
 
 .FormCenter {
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-direction: column !important;
+    flex-wrap: nowrap;
 }
 
 .css-1eed5fa-MuiInputBase-root-MuiInput-root::after {
@@ -74,3 +76,7 @@ body {
 .MuiTabs-indicator {
     background: #00862b !important;
 } 
+
+.css-81x57z{
+    margin-bottom: 0 !important;
+}
