@@ -7,8 +7,9 @@ import CloseIcon from '@mui/icons-material/Close';
 import { useFormContext } from 'react-hook-form';
 
 interface RadioComponentProps {
+  sectionIndex?: number,
   cardIndex?: number;
-  updateCardAnswers?: (index: number, answers: string[]) => void;
+  updateCardAnswers?: (sectionIndex:number, index: number, answers: string[]) => void;
   disabled: boolean;
   answers?: string[];
   required?: boolean;
@@ -17,6 +18,7 @@ interface RadioComponentProps {
 }
 
 const RadioComponent: React.FC<RadioComponentProps> = ({
+  sectionIndex,
   cardIndex,
   updateCardAnswers,
   disabled = false,
@@ -37,12 +39,12 @@ const RadioComponent: React.FC<RadioComponentProps> = ({
   };
 
   //Добавить ответ
-  const handleUpdateAnswer = (index: number, value: string) => {
+  const handleUpdateAnswer = (sectionIndex:number, index: number, value: string) => {
     const newAnswers = [...list];
     newAnswers[index] = [value];
     updateItem(index, newAnswers[index]);
     if (updateCardAnswers) {
-      updateCardAnswers(cardIndex || 0, newAnswers.map(answer => answer[0]));
+      updateCardAnswers(sectionIndex, cardIndex || 0, newAnswers.map(answer => answer[0]));
     }
   };
 
@@ -54,12 +56,12 @@ const RadioComponent: React.FC<RadioComponentProps> = ({
     setList(items);
   };
 
-  const handleRemoveAnswer = (index: number) => {
+  const handleRemoveAnswer = (sectionIndex:number,  index: number) => {
     if (list.length > 1) {
       const newList = list.filter((_, i) => i !== index);
       setList(newList);
       if (updateCardAnswers) {
-        updateCardAnswers(cardIndex || 0, newList.map(answer => answer[0]));
+        updateCardAnswers(sectionIndex, cardIndex || 0, newList.map(answer => answer[0]));
       }
     }
   };
@@ -104,12 +106,12 @@ const RadioComponent: React.FC<RadioComponentProps> = ({
                                 <Input
                                   placeholder='Ответ'
                                   value={item[0] || ''}
-                                  onChange={(e) => handleUpdateAnswer(index, e.target.value)}
+                                  onChange={(e) => handleUpdateAnswer(sectionIndex || 0, index, e.target.value)}
                                 />
                               }
                             />
                             {list.length > 1 && (
-                              <CloseIcon style={{ color: "rgb(0 0 0 / 42%)" }} onClick={() => handleRemoveAnswer(index)} />
+                              <CloseIcon style={{ color: "rgb(0 0 0 / 42%)" }} onClick={() => handleRemoveAnswer(sectionIndex || 0, index)} />
                             )}
                           </div>
                         </div>

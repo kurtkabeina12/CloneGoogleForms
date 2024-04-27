@@ -1,20 +1,36 @@
 import React, { useEffect, useState } from 'react';
-import { Box, FormGroup, MenuItem, Select, Slider, Typography } from '@mui/material';
+import { Box, FormGroup, IconButton, MenuItem, Select, Slider, TextField, Tooltip, Typography } from '@mui/material';
 import { SelectChangeEvent } from '@mui/material/Select';
 import { Controller, useFormContext } from 'react-hook-form';
+import AddIcon from '@mui/icons-material/Add';
+import CloseIcon from '@mui/icons-material/Close';
 
 interface SliderComponentProps {
+	sectionIndex?: number,
+	cardIndex?: number,
 	disabled: boolean;
 	onSliderValuesChange?: (values: string) => void;
 	answers?: string[];
 	required?: boolean;
 	quest?: string;
 	idQuestion?: string;
+	addChangeCardsLogic?: boolean;
 }
 
-const SliderComponent: React.FC<SliderComponentProps> = ({ disabled = false, onSliderValuesChange, answers, required = false, quest, idQuestion }) => {
+const SliderComponent: React.FC<SliderComponentProps> = ({
+	sectionIndex,
+	cardIndex,
+	disabled = false,
+	onSliderValuesChange,
+	answers,
+	required = false,
+	quest,
+	idQuestion,
+	addChangeCardsLogic = false,
+}) => {
 	const [startValue, setStartValue] = useState<number>(answers ? parseInt(answers[0], 10) : 0);
 	const [lengthValue, setLengthValue] = useState<number>(answers ? parseInt(answers[1], 10) : 2);
+	const [logicChangeBlocks, setLogicChangeBlocks] = useState<{ answer: string; cardIndex: string }[]>([]);
 
 	const { register, control, formState: { errors } } = useFormContext();
 
@@ -32,8 +48,6 @@ const SliderComponent: React.FC<SliderComponentProps> = ({ disabled = false, onS
 		setStartValue(Number(event.target.value));
 	};
 
-	console.log(answers)
-
 	const handleLengthChange = (event: SelectChangeEvent<number>) => {
 		setLengthValue(Number(event.target.value));
 	};
@@ -42,6 +56,16 @@ const SliderComponent: React.FC<SliderComponentProps> = ({ disabled = false, onS
 	for (let i = startValue; i <= lengthValue; i++) {
 		marks.push({ value: i, label: i.toString() });
 	}
+
+	const handleAddNewLogicChange = () => {
+		setLogicChangeBlocks([...logicChangeBlocks, { answer: '', cardIndex: '' }]);
+	};
+
+	const handleRemoveNewLogicChange = (index: number) => {
+		if (logicChangeBlocks.length > 1) {
+			setLogicChangeBlocks(logicChangeBlocks.filter((_, i) => i !== index));
+		}
+	};
 
 	return (
 		<>
@@ -96,6 +120,48 @@ const SliderComponent: React.FC<SliderComponentProps> = ({ disabled = false, onS
 							color='success'
 							valueLabelDisplay="auto"
 						/>
+						{addChangeCardsLogic && (
+							<>
+								{logicChangeBlocks.map((block, index) => (
+									<Box key={index} sx={{ display: 'flex', flexDirection: 'row', flexWrap: 'nowrap', mt: 2 }}>
+										<Typography variant='body1' color='black' sx={{ mr: 2 }}>При выборе ответа:</Typography>
+										<TextField
+											variant="standard"
+											type='number'
+											value={block.answer}
+											onChange={(e) => {
+												const newLogicChangeBlocks = [...logicChangeBlocks];
+												newLogicChangeBlocks[index].answer = e.target.value;
+												setLogicChangeBlocks(newLogicChangeBlocks);
+											}}
+										/>
+										<Typography variant='body1' color='black' sx={{ mr: 2 }}>открыть карточку:</Typography>
+										<TextField
+											variant="standard"
+											type='number'
+											value={block.cardIndex}
+											onChange={(e) => {
+												const newLogicChangeBlocks = [...logicChangeBlocks];
+												newLogicChangeBlocks[index].cardIndex = e.target.value;
+												setLogicChangeBlocks(newLogicChangeBlocks);
+											}}
+										/>
+										{logicChangeBlocks.length > 1 && (
+											<IconButton aria-label="removeNewLogicChange" size='small' onClick={() => handleRemoveNewLogicChange(index)}>
+												<CloseIcon />
+											</IconButton>
+										)}
+									</Box>
+								))}
+								<Box sx={{ marginTop: "1rem", display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
+									<Tooltip title="Добавить условие">
+										<IconButton aria-label="addNewLogicChange" size='small' onClick={handleAddNewLogicChange}>
+											<AddIcon />
+										</IconButton>
+									</Tooltip>
+								</Box>
+							</>
+						)}
 					</FormGroup>
 				</>
 			)}
