@@ -593,11 +593,11 @@ const CreateFormPage: React.FC = () => {
 																	placeholder="Напишите вопрос"
 																	name="title"
 																	value={subQuestion.question}
-																	onChange={(event) => handleQuestionChange(subQuestionIndex, event.target.value, sectionIndex,)}
+																	onChange={(event) => handleQuestionChange(subQuestionIndex, event.target.value, subQuestionIndex,)}
 																	sx={{ mb: 3 }}
 																	fullWidth
 																/>
-																<IconButton aria-label="addImage" size='small' onClick={() => handleAddImage(subQuestionIndex, sectionIndex)}>
+																<IconButton aria-label="addImage" size='small' onClick={() => handleAddImage(subQuestionIndex, subQuestionIndex)}>
 																	<ImageIcon />
 																</IconButton>
 																<FormControl fullWidth>
@@ -607,7 +607,7 @@ const CreateFormPage: React.FC = () => {
 																		id="demo-simple-select"
 																		value={subQuestion.selectedComponent}
 																		label="Тип ответа"
-																		onChange={(event) => handleSelectChange(event, subQuestionIndex, sectionIndex)}
+																		onChange={(event) => handleSelectChange(event, subQuestionIndex, subQuestionIndex)}
 																		color='success'
 																	>
 																		<MenuItem value="Input">
@@ -672,7 +672,7 @@ const CreateFormPage: React.FC = () => {
 															{subQuestion.selectedComponent === 'Textarea' && <TextareaComponent disabled={true} />}
 															{subQuestion.selectedComponent === 'Radio' && <RadioComponent sectionIndex={sectionIndex} cardIndex={subQuestionIndex} updateCardAnswers={updateCardAnswers} disabled={true} />}
 															{subQuestion.selectedComponent === 'Checkbox' && <CheckboxesComponent sectionIndex={sectionIndex} cardIndex={subQuestionIndex} updateCardAnswers={updateCardAnswers} addLogic={subQuestion.addLogic} disabled={true} updateCardLogic={updateCardLogic} />}
-															{subQuestion.selectedComponent === 'Slider' && <SliderComponent sectionIndex={sectionIndex} cardIndex={subQuestionIndex} disabled={true} onSliderValuesChange={(values) => updateCardAnswers(sectionIndex, subQuestionIndex, [values])} addChangeCardsLogic={subQuestion.addChangeCardsLogic} />}
+															{subQuestion.selectedComponent === 'Slider' && <SliderComponent sectionIndex={sectionIndex} cardIndex={subQuestionIndex} disabled={true} onSliderValuesChange={(values) => updateCardAnswers(subQuestionIndex, subQuestionIndex, [values])} addChangeCardsLogic={subQuestion.addChangeCardsLogic} />}
 															{subQuestion.selectedComponent === 'Data' && <DataComponent disabled={true} />}
 															<Grid item xs={12}>
 																<Box sx={{ mt: 3, display: 'flex', justifyContent: 'center', borderTopColor: "black", alignItems: 'center' }}>
@@ -682,10 +682,10 @@ const CreateFormPage: React.FC = () => {
 																		</Typography>
 																	)}
 																	{((subQuestion.selectedComponent !== 'Checkbox') || (!subQuestion.addLogic)) && (
-																		<FormControlLabel control={<Switch color='success' onChange={(event) => handleSwitchChange(sectionIndex, subQuestionIndex, event.target.checked)} checked={subQuestion.isRequired} />} style={{ whiteSpace: 'nowrap' }} label="Обязательный вопрос*" />
+																		<FormControlLabel control={<Switch color='success' onChange={(event) => handleSwitchChange(subQuestionIndex, subQuestionIndex, event.target.checked)} checked={subQuestion.isRequired} />} style={{ whiteSpace: 'nowrap' }} label="Обязательный вопрос*" />
 																	)}
 																	<Tooltip title="Удалить карточку">
-																		<IconButton aria-label="delete" color="warning" size="small" onClick={() => handleDeleteCard(sectionIndex, subQuestionIndex)}>
+																		<IconButton aria-label="delete" color="warning" size="small" onClick={() => handleDeleteCard(subQuestionIndex, subQuestionIndex)}>
 																			<DeleteIcon style={{ color: "red" }} />
 																		</IconButton>
 																	</Tooltip>
@@ -696,21 +696,21 @@ const CreateFormPage: React.FC = () => {
 																	</Tooltip>
 																	{(subQuestion.selectedComponent === 'Checkbox') && (
 																		<Tooltip title="Добавить условия">
-																			<IconButton aria-label="addLogic" size='small' onClick={() => handleAddLogicClick(sectionIndex, subQuestionIndex)}>
+																			<IconButton aria-label="addLogic" size='small' onClick={() => handleAddLogicClick(subQuestionIndex, subQuestionIndex)}>
 																				<ConstructionIcon />
 																			</IconButton>
 																		</Tooltip>
 																	)}
 																	{(subQuestion.selectedComponent === 'Checkbox' || subQuestion.selectedComponent === 'Slider') && (
 																		<Tooltip title="Добавить логику">
-																			<IconButton aria-label="addChangeCardsLogic" size='small' onClick={() => handleAddChangeCardsLogic(sectionIndex, subQuestionIndex)}>
+																			<IconButton aria-label="addChangeCardsLogic" size='small' onClick={() => handleAddChangeCardsLogic(subQuestionIndex, subQuestionIndex)}>
 																				<SettingsIcon />
 																			</IconButton>
 																		</Tooltip>
 																	)}
 																	{subQuestion.addChangeCardsLogic && (
 																		<Tooltip title="Добавить подвопрос">
-																			<IconButton aria-label="addAdditionalQuestions" size='small' onClick={() => handleAddAdditionalQuestions(sectionIndex, subQuestionIndex)} >
+																			<IconButton aria-label="addAdditionalQuestions" size='small' onClick={() => handleAddAdditionalQuestions(subQuestionIndex, subQuestionIndex)} >
 																				<AddCircleIcon color='success' />
 																			</IconButton>
 																		</Tooltip>
