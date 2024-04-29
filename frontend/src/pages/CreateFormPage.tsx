@@ -92,9 +92,9 @@ const Textarea = styled(BaseTextareaAutosize)(
 );
 
 const CreateFormPage: React.FC = () => {
-	const [cards, setCards] = useState<Card[]>([{ selectedComponent: 'Input', question: '', isRequired: false, answer: "", addLogic: false, Logic: '', addImg: false, imageUrl: '', addChangeCardsLogic: false,  subQuestions: [] as SubQuestion[], }]);
+	const [cards, setCards] = useState<Card[]>([{ selectedComponent: 'Input', question: '', isRequired: false, answer: "", addLogic: false, Logic: '', addImg: false, imageUrl: '', addChangeCardsLogic: false, subQuestions: [] as SubQuestion[], }]);
 	const [activeCardIndex, setActiveCardIndex] = useState<number | null>(null);
-	const [sections, setSections] = useState<Section[]>([{ title: '', cards: [{ selectedComponent: 'Input', question: '', isRequired: false, answer: "", addLogic: false, Logic: '', addImg: false, imageUrl: '', addChangeCardsLogic: false,  subQuestions: [] as SubQuestion[], }] }]);
+	const [sections, setSections] = useState<Section[]>([{ title: '', cards: [{ selectedComponent: 'Input', question: '', isRequired: false, answer: "", addLogic: false, Logic: '', addImg: false, imageUrl: '', addChangeCardsLogic: false, subQuestions: [] as SubQuestion[], }] }]);
 	const [activeSectionIndex, setActiveSectionIndex] = useState<number | null>(null);
 	// const [value, setValue] = React.useState('Questions');
 	const dispatch = useDispatch<AppDispatch>();
@@ -124,11 +124,22 @@ const CreateFormPage: React.FC = () => {
 	};
 
 	//изменения типа компонента ответа в карточке
-	const handleSelectChange = (event: SelectChangeEvent<string>, index: number, sectionIndex: number,) => {
+	const handleSelectChange = (
+		event: SelectChangeEvent<string>,
+		index: number,
+		sectionIndex: number,
+		cardType: string
+	) => {
 		const newSections = [...sections];
-		newSections[sectionIndex].cards[index].selectedComponent = event.target.value;
+		if (cardType === "subQuestion") {
+			newSections[sectionIndex].cards[index].subQuestions[index].selectedComponent = event.target.value;
+		} else {
+			newSections[sectionIndex].cards[index].selectedComponent = event.target.value;
+		}
 		setSections(newSections);
 	};
+	
+	
 
 	const handleDeleteCard = (sectionIndex: number, index: number) => {
 		const newSections = [...sections];
@@ -295,7 +306,7 @@ const CreateFormPage: React.FC = () => {
 		});
 		setSections(newSections);
 	};
-	
+
 
 	//отправка данных о карточках с redux
 	const SendCards = async () => {
@@ -465,7 +476,7 @@ const CreateFormPage: React.FC = () => {
 																id="demo-simple-select"
 																value={card.selectedComponent}
 																label="Тип ответа"
-																onChange={(event) => handleSelectChange(event, index, sectionIndex)}
+																onChange={(event) => handleSelectChange(event, index, sectionIndex, "card")}
 																color='success'
 															>
 																<MenuItem value="Input">
@@ -607,7 +618,7 @@ const CreateFormPage: React.FC = () => {
 																		id="demo-simple-select"
 																		value={subQuestion.selectedComponent}
 																		label="Тип ответа"
-																		onChange={(event) => handleSelectChange(event, subQuestionIndex, subQuestionIndex)}
+																		onChange={(event) => handleSelectChange(event, subQuestionIndex, sectionIndex, "subQuestion")}
 																		color='success'
 																	>
 																		<MenuItem value="Input">
