@@ -117,9 +117,13 @@ const CreateFormPage: React.FC = () => {
 	// };
 
 	//обновления текста вопроса в карточке
-	const handleQuestionChange = (index: number, newQuestion: string, sectionIndex: number,) => {
+	const handleQuestionChange = (index: number, newQuestion: string, sectionIndex: number, cardType: string) => {
 		const newSection = [...sections];
-		newSection[sectionIndex].cards[index].question = newQuestion;
+		if (cardType === "subQuestion") {
+			newSection[sectionIndex].cards[index].subQuestions[index].question = newQuestion;
+		} else {
+			newSection[sectionIndex].cards[index].question = newQuestion;
+		}
 		setSections(newSection);
 	};
 
@@ -138,20 +142,28 @@ const CreateFormPage: React.FC = () => {
 		}
 		setSections(newSections);
 	};
-	
-	
 
-	const handleDeleteCard = (sectionIndex: number, index: number) => {
+	const handleDeleteCard = (sectionIndex: number, index: number, cardType: string) => {
 		const newSections = [...sections];
-		if (newSections[sectionIndex].cards.length === 1) {
-			return;
+		if (cardType === "subQuestion") {
+			if (newSections[sectionIndex].cards[index].subQuestions.length === 1) {
+				return;
+			}
+			newSections[sectionIndex].cards[index].subQuestions.splice(index, 1)
+		} else {
+			if (newSections[sectionIndex].cards.length === 1) {
+				return;
+			}
+			newSections[sectionIndex].cards.splice(index, 1);
 		}
-		newSections[sectionIndex].cards.splice(index, 1);
 		setSections(newSections);
 	};
 
-	const handleDuplicateCard = (sectionIndex: number, index: number) => {
+	const handleDuplicateCard = (sectionIndex: number, index: number, cardType:string) => {
 		const newSections = [...sections];
+		if(cardType === "subQuestion"){
+
+		}
 		const duplicatedCard = { ...newSections[sectionIndex].cards[index] };
 		newSections[sectionIndex].cards.splice(index + 1, 0, duplicatedCard);
 		setSections(newSections);
@@ -554,32 +566,32 @@ const CreateFormPage: React.FC = () => {
 																<FormControlLabel control={<Switch color='success' onChange={(event) => handleSwitchChange(sectionIndex, index, event.target.checked)} checked={card.isRequired} />} style={{ whiteSpace: 'nowrap' }} label="Обязательный вопрос*" />
 															)}
 															<Tooltip title="Удалить карточку">
-																<IconButton aria-label="delete" color="warning" size="small" onClick={() => handleDeleteCard(sectionIndex, index)}>
+																<IconButton aria-label="delete" color="warning" size="small" onClick={() => handleDeleteCard(sectionIndex, index, 'card')}>
 																	<DeleteIcon style={{ color: "red" }} />
 																</IconButton>
 															</Tooltip>
 															<Tooltip title="Дублировать карточку">
-																<IconButton aria-label="duplicate" color="success" size="small" onClick={() => handleDuplicateCard(sectionIndex, index)}>
+																<IconButton aria-label="duplicate" color="success" size="small" onClick={() => handleDuplicateCard(sectionIndex, index, 'card')}>
 																	<FileCopyIcon />
 																</IconButton>
 															</Tooltip>
 															{(card.selectedComponent === 'Checkbox') && (
 																<Tooltip title="Добавить условия">
-																	<IconButton aria-label="addLogic" size='small' onClick={() => handleAddLogicClick(sectionIndex, index)}>
+																	<IconButton aria-label="addLogic" size='small' onClick={() => handleAddLogicClick(sectionIndex, index, 'card')}>
 																		<ConstructionIcon />
 																	</IconButton>
 																</Tooltip>
 															)}
 															{(card.selectedComponent === 'Checkbox' || card.selectedComponent === 'Slider') && (
 																<Tooltip title="Добавить логику">
-																	<IconButton aria-label="addChangeCardsLogic" size='small' onClick={() => handleAddChangeCardsLogic(sectionIndex, index)}>
+																	<IconButton aria-label="addChangeCardsLogic" size='small' onClick={() => handleAddChangeCardsLogic(sectionIndex, index, 'card')}>
 																		<SettingsIcon />
 																	</IconButton>
 																</Tooltip>
 															)}
 															{card.addChangeCardsLogic && (
 																<Tooltip title="Добавить подвопрос">
-																	<IconButton aria-label="addAdditionalQuestions" size='small' onClick={() => handleAddAdditionalQuestions(sectionIndex, index)} >
+																	<IconButton aria-label="addAdditionalQuestions" size='small' onClick={() => handleAddAdditionalQuestions(sectionIndex, index, 'card')} >
 																		<AddCircleIcon color='success' />
 																	</IconButton>
 																</Tooltip>
@@ -693,35 +705,35 @@ const CreateFormPage: React.FC = () => {
 																		</Typography>
 																	)}
 																	{((subQuestion.selectedComponent !== 'Checkbox') || (!subQuestion.addLogic)) && (
-																		<FormControlLabel control={<Switch color='success' onChange={(event) => handleSwitchChange(subQuestionIndex, subQuestionIndex, event.target.checked)} checked={subQuestion.isRequired} />} style={{ whiteSpace: 'nowrap' }} label="Обязательный вопрос*" />
+																		<FormControlLabel control={<Switch color='success' onChange={(event) => handleSwitchChange(subQuestionIndex, subQuestionIndex, event.target.checked, "subQuestion")} checked={subQuestion.isRequired} />} style={{ whiteSpace: 'nowrap' }} label="Обязательный вопрос*" />
 																	)}
 																	<Tooltip title="Удалить карточку">
-																		<IconButton aria-label="delete" color="warning" size="small" onClick={() => handleDeleteCard(subQuestionIndex, subQuestionIndex)}>
+																		<IconButton aria-label="delete" color="warning" size="small" onClick={() => handleDeleteCard(subQuestionIndex, subQuestionIndex, "subQuestion")}>
 																			<DeleteIcon style={{ color: "red" }} />
 																		</IconButton>
 																	</Tooltip>
 																	<Tooltip title="Дублировать карточку">
-																		<IconButton aria-label="duplicate" color="success" size="small" onClick={() => handleDuplicateCard(sectionIndex, subQuestionIndex)}>
+																		<IconButton aria-label="duplicate" color="success" size="small" onClick={() => handleDuplicateCard(sectionIndex, subQuestionIndex, "subQuestion")}>
 																			<FileCopyIcon />
 																		</IconButton>
 																	</Tooltip>
 																	{(subQuestion.selectedComponent === 'Checkbox') && (
 																		<Tooltip title="Добавить условия">
-																			<IconButton aria-label="addLogic" size='small' onClick={() => handleAddLogicClick(subQuestionIndex, subQuestionIndex)}>
+																			<IconButton aria-label="addLogic" size='small' onClick={() => handleAddLogicClick(subQuestionIndex, subQuestionIndex, "subQuestion")}>
 																				<ConstructionIcon />
 																			</IconButton>
 																		</Tooltip>
 																	)}
 																	{(subQuestion.selectedComponent === 'Checkbox' || subQuestion.selectedComponent === 'Slider') && (
 																		<Tooltip title="Добавить логику">
-																			<IconButton aria-label="addChangeCardsLogic" size='small' onClick={() => handleAddChangeCardsLogic(subQuestionIndex, subQuestionIndex)}>
+																			<IconButton aria-label="addChangeCardsLogic" size='small' onClick={() => handleAddChangeCardsLogic(subQuestionIndex, subQuestionIndex, "subQuestion")}>
 																				<SettingsIcon />
 																			</IconButton>
 																		</Tooltip>
 																	)}
 																	{subQuestion.addChangeCardsLogic && (
 																		<Tooltip title="Добавить подвопрос">
-																			<IconButton aria-label="addAdditionalQuestions" size='small' onClick={() => handleAddAdditionalQuestions(subQuestionIndex, subQuestionIndex)} >
+																			<IconButton aria-label="addAdditionalQuestions" size='small' onClick={() => handleAddAdditionalQuestions(subQuestionIndex, subQuestionIndex, "subQuestion")} >
 																				<AddCircleIcon color='success' />
 																			</IconButton>
 																		</Tooltip>
