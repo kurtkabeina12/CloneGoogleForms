@@ -117,15 +117,16 @@ const CreateFormPage: React.FC = () => {
 	// };
 
 	//обновления текста вопроса в карточке
-	const handleQuestionChange = (index: number, newQuestion: string, sectionIndex: number, cardType: string) => {
-		const newSection = [...sections];
-		if (cardType === "subQuestion") {
-			newSection[sectionIndex].cards[index].subQuestions[index].question = newQuestion;
-		} else {
-			newSection[sectionIndex].cards[index].question = newQuestion;
-		}
-		setSections(newSection);
-	};
+const handleQuestionChange = (index: number, newQuestion: string, sectionIndex: number, cardType: string) => {
+	const newSections = [...sections];
+	if (cardType === "subQuestion") {
+		newSections[sectionIndex].cards[index].subQuestions[index].question = newQuestion;
+	} else {
+		newSections[sectionIndex].cards[index].question = newQuestion;
+	}
+	setSections(newSections);
+};
+
 
 	//изменения типа компонента ответа в карточке
 	const handleSelectChange = (
@@ -146,26 +147,21 @@ const CreateFormPage: React.FC = () => {
 	const handleDeleteCard = (sectionIndex: number, index: number, cardType: string) => {
 		const newSections = [...sections];
 		if (cardType === "subQuestion") {
-			if (newSections[sectionIndex].cards[index].subQuestions.length === 1) {
-				return;
-			}
-			newSections[sectionIndex].cards[index].subQuestions.splice(index, 1)
+			newSections[sectionIndex].cards.splice(index, 1);
 		} else {
-			if (newSections[sectionIndex].cards.length === 1) {
-				return;
-			}
 			newSections[sectionIndex].cards.splice(index, 1);
 		}
 		setSections(newSections);
 	};
 
-	const handleDuplicateCard = (sectionIndex: number, index: number, cardType:string) => {
+	const handleDuplicateCard = (sectionIndex: number, index: number, cardType: string) => {
 		const newSections = [...sections];
-		if(cardType === "subQuestion"){
-
-		}
 		const duplicatedCard = { ...newSections[sectionIndex].cards[index] };
-		newSections[sectionIndex].cards.splice(index + 1, 0, duplicatedCard);
+		if (cardType === "subQuestion") {
+			newSections[sectionIndex].cards.splice(index + 1, 0, duplicatedCard);
+		} else {
+			newSections[sectionIndex].cards.splice(index + 1, 0, duplicatedCard);
+		}
 		setSections(newSections);
 	};
 
@@ -195,16 +191,24 @@ const CreateFormPage: React.FC = () => {
 	};
 
 	//обновления ответов в карточке
-	const updateCardAnswers = (sectionIndex: number, index: number, answers: string[]) => {
+	const updateCardAnswers = (sectionIndex: number, index: number, answers: string[], cardType: string) => {
 		const newSections = [...sections];
-		newSections[sectionIndex].cards[index].answer = answers;
+		if (cardType === "subQuestion") {
+			newSections[sectionIndex].cards[index].subQuestions[index].answer = answers;
+		} else {
+			newSections[sectionIndex].cards[index].answer = answers;
+		}
 		setSections(newSections);
 	};
 
 	//переключения статуса обязательности карточки
-	const handleSwitchChange = (sectionIndex: number, index: number, isRequired: boolean) => {
+	const handleSwitchChange = (sectionIndex: number, index: number, isRequired: boolean, cardType: string) => {
 		const newSections = [...sections];
-		newSections[sectionIndex].cards[index].isRequired = isRequired;
+		if (cardType === "subQuestion") {
+			newSections[sectionIndex].cards[index].subQuestions[index].isRequired = isRequired;
+		} else {
+			newSections[sectionIndex].cards[index].isRequired = isRequired;
+		}
 		setSections(newSections);
 	};
 
@@ -214,23 +218,31 @@ const CreateFormPage: React.FC = () => {
 	};
 
 	//добавить логику в карточку
-	const handleAddLogicClick = (sectionIndex: number, index: number) => {
-		const newSection = [...sections];
-		newSection[sectionIndex].cards[index].addLogic = !newSection[sectionIndex].cards[index].addLogic;
-
-		//обнуляем switch обязательного поля
-		if (newSection[sectionIndex].cards[index].addLogic) {
-			newSection[sectionIndex].cards[index].isRequired = false;
+	const handleAddLogicClick = (sectionIndex: number, index: number, cardType: string) => {
+		const newSections = [...sections];
+		newSections[sectionIndex].cards[index].addLogic = !newSections[sectionIndex].cards[index].addLogic;
+	
+		// Обнуляем switch обязательного поля
+		if (newSections[sectionIndex].cards[index].addLogic) {
+			if (cardType === "subQuestion") {
+				newSections[sectionIndex].cards[index].subQuestions[index].isRequired = false;
+			} else {
+				newSections[sectionIndex].cards[index].isRequired = false;
+			}
 		}
-
-		setSections(newSection);
+	
+		setSections(newSections);
 	};
 
 	//обновить логику в карточке
-	const updateCardLogic = (sectionIndex: number, index: number, logic: string) => {
-		const newSection = [...sections];
-		newSection[sectionIndex].cards[index].Logic = logic;
-		setSections(newSection);
+	const updateCardLogic = (sectionIndex: number, index: number, logic: string, cardType: string) => {
+		const newSections = [...sections];
+		if (cardType === "subQuestion") {
+			newSections[sectionIndex].cards[index].subQuestions[index].Logic = logic;
+		} else {
+			newSections[sectionIndex].cards[index].Logic = logic;
+		}
+		setSections(newSections);
 	};
 
 	//отслеживаем какую авторизацию выбрал пользователь
@@ -275,7 +287,7 @@ const CreateFormPage: React.FC = () => {
 		});
 	};
 
-	const handleAddImage = (sectionIndex: number, index: number) => {
+	const handleAddImage = (sectionIndex: number, index: number, cardType: string) => {
 		const fileInput = document.createElement('input');
 		fileInput.type = 'file';
 		fileInput.accept = 'image/*';
@@ -288,10 +300,15 @@ const CreateFormPage: React.FC = () => {
 					const compressedFile = new File([compressedBlob], file.name, { type: file.type });
 					const reader = new FileReader();
 					reader.onloadend = () => {
-						const newSection = [...sections];
-						newSection[sectionIndex].cards[index].imageUrl = reader.result as string;
-						newSection[sectionIndex].cards[index].addImg = true;
-						setSections(newSection);
+						const newSections = [...sections];
+						if (cardType === "subQuestion") {
+							newSections[sectionIndex].cards[index].subQuestions[index].imageUrl = reader.result as string;
+							newSections[sectionIndex].cards[index].subQuestions[index].addImg = true;
+						} else {
+							newSections[sectionIndex].cards[index].imageUrl = reader.result as string;
+							newSections[sectionIndex].cards[index].addImg = true;
+						}
+						setSections(newSections);
 					};
 					reader.readAsDataURL(compressedFile);
 				} catch (error) {
@@ -342,12 +359,15 @@ const CreateFormPage: React.FC = () => {
 		console.log(cards, "cards");
 	};
 
-	function handleAddChangeCardsLogic(sectionIndex: number, index: number): void {
-		const newSection = [...sections];
-		newSection[sectionIndex].cards[index].addChangeCardsLogic = !newSection[sectionIndex].cards[index].addChangeCardsLogic;
-
-		setSections(newSection);
-	}
+	const handleAddChangeCardsLogic = (sectionIndex: number, index: number, cardType: string) => {
+		const newSections = [...sections];
+		if (cardType === "subQuestion") {
+			newSections[sectionIndex].cards[index].subQuestions[index].addChangeCardsLogic = !newSections[sectionIndex].cards[index].subQuestions[index].addChangeCardsLogic;
+		} else {
+			newSections[sectionIndex].cards[index].addChangeCardsLogic = !newSections[sectionIndex].cards[index].addChangeCardsLogic;
+		}
+		setSections(newSections);
+	};
 
 	return (
 		<>
@@ -474,11 +494,11 @@ const CreateFormPage: React.FC = () => {
 															placeholder="Напишите вопрос"
 															name="title"
 															value={card.question}
-															onChange={(event) => handleQuestionChange(index, event.target.value, sectionIndex,)}
+															onChange={(event) => handleQuestionChange(index, event.target.value, sectionIndex, 'card')}
 															sx={{ mb: 3 }}
 															fullWidth
 														/>
-														<IconButton aria-label="addImage" size='small' onClick={() => handleAddImage(index, sectionIndex)}>
+														<IconButton aria-label="addImage" size='small' onClick={() => handleAddImage(index, sectionIndex, 'card')}>
 															<ImageIcon />
 														</IconButton>
 														<FormControl fullWidth>
@@ -553,7 +573,7 @@ const CreateFormPage: React.FC = () => {
 													{card.selectedComponent === 'Textarea' && <TextareaComponent disabled={true} />}
 													{card.selectedComponent === 'Radio' && <RadioComponent sectionIndex={sectionIndex} cardIndex={index} updateCardAnswers={updateCardAnswers} disabled={true} />}
 													{card.selectedComponent === 'Checkbox' && <CheckboxesComponent sectionIndex={sectionIndex} cardIndex={index} updateCardAnswers={updateCardAnswers} addLogic={card.addLogic} disabled={true} updateCardLogic={updateCardLogic} />}
-													{card.selectedComponent === 'Slider' && <SliderComponent sectionIndex={sectionIndex} cardIndex={index} disabled={true} onSliderValuesChange={(values) => updateCardAnswers(sectionIndex, index, [values])} addChangeCardsLogic={card.addChangeCardsLogic} />}
+													{card.selectedComponent === 'Slider' && <SliderComponent sectionIndex={sectionIndex} cardIndex={index} disabled={true} onSliderValuesChange={(values) => updateCardAnswers(sectionIndex, index, [values], 'card')} addChangeCardsLogic={card.addChangeCardsLogic} />}
 													{card.selectedComponent === 'Data' && <DataComponent disabled={true} />}
 													<Grid item xs={12}>
 														<Box sx={{ mt: 3, display: 'flex', justifyContent: 'center', borderTopColor: "black", alignItems: 'center' }}>
@@ -563,7 +583,7 @@ const CreateFormPage: React.FC = () => {
 																</Typography>
 															)}
 															{((card.selectedComponent !== 'Checkbox') || (!card.addLogic)) && (
-																<FormControlLabel control={<Switch color='success' onChange={(event) => handleSwitchChange(sectionIndex, index, event.target.checked)} checked={card.isRequired} />} style={{ whiteSpace: 'nowrap' }} label="Обязательный вопрос*" />
+																<FormControlLabel control={<Switch color='success' onChange={(event) => handleSwitchChange(sectionIndex, index, event.target.checked, 'card')} checked={card.isRequired} />} style={{ whiteSpace: 'nowrap' }} label="Обязательный вопрос*" />
 															)}
 															<Tooltip title="Удалить карточку">
 																<IconButton aria-label="delete" color="warning" size="small" onClick={() => handleDeleteCard(sectionIndex, index, 'card')}>
@@ -591,7 +611,7 @@ const CreateFormPage: React.FC = () => {
 															)}
 															{card.addChangeCardsLogic && (
 																<Tooltip title="Добавить подвопрос">
-																	<IconButton aria-label="addAdditionalQuestions" size='small' onClick={() => handleAddAdditionalQuestions(sectionIndex, index, 'card')} >
+																	<IconButton aria-label="addAdditionalQuestions" size='small' onClick={() => handleAddAdditionalQuestions(sectionIndex, index)} >
 																		<AddCircleIcon color='success' />
 																	</IconButton>
 																</Tooltip>
@@ -616,11 +636,11 @@ const CreateFormPage: React.FC = () => {
 																	placeholder="Напишите вопрос"
 																	name="title"
 																	value={subQuestion.question}
-																	onChange={(event) => handleQuestionChange(subQuestionIndex, event.target.value, subQuestionIndex,)}
+																	onChange={(event) => handleQuestionChange(subQuestionIndex, event.target.value, subQuestionIndex, "subQuestion")}
 																	sx={{ mb: 3 }}
 																	fullWidth
 																/>
-																<IconButton aria-label="addImage" size='small' onClick={() => handleAddImage(subQuestionIndex, subQuestionIndex)}>
+																<IconButton aria-label="addImage" size='small' onClick={() => handleAddImage(subQuestionIndex, subQuestionIndex, "subQuestion")}>
 																	<ImageIcon />
 																</IconButton>
 																<FormControl fullWidth>
@@ -695,7 +715,7 @@ const CreateFormPage: React.FC = () => {
 															{subQuestion.selectedComponent === 'Textarea' && <TextareaComponent disabled={true} />}
 															{subQuestion.selectedComponent === 'Radio' && <RadioComponent sectionIndex={sectionIndex} cardIndex={subQuestionIndex} updateCardAnswers={updateCardAnswers} disabled={true} />}
 															{subQuestion.selectedComponent === 'Checkbox' && <CheckboxesComponent sectionIndex={sectionIndex} cardIndex={subQuestionIndex} updateCardAnswers={updateCardAnswers} addLogic={subQuestion.addLogic} disabled={true} updateCardLogic={updateCardLogic} />}
-															{subQuestion.selectedComponent === 'Slider' && <SliderComponent sectionIndex={sectionIndex} cardIndex={subQuestionIndex} disabled={true} onSliderValuesChange={(values) => updateCardAnswers(subQuestionIndex, subQuestionIndex, [values])} addChangeCardsLogic={subQuestion.addChangeCardsLogic} />}
+															{subQuestion.selectedComponent === 'Slider' && <SliderComponent sectionIndex={sectionIndex} cardIndex={subQuestionIndex} disabled={true} onSliderValuesChange={(values) => updateCardAnswers(subQuestionIndex, subQuestionIndex, [values], "subQuestion")} addChangeCardsLogic={subQuestion.addChangeCardsLogic} />}
 															{subQuestion.selectedComponent === 'Data' && <DataComponent disabled={true} />}
 															<Grid item xs={12}>
 																<Box sx={{ mt: 3, display: 'flex', justifyContent: 'center', borderTopColor: "black", alignItems: 'center' }}>
@@ -733,7 +753,7 @@ const CreateFormPage: React.FC = () => {
 																	)}
 																	{subQuestion.addChangeCardsLogic && (
 																		<Tooltip title="Добавить подвопрос">
-																			<IconButton aria-label="addAdditionalQuestions" size='small' onClick={() => handleAddAdditionalQuestions(subQuestionIndex, subQuestionIndex, "subQuestion")} >
+																			<IconButton aria-label="addAdditionalQuestions" size='small' onClick={() => handleAddAdditionalQuestions(subQuestionIndex, subQuestionIndex)} >
 																				<AddCircleIcon color='success' />
 																			</IconButton>
 																		</Tooltip>

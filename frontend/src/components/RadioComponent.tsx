@@ -9,7 +9,7 @@ import { useFormContext } from 'react-hook-form';
 interface RadioComponentProps {
   sectionIndex?: number,
   cardIndex?: number;
-  updateCardAnswers?: (sectionIndex:number, index: number, answers: string[]) => void;
+  updateCardAnswers?: (sectionIndex:number, index: number, answers: string[], cardType:string) => void;
   disabled: boolean;
   answers?: string[];
   required?: boolean;

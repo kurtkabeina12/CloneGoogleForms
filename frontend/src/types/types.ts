@@ -11,12 +11,12 @@ export interface SubQuestion {
   selectedComponent: string;
   question: string;
   isRequired: boolean;
-  answer: string;
-  addLogic: boolean;
-  Logic: string;
-  addImg: boolean;
-  imageUrl: string;
-  addChangeCardsLogic: boolean;
+  answer: string | string[];
+	addLogic: boolean;
+  Logic: string | string[];
+  addImg: boolean,
+	imageUrl: string;
+	addChangeCardsLogic: boolean;
   subQuestions: SubQuestion[]; 
 };
 
