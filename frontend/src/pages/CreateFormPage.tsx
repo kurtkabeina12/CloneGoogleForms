@@ -117,15 +117,19 @@ const CreateFormPage: React.FC = () => {
 	// };
 
 	//обновления текста вопроса в карточке
-const handleQuestionChange = (index: number, newQuestion: string, sectionIndex: number, cardType: string) => {
-	const newSections = [...sections];
-	if (cardType === "subQuestion") {
-		newSections[sectionIndex].cards[index].subQuestions[index].question = newQuestion;
-	} else {
-		newSections[sectionIndex].cards[index].question = newQuestion;
-	}
-	setSections(newSections);
-};
+	const handleQuestionChange = (index: number, newQuestion: string, sectionIndex: number, cardType: string, subQuestionIndex?: number) => {
+		const newSections = [...sections];
+		if (cardType === "subQuestion") {
+			if (subQuestionIndex !== undefined) {
+				newSections[sectionIndex].cards[index].subQuestions[subQuestionIndex].question = newQuestion;
+			} else {
+				console.log("subQuestionIndex underfind function handleQuestionChange")
+			}
+		} else {
+			newSections[sectionIndex].cards[index].question = newQuestion;
+		}
+		setSections(newSections);
+	};
 
 
 	//изменения типа компонента ответа в карточке
@@ -133,33 +137,41 @@ const handleQuestionChange = (index: number, newQuestion: string, sectionIndex: 
 		event: SelectChangeEvent<string>,
 		index: number,
 		sectionIndex: number,
-		cardType: string
+		cardType: string,
+		subQuestionIndex?: number,
 	) => {
 		const newSections = [...sections];
 		if (cardType === "subQuestion") {
-			newSections[sectionIndex].cards[index].subQuestions[index].selectedComponent = event.target.value;
+			if (subQuestionIndex !== undefined) {
+				newSections[sectionIndex].cards[index].subQuestions[subQuestionIndex].selectedComponent = event.target.value;
+			} else {
+				console.log("subQuestionIndex underfind function handleSelectChange")
+			}
 		} else {
 			newSections[sectionIndex].cards[index].selectedComponent = event.target.value;
 		}
 		setSections(newSections);
 	};
 
-	const handleDeleteCard = (sectionIndex: number, index: number, cardType: string) => {
+	const handleDeleteCard = (sectionIndex: number, index: number, cardType: string, subQuestionIndex?: number) => {
 		const newSections = [...sections];
 		if (cardType === "subQuestion") {
-			newSections[sectionIndex].cards.splice(index, 1);
+			newSections[sectionIndex].cards[index].subQuestions.splice(index, 1);
 		} else {
 			newSections[sectionIndex].cards.splice(index, 1);
 		}
 		setSections(newSections);
 	};
 
-	const handleDuplicateCard = (sectionIndex: number, index: number, cardType: string) => {
+	const handleDuplicateCard = (sectionIndex: number, index: number, cardType: string, subQuestionIndex?: number) => {
 		const newSections = [...sections];
-		const duplicatedCard = { ...newSections[sectionIndex].cards[index] };
 		if (cardType === "subQuestion") {
-			newSections[sectionIndex].cards.splice(index + 1, 0, duplicatedCard);
+			if (subQuestionIndex !== undefined) {
+				const duplicatedCard = { ...newSections[sectionIndex].cards[index].subQuestions[subQuestionIndex] };
+				newSections[sectionIndex].cards[index].subQuestions.splice(index + 1, 0, duplicatedCard);
+			}
 		} else {
+			const duplicatedCard = { ...newSections[sectionIndex].cards[index] };
 			newSections[sectionIndex].cards.splice(index + 1, 0, duplicatedCard);
 		}
 		setSections(newSections);
@@ -191,10 +203,15 @@ const handleQuestionChange = (index: number, newQuestion: string, sectionIndex: 
 	};
 
 	//обновления ответов в карточке
-	const updateCardAnswers = (sectionIndex: number, index: number, answers: string[], cardType: string) => {
+	const updateCardAnswers = (sectionIndex: number, index: number, answers: string[], cardType: string, subQuestionIndex?: number) => {
 		const newSections = [...sections];
 		if (cardType === "subQuestion") {
-			newSections[sectionIndex].cards[index].subQuestions[index].answer = answers;
+			if (subQuestionIndex !== undefined) {
+				console.log(sectionIndex, index, subQuestionIndex)
+				newSections[sectionIndex].cards[index].subQuestions[subQuestionIndex].answer = answers;
+			} else {
+				console.log("subQuestionIndex underfind function updateCardAnswers")
+			}
 		} else {
 			newSections[sectionIndex].cards[index].answer = answers;
 		}
@@ -202,10 +219,14 @@ const handleQuestionChange = (index: number, newQuestion: string, sectionIndex: 
 	};
 
 	//переключения статуса обязательности карточки
-	const handleSwitchChange = (sectionIndex: number, index: number, isRequired: boolean, cardType: string) => {
+	const handleSwitchChange = (sectionIndex: number, index: number, isRequired: boolean, cardType: string, subQuestionIndex?: number) => {
 		const newSections = [...sections];
 		if (cardType === "subQuestion") {
-			newSections[sectionIndex].cards[index].subQuestions[index].isRequired = isRequired;
+			if (subQuestionIndex !== undefined) {
+				newSections[sectionIndex].cards[index].subQuestions[subQuestionIndex].isRequired = isRequired;
+			} else {
+				console.log("subQuestion underfind function handleSwitchChange")
+			}
 		} else {
 			newSections[sectionIndex].cards[index].isRequired = isRequired;
 		}
@@ -218,27 +239,40 @@ const handleQuestionChange = (index: number, newQuestion: string, sectionIndex: 
 	};
 
 	//добавить логику в карточку
-	const handleAddLogicClick = (sectionIndex: number, index: number, cardType: string) => {
+	const handleAddLogicClick = (sectionIndex: number, index: number, cardType: string, subQuestionIndex?: number) => {
 		const newSections = [...sections];
-		newSections[sectionIndex].cards[index].addLogic = !newSections[sectionIndex].cards[index].addLogic;
-	
-		// Обнуляем switch обязательного поля
-		if (newSections[sectionIndex].cards[index].addLogic) {
-			if (cardType === "subQuestion") {
-				newSections[sectionIndex].cards[index].subQuestions[index].isRequired = false;
+		if (cardType === "subQuestion") {
+			if (subQuestionIndex !== undefined) {
+				newSections[sectionIndex].cards[index].subQuestions[subQuestionIndex].addLogic = !newSections[sectionIndex].cards[index].subQuestions[subQuestionIndex].addLogic;
+
+				// Обнуляем switch обязательного поля
+				if (newSections[sectionIndex].cards[index].subQuestions[subQuestionIndex].addLogic) {
+					newSections[sectionIndex].cards[index].subQuestions[subQuestionIndex].isRequired = false;
+				}
 			} else {
+				console.log("subQuestionIndex underfind function handleAddLogicClick")
+			}
+		} else {
+			newSections[sectionIndex].cards[index].addLogic = !newSections[sectionIndex].cards[index].addLogic;
+
+			// Обнуляем switch обязательного поля
+			if (newSections[sectionIndex].cards[index].addLogic) {
 				newSections[sectionIndex].cards[index].isRequired = false;
 			}
 		}
-	
+
 		setSections(newSections);
 	};
 
 	//обновить логику в карточке
-	const updateCardLogic = (sectionIndex: number, index: number, logic: string, cardType: string) => {
+	const updateCardLogic = (sectionIndex: number, index: number, logic: string, cardType: string, subQuestionIndex?: number) => {
 		const newSections = [...sections];
 		if (cardType === "subQuestion") {
-			newSections[sectionIndex].cards[index].subQuestions[index].Logic = logic;
+			if (subQuestionIndex !== undefined) {
+				newSections[sectionIndex].cards[index].subQuestions[subQuestionIndex].Logic = logic;
+			} else {
+				console.log("subQuestionIndex underfind function updateCardLogic")
+			}
 		} else {
 			newSections[sectionIndex].cards[index].Logic = logic;
 		}
@@ -287,7 +321,7 @@ const handleQuestionChange = (index: number, newQuestion: string, sectionIndex: 
 		});
 	};
 
-	const handleAddImage = (sectionIndex: number, index: number, cardType: string) => {
+	const handleAddImage = (sectionIndex: number, index: number, cardType: string, subQuestionIndex?: number) => {
 		const fileInput = document.createElement('input');
 		fileInput.type = 'file';
 		fileInput.accept = 'image/*';
@@ -302,8 +336,12 @@ const handleQuestionChange = (index: number, newQuestion: string, sectionIndex: 
 					reader.onloadend = () => {
 						const newSections = [...sections];
 						if (cardType === "subQuestion") {
-							newSections[sectionIndex].cards[index].subQuestions[index].imageUrl = reader.result as string;
-							newSections[sectionIndex].cards[index].subQuestions[index].addImg = true;
+							if (subQuestionIndex !== undefined) {
+								newSections[sectionIndex].cards[index].subQuestions[subQuestionIndex].imageUrl = reader.result as string;
+								newSections[sectionIndex].cards[index].subQuestions[subQuestionIndex].addImg = true;
+							} else {
+								console.log("subQuestionIndex underfind function handleAddImage")
+							}
 						} else {
 							newSections[sectionIndex].cards[index].imageUrl = reader.result as string;
 							newSections[sectionIndex].cards[index].addImg = true;
@@ -359,10 +397,14 @@ const handleQuestionChange = (index: number, newQuestion: string, sectionIndex: 
 		console.log(cards, "cards");
 	};
 
-	const handleAddChangeCardsLogic = (sectionIndex: number, index: number, cardType: string) => {
+	const handleAddChangeCardsLogic = (sectionIndex: number, index: number, cardType: string, subQuestionIndex?: number) => {
 		const newSections = [...sections];
 		if (cardType === "subQuestion") {
-			newSections[sectionIndex].cards[index].subQuestions[index].addChangeCardsLogic = !newSections[sectionIndex].cards[index].subQuestions[index].addChangeCardsLogic;
+			if (subQuestionIndex !== undefined) {
+				newSections[sectionIndex].cards[index].subQuestions[subQuestionIndex].addChangeCardsLogic = !newSections[sectionIndex].cards[index].subQuestions[subQuestionIndex].addChangeCardsLogic;
+			} else {
+				console.log("subQuestionIndex underfind function handleAddChangeCardsLogic")
+			}
 		} else {
 			newSections[sectionIndex].cards[index].addChangeCardsLogic = !newSections[sectionIndex].cards[index].addChangeCardsLogic;
 		}
@@ -571,8 +613,8 @@ const handleQuestionChange = (index: number, newQuestion: string, sectionIndex: 
 													<img src={card.imageUrl} style={{ maxWidth: "-webkit-fill-available", marginTop: 5 }}></img>
 													{card.selectedComponent === 'Input' && <InputCopmponent disabled={true} />}
 													{card.selectedComponent === 'Textarea' && <TextareaComponent disabled={true} />}
-													{card.selectedComponent === 'Radio' && <RadioComponent sectionIndex={sectionIndex} cardIndex={index} updateCardAnswers={updateCardAnswers} disabled={true} />}
-													{card.selectedComponent === 'Checkbox' && <CheckboxesComponent sectionIndex={sectionIndex} cardIndex={index} updateCardAnswers={updateCardAnswers} addLogic={card.addLogic} disabled={true} updateCardLogic={updateCardLogic} />}
+													{card.selectedComponent === 'Radio' && <RadioComponent sectionIndex={sectionIndex} cardIndex={index} updateCardAnswers={updateCardAnswers} disabled={true} cardType='card' />}
+													{card.selectedComponent === 'Checkbox' && <CheckboxesComponent sectionIndex={sectionIndex} cardIndex={index} updateCardAnswers={updateCardAnswers} addLogic={card.addLogic} disabled={true} updateCardLogic={updateCardLogic} cardType='card' />}
 													{card.selectedComponent === 'Slider' && <SliderComponent sectionIndex={sectionIndex} cardIndex={index} disabled={true} onSliderValuesChange={(values) => updateCardAnswers(sectionIndex, index, [values], 'card')} addChangeCardsLogic={card.addChangeCardsLogic} />}
 													{card.selectedComponent === 'Data' && <DataComponent disabled={true} />}
 													<Grid item xs={12}>
@@ -620,148 +662,134 @@ const handleQuestionChange = (index: number, newQuestion: string, sectionIndex: 
 													</Grid>
 												</Paper>
 												{card.subQuestions.map((subQuestion, subQuestionIndex) => (
-													<Grid item xs={12} sm={8} md={6} className='body-subquestion'>
-														<Paper elevation={2} sx={{
-															p: 3,
-															paddingTop: 0,
-															display: "flex",
-															flexDirection: "column",
-															alignItems: "center",
-															justifyContent: "flex-start",
-															borderLeft: activeCardIndex === index ? "8px solid #00862b" : "none",
-														}}>
-															<Box sx={{ display: 'flex', flexDirection: "row", width: "-webkit-fill-available", gap: 1, mt: 3 }}>
-																<TextField
-																	variant="standard"
-																	placeholder="Напишите вопрос"
-																	name="title"
-																	value={subQuestion.question}
-																	onChange={(event) => handleQuestionChange(subQuestionIndex, event.target.value, subQuestionIndex, "subQuestion")}
-																	sx={{ mb: 3 }}
-																	fullWidth
-																/>
-																<IconButton aria-label="addImage" size='small' onClick={() => handleAddImage(subQuestionIndex, subQuestionIndex, "subQuestion")}>
-																	<ImageIcon />
-																</IconButton>
-																<FormControl fullWidth>
-																	<InputLabel id="demo-simple-select-label">Тип ответа</InputLabel>
-																	<Select
-																		labelId="demo-simple-select-label"
-																		id="demo-simple-select"
-																		value={subQuestion.selectedComponent}
-																		label="Тип ответа"
-																		onChange={(event) => handleSelectChange(event, subQuestionIndex, sectionIndex, "subQuestion")}
-																		color='success'
-																	>
-																		<MenuItem value="Input">
-																			<ShortTextIcon
-																				sx={{
-																					color: "#6b6b6b",
-																					marginRight: "5px",
-																				}}
-																			/>
-																			Короткий текст
-																		</MenuItem>
-																		<MenuItem value="Textarea">
-																			<SubjectIcon
-																				sx={{
-																					color: "#6b6b6b",
-																					marginRight: "5px",
-																				}}
-																			/>
-																			Длинный текст
-																		</MenuItem>
-																		<MenuItem value="Radio">
-																			<RadioButtonCheckedIcon
-																				sx={{
-																					color: "#6b6b6b",
-																					marginRight: "5px",
-																				}}
-																			/>
-																			Один из списка
-																		</MenuItem>
-																		<MenuItem value="Checkbox">
-																			<CheckBoxOutlinedIcon
-																				sx={{
-																					color: "#6b6b6b",
-																					marginRight: "5px",
-																				}}
-																			/>
-																			Множество из списка
-																		</MenuItem>
-																		<MenuItem value="Slider">
-																			<LinearScaleIcon
-																				sx={{
-																					color: "#6b6b6b",
-																					marginRight: "5px",
-																				}}
-																			/>
-																			Шкала
-																		</MenuItem>
-																		<MenuItem value="Data">
-																			<EventIcon
-																				sx={{
-																					color: "#6b6b6b",
-																					marginRight: "5px",
-																				}}
-																			/>
-																			Дата
-																		</MenuItem>
-																	</Select>
-																</FormControl>
-															</Box>
-															<img src={subQuestion.imageUrl} style={{ maxWidth: "-webkit-fill-available", marginTop: 5 }}></img>
-															{subQuestion.selectedComponent === 'Input' && <InputCopmponent disabled={true} />}
-															{subQuestion.selectedComponent === 'Textarea' && <TextareaComponent disabled={true} />}
-															{subQuestion.selectedComponent === 'Radio' && <RadioComponent sectionIndex={sectionIndex} cardIndex={subQuestionIndex} updateCardAnswers={updateCardAnswers} disabled={true} />}
-															{subQuestion.selectedComponent === 'Checkbox' && <CheckboxesComponent sectionIndex={sectionIndex} cardIndex={subQuestionIndex} updateCardAnswers={updateCardAnswers} addLogic={subQuestion.addLogic} disabled={true} updateCardLogic={updateCardLogic} />}
-															{subQuestion.selectedComponent === 'Slider' && <SliderComponent sectionIndex={sectionIndex} cardIndex={subQuestionIndex} disabled={true} onSliderValuesChange={(values) => updateCardAnswers(subQuestionIndex, subQuestionIndex, [values], "subQuestion")} addChangeCardsLogic={subQuestion.addChangeCardsLogic} />}
-															{subQuestion.selectedComponent === 'Data' && <DataComponent disabled={true} />}
-															<Grid item xs={12}>
-																<Box sx={{ mt: 3, display: 'flex', justifyContent: 'center', borderTopColor: "black", alignItems: 'center' }}>
-																	{subQuestion.selectedComponent === 'Checkbox' && subQuestion.addLogic && (
-																		<Typography variant="body1">
-																			Вопрос будет обязательным*
-																		</Typography>
-																	)}
-																	{((subQuestion.selectedComponent !== 'Checkbox') || (!subQuestion.addLogic)) && (
-																		<FormControlLabel control={<Switch color='success' onChange={(event) => handleSwitchChange(subQuestionIndex, subQuestionIndex, event.target.checked, "subQuestion")} checked={subQuestion.isRequired} />} style={{ whiteSpace: 'nowrap' }} label="Обязательный вопрос*" />
-																	)}
-																	<Tooltip title="Удалить карточку">
-																		<IconButton aria-label="delete" color="warning" size="small" onClick={() => handleDeleteCard(subQuestionIndex, subQuestionIndex, "subQuestion")}>
-																			<DeleteIcon style={{ color: "red" }} />
-																		</IconButton>
-																	</Tooltip>
-																	<Tooltip title="Дублировать карточку">
-																		<IconButton aria-label="duplicate" color="success" size="small" onClick={() => handleDuplicateCard(sectionIndex, subQuestionIndex, "subQuestion")}>
-																			<FileCopyIcon />
-																		</IconButton>
-																	</Tooltip>
-																	{(subQuestion.selectedComponent === 'Checkbox') && (
-																		<Tooltip title="Добавить условия">
-																			<IconButton aria-label="addLogic" size='small' onClick={() => handleAddLogicClick(subQuestionIndex, subQuestionIndex, "subQuestion")}>
-																				<ConstructionIcon />
-																			</IconButton>
-																		</Tooltip>
-																	)}
-																	{(subQuestion.selectedComponent === 'Checkbox' || subQuestion.selectedComponent === 'Slider') && (
-																		<Tooltip title="Добавить логику">
-																			<IconButton aria-label="addChangeCardsLogic" size='small' onClick={() => handleAddChangeCardsLogic(subQuestionIndex, subQuestionIndex, "subQuestion")}>
-																				<SettingsIcon />
-																			</IconButton>
-																		</Tooltip>
-																	)}
-																	{subQuestion.addChangeCardsLogic && (
-																		<Tooltip title="Добавить подвопрос">
-																			<IconButton aria-label="addAdditionalQuestions" size='small' onClick={() => handleAddAdditionalQuestions(subQuestionIndex, subQuestionIndex)} >
-																				<AddCircleIcon color='success' />
-																			</IconButton>
-																		</Tooltip>
-																	)}
+														<Grid item xs={12} sm={8} md={6} className='body-subquestion'>
+															<Paper elevation={2} sx={{
+																p: 3,
+																paddingTop: 0,
+																display: "flex",
+																flexDirection: "column",
+																alignItems: "center",
+																justifyContent: "flex-start",
+																borderLeft: activeCardIndex === index ? "8px solid #00862b" : "none",
+															}}>
+																<Box sx={{ display: 'flex', flexDirection: "row", width: "-webkit-fill-available", gap: 1, mt: 3 }}>
+																	<TextField
+																		variant="standard"
+																		placeholder="Напишите вопрос"
+																		name="title"
+																		value={subQuestion.question}
+																		onChange={(event) => handleQuestionChange(sectionIndex, event.target.value, index, "subQuestion", subQuestionIndex)}
+																		sx={{ mb: 3 }}
+																		fullWidth
+																	/>
+																	<IconButton aria-label="addImage" size='small' onClick={() => handleAddImage(sectionIndex, index, "subQuestion", subQuestionIndex)}>
+																		<ImageIcon />
+																	</IconButton>
+																	<FormControl fullWidth>
+																		<InputLabel id="demo-simple-select-label">Тип ответа</InputLabel>
+																		<Select
+																			labelId="demo-simple-select-label"
+																			id="demo-simple-select"
+																			value={subQuestion.selectedComponent}
+																			label="Тип ответа"
+																			onChange={(event) => handleSelectChange(event, index, sectionIndex, "subQuestion", subQuestionIndex)}
+																			color='success'
+																		>
+																			<MenuItem value="Input">
+																				<ShortTextIcon
+																					sx={{
+																						color: "#6b6b6b",
+																						marginRight: "5px",
+																					}}
+																				/>
+																				Короткий текст
+																			</MenuItem>
+																			<MenuItem value="Textarea">
+																				<SubjectIcon
+																					sx={{
+																						color: "#6b6b6b",
+																						marginRight: "5px",
+																					}}
+																				/>
+																				Длинный текст
+																			</MenuItem>
+																			<MenuItem value="Radio">
+																				<RadioButtonCheckedIcon
+																					sx={{
+																						color: "#6b6b6b",
+																						marginRight: "5px",
+																					}}
+																				/>
+																				Один из списка
+																			</MenuItem>
+																			<MenuItem value="Checkbox">
+																				<CheckBoxOutlinedIcon
+																					sx={{
+																						color: "#6b6b6b",
+																						marginRight: "5px",
+																					}}
+																				/>
+																				Множество из списка
+																			</MenuItem>
+																			<MenuItem value="Slider">
+																				<LinearScaleIcon
+																					sx={{
+																						color: "#6b6b6b",
+																						marginRight: "5px",
+																					}}
+																				/>
+																				Шкала
+																			</MenuItem>
+																			<MenuItem value="Data">
+																				<EventIcon
+																					sx={{
+																						color: "#6b6b6b",
+																						marginRight: "5px",
+																					}}
+																				/>
+																				Дата
+																			</MenuItem>
+																		</Select>
+																	</FormControl>
 																</Box>
-															</Grid>
-														</Paper>
-													</Grid>
+																<img src={subQuestion.imageUrl} style={{ maxWidth: "-webkit-fill-available", marginTop: 5 }}></img>
+																{subQuestion.selectedComponent === 'Input' && <InputCopmponent disabled={true} />}
+																{subQuestion.selectedComponent === 'Textarea' && <TextareaComponent disabled={true} />}
+																{subQuestion.selectedComponent === 'Radio' && <RadioComponent sectionIndex={sectionIndex} cardIndex={subQuestionIndex} updateCardAnswers={updateCardAnswers} disabled={true} cardType='subQuestion' />}
+																{subQuestion.selectedComponent === 'Checkbox' && <CheckboxesComponent sectionIndex={sectionIndex} cardIndex={subQuestionIndex} updateCardAnswers={updateCardAnswers} addLogic={subQuestion.addLogic} disabled={true} updateCardLogic={updateCardLogic} cardType='subQuestion' />}
+																{subQuestion.selectedComponent === 'Slider' && <SliderComponent sectionIndex={sectionIndex} cardIndex={subQuestionIndex} disabled={true} onSliderValuesChange={(values) => updateCardAnswers(sectionIndex, index, [values], "subQuestion", subQuestionIndex)} addChangeCardsLogic={subQuestion.addChangeCardsLogic} />}
+																{subQuestion.selectedComponent === 'Data' && <DataComponent disabled={true} />}
+																<Grid item xs={12}>
+																	<Box sx={{ mt: 3, display: 'flex', justifyContent: 'center', borderTopColor: "black", alignItems: 'center' }}>
+																		{subQuestion.selectedComponent === 'Checkbox' && subQuestion.addLogic && (
+																			<Typography variant="body1">
+																				Вопрос будет обязательным*
+																			</Typography>
+																		)}
+																		{((subQuestion.selectedComponent !== 'Checkbox') || (!subQuestion.addLogic)) && (
+																			<FormControlLabel control={<Switch color='success' onChange={(event) => handleSwitchChange(sectionIndex, index, event.target.checked, "subQuestion", subQuestionIndex)} checked={subQuestion.isRequired} />} style={{ whiteSpace: 'nowrap' }} label="Обязательный вопрос*" />
+																		)}
+																		<Tooltip title="Удалить карточку">
+																			<IconButton aria-label="delete" color="warning" size="small" onClick={() => handleDeleteCard(sectionIndex, index, "subQuestion", subQuestionIndex)}>
+																				<DeleteIcon style={{ color: "red" }} />
+																			</IconButton>
+																		</Tooltip>
+																		<Tooltip title="Дублировать карточку">
+																			<IconButton aria-label="duplicate" color="success" size="small" onClick={() => handleDuplicateCard(sectionIndex, index, "subQuestion", subQuestionIndex)}>
+																				<FileCopyIcon />
+																			</IconButton>
+																		</Tooltip>
+																		{(subQuestion.selectedComponent === 'Checkbox') && (
+																			<Tooltip title="Добавить условия">
+																				<IconButton aria-label="addLogic" size='small' onClick={() => handleAddLogicClick(sectionIndex, index, "subQuestion", subQuestionIndex)}>
+																					<ConstructionIcon />
+																				</IconButton>
+																			</Tooltip>
+																		)}
+																	</Box>
+																</Grid>
+															</Paper>
+														</Grid>
 												))}
 											</Box>
 										</Grid>

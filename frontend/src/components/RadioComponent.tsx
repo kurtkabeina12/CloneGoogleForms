@@ -1,20 +1,19 @@
 import React from 'react';
 import { Button, FormGroup, FormControlLabel, Input, Radio, RadioGroup, Typography } from '@mui/material';
 import useList from '../hooks/UseList';
-import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
-import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import CloseIcon from '@mui/icons-material/Close';
 import { useFormContext } from 'react-hook-form';
 
 interface RadioComponentProps {
-  sectionIndex?: number,
+  sectionIndex?: number;
   cardIndex?: number;
-  updateCardAnswers?: (sectionIndex:number, index: number, answers: string[], cardType:string) => void;
+  updateCardAnswers?: (sectionIndex: number, index: number, answers: string[], cardType: string) => void;
   disabled: boolean;
   answers?: string[];
   required?: boolean;
   quest?: string;
   idQuestion?: string;
+  cardType?: string; 
 }
 
 const RadioComponent: React.FC<RadioComponentProps> = ({
@@ -26,42 +25,32 @@ const RadioComponent: React.FC<RadioComponentProps> = ({
   idQuestion,
   required = false,
   answers = [],
+  cardType = 'card'
 }) => {
   const { list, addItem, updateItem, setList } = useList<string[]>([['']]);
-  const { register, formState: { errors }  } = useFormContext();
-
+  const { register, formState: { errors } } = useFormContext();
   const inputName = idQuestion || 'defaultIdQuestion';
-
-  const { ref, onChange, onBlur } = register(inputName, { required });
+  const { ref } = register(inputName, { required });
 
   const handleAddAnswer = () => {
     addItem(['']);
   };
 
-  //Добавить ответ
-  const handleUpdateAnswer = (sectionIndex:number, index: number, value: string) => {
+  const handleUpdateAnswer = (sectionIndex: number, index: number, value: string) => {
     const newAnswers = [...list];
     newAnswers[index] = [value];
     updateItem(index, newAnswers[index]);
     if (updateCardAnswers) {
-      updateCardAnswers(sectionIndex, cardIndex || 0, newAnswers.map(answer => answer[0]));
+      updateCardAnswers(sectionIndex, cardIndex || 0, newAnswers.map(answer => answer[0]), cardType);
     }
   };
 
-  const handleDragEnd = (result: any) => {
-    if (!result.destination) return;
-    const items = Array.from(list);
-    const [reorderedItem] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reorderedItem);
-    setList(items);
-  };
-
-  const handleRemoveAnswer = (sectionIndex:number,  index: number) => {
+  const handleRemoveAnswer = (sectionIndex: number, index: number) => {
     if (list.length > 1) {
-      const newList = list.filter((_, i) => i !== index);
+      const newList = list.filter((_, i) => i!== index);
       setList(newList);
       if (updateCardAnswers) {
-        updateCardAnswers(sectionIndex, cardIndex || 0, newList.map(answer => answer[0]));
+        updateCardAnswers(sectionIndex, cardIndex || 0, newList.map(answer => answer[0]), cardType);
       }
     }
   };
@@ -72,67 +61,27 @@ const RadioComponent: React.FC<RadioComponentProps> = ({
         <RadioGroup {...register(inputName, { required })}>
           {answers.map((answer, index) => (
             <FormControlLabel key={index} value={answer} control={
-              <Radio
-                color='success'
-                inputRef={ref}
-                onChange={onChange}
-                onBlur={onBlur}
-              />}
-              label={answer}
-            />
+              <Radio color='success' inputRef={ref} onChange={(e) => handleUpdateAnswer(sectionIndex || 0, index, e.target.value)} />
+            } label={answer} />
           ))}
           {errors[inputName] && <Typography color="error">Выберите ответ</Typography>}
         </RadioGroup>
       )}
       {disabled && (
         <>
-          <DragDropContext onDragEnd={handleDragEnd}>
-            <Droppable droppableId="droppable">
-              {(provided) => (
-                <div ref={provided.innerRef} {...provided.droppableProps}>
-                  {list.map((item, index) => (
-                    <Draggable key={index} draggableId={index.toString()} index={index}>
-                      {(provided) => (
-                        <div ref={provided.innerRef} {...provided.draggableProps}>
-                          <div style={{ display: 'flex', alignItems: 'center' }}>
-                            <div {...provided.dragHandleProps} style={{ display: 'flex', alignItems: 'center', cursor: 'move' }}>
-                              <DragIndicatorIcon style={{ color: "rgb(0 0 0 / 42%)" }} />
-                            </div>
-                            <FormControlLabel
-                              key={index}
-                              disabled={disabled}
-                              control={<Radio color='success' />}
-                              label={
-                                <Input
-                                  placeholder='Ответ'
-                                  value={item[0] || ''}
-                                  onChange={(e) => handleUpdateAnswer(sectionIndex || 0, index, e.target.value)}
-                                />
-                              }
-                            />
-                            {list.length > 1 && (
-                              <CloseIcon style={{ color: "rgb(0 0 0 / 42%)" }} onClick={() => handleRemoveAnswer(sectionIndex || 0, index)} />
-                            )}
-                          </div>
-                        </div>
-                      )}
-                    </Draggable>
-                  ))}
-                  {provided.placeholder}
-                </div>
+          {list.map((item, index) => (
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <FormControlLabel key={index} disabled={disabled} control={<Radio color='success' />} label={
+                <Input placeholder='Ответ' value={item[0] || ''} onChange={(e) => handleUpdateAnswer(sectionIndex || 0, index, e.target.value)} />
+              } />
+              {list.length > 1 && (
+                <CloseIcon style={{ color: "rgb(0 0 0 / 42%)" }} onClick={() => handleRemoveAnswer(sectionIndex || 0, index)} />
               )}
-            </Droppable>
-          </DragDropContext>
-          <FormControlLabel
-            disabled={disabled}
-            sx={{ marginLeft: "0.8rem" }}
-            control={<Radio color='success' />}
-            label={
-              <Button color='success' variant="text" onClick={handleAddAnswer}>
-                Добавить вариант
-              </Button>
-            }
-          />
+            </div>
+          ))}
+          <FormControlLabel disabled={disabled} sx={{ marginLeft: "0.8rem" }} control={<Radio color='success' />} label={
+            <Button color='success' variant="text" onClick={handleAddAnswer}> Добавить вариант </Button>
+          } />
         </>
       )}
     </FormGroup>
