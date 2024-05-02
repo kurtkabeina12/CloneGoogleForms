@@ -38,25 +38,26 @@ const RadioComponent: React.FC<RadioComponentProps> = ({
     addItem(['']);
   };
 
-  const handleUpdateAnswer = (sectionIndex: number, index: number, value: string,) => {
+  const handleUpdateAnswer = (sectionIndex: number, index: number, value: string) => {
+    console.log('Updating answer:', sectionIndex, index, value);
     const newAnswers = [...list];
     if (cardType === 'subQuestion' && subQuestionIndex !== undefined) {
-      console.log(sectionIndex, index, subQuestionIndex, value,  "index in RadioComponent")
-      console.log(sectionIndex, cardIndex, subQuestionIndex, "Cardindex in RadioComponent")
-      newAnswers[index][subQuestionIndex] = value;
-      console.log(newAnswers)
-      updateItem(index, newAnswers[index]);
-      if (updateCardAnswers) {
-        updateCardAnswers(sectionIndex, cardIndex || 0, newAnswers.map(answer => answer[0]), cardType, subQuestionIndex);
-      }
+        console.log('Updating subQuestion answer:', sectionIndex, cardIndex || 0, subQuestionIndex, value);
+        newAnswers[index][subQuestionIndex] = value;
+        console.log('New answers:', newAnswers);
+        updateItem(index, [newAnswers[index][subQuestionIndex]]);
+        if (updateCardAnswers) {
+            updateCardAnswers(sectionIndex, cardIndex || 0, newAnswers.map(answer => answer[0]), cardType, subQuestionIndex);
+        }
     } else {
-      newAnswers[index] = [value];
-      updateItem(index, newAnswers[index]);
-      if (updateCardAnswers) {
-        updateCardAnswers(sectionIndex, cardIndex || 0, newAnswers.map(answer => answer[0]), cardType);
-      }
+        newAnswers[index] = [value];
+        updateItem(index, [newAnswers[index][0]]);
+        if (updateCardAnswers) {
+            updateCardAnswers(sectionIndex, cardIndex || 0, newAnswers.map(answer => answer[0]), cardType);
+        }
     }
-  };
+};
+   
 
   const handleRemoveAnswer = (sectionIndex: number, index: number) => {
     if (list.length > 1) {

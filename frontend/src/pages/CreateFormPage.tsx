@@ -206,19 +206,18 @@ const CreateFormPage: React.FC = () => {
 	const updateCardAnswers = (sectionIndex: number, cardIndex: number, answers: string[], cardType: string, subQuestionIndex?: number) => {
 		const newSections = [...sections];
 		if (cardType === "subQuestion") {
-			console.log(sectionIndex, cardIndex, subQuestionIndex, "subQuestion")
-			if (subQuestionIndex !== undefined) {
-				console.log(sectionIndex, cardIndex, subQuestionIndex)
-				console.log(newSections[sectionIndex].cards[cardIndex].subQuestions[subQuestionIndex].answer)
+			if (subQuestionIndex!== undefined) {
+				console.log(`Updating subQuestion answer at sectionIndex ${sectionIndex}, cardIndex ${cardIndex}, subQuestionIndex ${subQuestionIndex}`);
 				newSections[sectionIndex].cards[cardIndex].subQuestions[subQuestionIndex].answer = answers;
 			} else {
-				console.log("subQuestionIndex underfind function updateCardAnswers")
+				console.log("subQuestionIndex undefined in updateCardAnswers");
 			}
 		} else {
 			newSections[sectionIndex].cards[cardIndex].answer = answers;
 		}
 		setSections(newSections);
 	};
+	
 
 	//переключения статуса обязательности карточки
 	const handleSwitchChange = (sectionIndex: number, index: number, isRequired: boolean, cardType: string, subQuestionIndex?: number) => {
