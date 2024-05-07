@@ -1,16 +1,16 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { Card } from '../../types/types';
+import { Section } from '../../types/types';
 
 export const sendCardAsync = createAsyncThunk(
 	'forms/saveForm',
-	async ({ cards, title, isMandatoryAuth, selectedColor }: { cards: Card[], title: string, isMandatoryAuth:boolean, selectedColor:string }, thunkAPI) => {
+	async ({ title, titleOverview, textForEndForm, dateEndForm, isMandatoryAuth, selectedColor, sections }: { title: string, titleOverview: string, textForEndForm: string, dateEndForm: string, isMandatoryAuth: boolean, selectedColor:string, sections: Section[] }, thunkAPI) => {
 		try {
 			const response = await fetch('http://localhost:8888/forms', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
 				},
-				body: JSON.stringify({ formHead: title, formBody: cards, isMandatoryAuth: isMandatoryAuth, selectedColor: selectedColor }),
+				body: JSON.stringify({ formTitle: title, formOverview: titleOverview, formEndText: textForEndForm, formEndDate: dateEndForm, formBody: sections, isMandatoryAuth: isMandatoryAuth, selectedColor: selectedColor }),
 			});
 
 			if (!response.ok) {

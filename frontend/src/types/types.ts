@@ -7,6 +7,11 @@ export interface ActionForm {
   payload?: any;
 }
 
+export interface Section {
+	title: string;
+	cards: Card[];
+}
+
 export interface SubQuestion {
   selectedComponent: string;
   question: string;
@@ -15,7 +20,7 @@ export interface SubQuestion {
 	addLogic: boolean;
   Logic: string | string[];
   addImg: boolean,
-	imageUrl: string;
+	imageUrl:  string[];
 	addChangeCardsLogic: boolean;
   subQuestions: SubQuestion[]; 
 };
@@ -29,7 +34,7 @@ export interface Card {
 	addLogic: boolean;
   Logic: string | string[];
   addImg: boolean,
-	imageUrl: string;
+	imageUrl: string[];
 	addChangeCardsLogic: boolean;
   subQuestions: SubQuestion[]; 
 }

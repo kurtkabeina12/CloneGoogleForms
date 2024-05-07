@@ -61,10 +61,18 @@ const RadioComponent: React.FC<RadioComponentProps> = ({
 
   const handleRemoveAnswer = (sectionIndex: number, index: number) => {
     if (list.length > 1) {
-      const newList = list.filter((_, i) => i !== index);
-      setList(newList);
-      if (updateCardAnswers) {
-        updateCardAnswers(sectionIndex, cardIndex || 0, newList.map(answer => answer[0]), cardType);
+      if(cardType ==='subQuestion' && subQuestionIndex!== undefined) {
+        const newList = list.filter((_, i) => i !== subQuestionIndex);
+        setList(newList);
+        if (updateCardAnswers) {
+          updateCardAnswers(sectionIndex, cardIndex || 0, newList.map(answer => answer[0]), cardType, subQuestionIndex);
+        }
+      }else{
+        const newList = list.filter((_, i) => i !== index);
+        setList(newList);
+        if (updateCardAnswers) {
+          updateCardAnswers(sectionIndex, cardIndex || 0, newList.map(answer => answer[0]), cardType);
+        }
       }
     }
   };
