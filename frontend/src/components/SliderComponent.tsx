@@ -15,6 +15,7 @@ interface SliderComponentProps {
 	quest?: string;
 	idQuestion?: string;
 	addChangeCardsLogic?: boolean;
+	onChangeCardsLogic?: (logic: string | string[]) => void;
 }
 
 const SliderComponent: React.FC<SliderComponentProps> = ({
@@ -27,6 +28,7 @@ const SliderComponent: React.FC<SliderComponentProps> = ({
 	quest,
 	idQuestion,
 	addChangeCardsLogic = false,
+	onChangeCardsLogic,
 }) => {
 	const [startValue, setStartValue] = useState<number>(answers ? parseInt(answers[0], 10) : 0);
 	const [lengthValue, setLengthValue] = useState<number>(answers ? parseInt(answers[1], 10) : 2);
@@ -44,6 +46,14 @@ const SliderComponent: React.FC<SliderComponentProps> = ({
 		}
 	}, [startValue, lengthValue, onSliderValuesChange]);
 
+	useEffect(() => {
+		if (onChangeCardsLogic) {
+		  const logic = logicChangeBlocks.map(block => `${block.answer}:${block.cardIndex}`).join(',');
+		  onChangeCardsLogic(logic);
+		}
+	  }, [logicChangeBlocks, onChangeCardsLogic]);
+	  
+
 	const handleStartChange = (event: SelectChangeEvent<number>) => {
 		setStartValue(Number(event.target.value));
 	};
@@ -56,7 +66,7 @@ const SliderComponent: React.FC<SliderComponentProps> = ({
 	for (let i = startValue; i <= lengthValue; i++) {
 		marks.push({ value: i, label: i.toString() });
 	}
-
+	
 	const handleAddNewLogicChange = () => {
 		setLogicChangeBlocks([...logicChangeBlocks, { answer: '', cardIndex: '' }]);
 	};
@@ -127,7 +137,6 @@ const SliderComponent: React.FC<SliderComponentProps> = ({
 										<Typography variant='body1' color='black' sx={{ mr: 2 }}>При выборе ответа:</Typography>
 										<TextField
 											variant="standard"
-											type='number'
 											value={block.answer}
 											onChange={(e) => {
 												const newLogicChangeBlocks = [...logicChangeBlocks];
@@ -138,7 +147,6 @@ const SliderComponent: React.FC<SliderComponentProps> = ({
 										<Typography variant='body1' color='black' sx={{ mr: 2 }}>открыть карточку:</Typography>
 										<TextField
 											variant="standard"
-											type='number'
 											value={block.cardIndex}
 											onChange={(e) => {
 												const newLogicChangeBlocks = [...logicChangeBlocks];

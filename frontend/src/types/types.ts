@@ -22,6 +22,7 @@ export interface SubQuestion {
   addImg: boolean,
 	imageUrl:  string[];
 	addChangeCardsLogic: boolean;
+  changeCardsLogic: string | string[];
   subQuestions: SubQuestion[]; 
 };
 
@@ -36,6 +37,7 @@ export interface Card {
   addImg: boolean,
 	imageUrl: string[];
 	addChangeCardsLogic: boolean;
+  changeCardsLogic: string | string[];
   subQuestions: SubQuestion[]; 
 }
 

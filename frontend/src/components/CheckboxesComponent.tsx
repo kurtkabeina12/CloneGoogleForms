@@ -22,6 +22,7 @@ interface CheckboxesComponentProps {
   cardType?: string;
   addChangeCardsLogic?: boolean;
   subQuestionIndex?: number;
+	onChangeCardsLogic?: (logic: string | string[]) => void;
 }
 
 const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
@@ -38,7 +39,8 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
   GetLogic,
   cardType = 'card',
   addChangeCardsLogic = false,
-  subQuestionIndex
+  subQuestionIndex,
+  onChangeCardsLogic
 }) => {
   const { list, addItem, updateItem, setList } = useList<string[]>([['']]);
 
@@ -71,6 +73,13 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
       setIsValidLogicInput(true);
     }
   }, [list, inputLogicValue]);
+
+  useEffect(() => {
+		if (onChangeCardsLogic) {
+		  const logic = logicChangeBlocks.map(block => `${block.answer}:${block.cardIndex}`).join(',');
+		  onChangeCardsLogic(logic);
+		}
+	  }, [logicChangeBlocks, onChangeCardsLogic]);
 
   const handleAddAnswer = () => {
     addItem(['']);
@@ -348,7 +357,6 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
                   <Typography variant='body1' color='black' sx={{ mr: 2 }}>При выборе ответа:</Typography>
                   <TextField
                     variant="standard"
-                    type='number'
                     value={block.answer}
                     onChange={(e) => {
                       const newLogicChangeBlocks = [...logicChangeBlocks];
@@ -359,7 +367,6 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
                   <Typography variant='body1' color='black' sx={{ mr: 2 }}>открыть карточку:</Typography>
                   <TextField
                     variant="standard"
-                    type='number'
                     value={block.cardIndex}
                     onChange={(e) => {
                       const newLogicChangeBlocks = [...logicChangeBlocks];

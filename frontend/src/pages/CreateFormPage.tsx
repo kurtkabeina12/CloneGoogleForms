@@ -87,9 +87,9 @@ const Textarea = styled(BaseTextareaAutosize)(
 );
 
 const CreateFormPage: React.FC = () => {
-	const [cards, setCards] = useState<Card[]>([{ selectedComponent: 'Input', question: '', isRequired: false, answer: "", addLogic: false, Logic: '', addImg: false, imageUrl: [], addChangeCardsLogic: false, subQuestions: [] as SubQuestion[], }]);
+	const [cards, setCards] = useState<Card[]>([{ selectedComponent: 'Input', question: '', isRequired: false, answer: "", addLogic: false, Logic: '', addImg: false, imageUrl: [], addChangeCardsLogic: false,  changeCardsLogic: '', subQuestions: [] as SubQuestion[], }]);
 	const [activeCardIndex, setActiveCardIndex] = useState<number | null>(null);
-	const [sections, setSections] = useState<Section[]>([{ title: '', cards: [{ selectedComponent: 'Input', question: '', isRequired: false, answer: "", addLogic: false, Logic: '', addImg: false, imageUrl: [], addChangeCardsLogic: false, subQuestions: [] as SubQuestion[], }] }]);
+	const [sections, setSections] = useState<Section[]>([{ title: '', cards: [{ selectedComponent: 'Input', question: '', isRequired: false, answer: "", addLogic: false, Logic: '', addImg: false, imageUrl: [], addChangeCardsLogic: false, changeCardsLogic: '', subQuestions: [] as SubQuestion[], }] }]);
 	const [activeSectionIndex, setActiveSectionIndex] = useState<number | null>(null);
 	// const [value, setValue] = React.useState('Questions');
 	const dispatch = useDispatch<AppDispatch>();
@@ -190,14 +190,14 @@ const CreateFormPage: React.FC = () => {
 
 	// Функция для добавления нового раздела
 	const handleAddSection = () => {
-		setSections([...sections, { title: '', cards: [{ selectedComponent: 'Input', question: '', isRequired: false, answer: "", addLogic: false, Logic: '', addImg: false, imageUrl: [], addChangeCardsLogic: false, subQuestions: [] as SubQuestion[] }] }]);
+		setSections([...sections, { title: '', cards: [{ selectedComponent: 'Input', question: '', isRequired: false, answer: "", addLogic: false, Logic: '', addImg: false, imageUrl: [], addChangeCardsLogic: false, changeCardsLogic: '', subQuestions: [] as SubQuestion[] }] }]);
 		setActiveSectionIndex(sections.length - 1);
 	};
 
 	// Функция для добавления нового вопроса в раздел
 	const handleAddQuestion = (sectionIndex: number) => {
 		const newSections = [...sections];
-		newSections[sectionIndex].cards.push({ selectedComponent: 'Input', question: '', isRequired: false, answer: "", addLogic: false, Logic: '', addImg: false, imageUrl: [], addChangeCardsLogic: false, subQuestions: [] as SubQuestion[] });
+		newSections[sectionIndex].cards.push({ selectedComponent: 'Input', question: '', isRequired: false, answer: "", addLogic: false, Logic: '', addImg: false, imageUrl: [], addChangeCardsLogic: false, changeCardsLogic: '', subQuestions: [] as SubQuestion[] });
 		setSections(newSections);
 	};
 
@@ -397,6 +397,12 @@ const CreateFormPage: React.FC = () => {
 		}
 	};
 
+	const handleСhangeCardsLogic = (sectionIndex: number, cardIndex: number, logic: string | string[]) => {
+		const newSections = [...sections];
+		newSections[sectionIndex].cards[cardIndex].changeCardsLogic = logic;
+		setSections(newSections);
+	};
+
 	const handleAddAdditionalQuestions = (sectionIndex: number, cardIndex: number) => {
 		console.log(`Adding sub-question to cardIndex: ${cardIndex}`);
 		const newSections = [...sections];
@@ -410,6 +416,7 @@ const CreateFormPage: React.FC = () => {
 			addImg: false,
 			imageUrl: [],
 			addChangeCardsLogic: false,
+			changeCardsLogic: '',
 			subQuestions: [] as SubQuestion[],
 		});
 		console.log(`New sections state:`, newSections);
@@ -419,19 +426,19 @@ const CreateFormPage: React.FC = () => {
 	//отправка данных о карточках с redux
 	const SendCards = async () => {
 		try {
-			// const formData = {
-			// 	title: title,
-			// 	titleOverview: titleOverview,
-			// 	textForEndForm: textForEndForm,
-			// 	dateEndForm: dateEndForm,
-			// 	isMandatoryAuth: isMandatoryAuth,
-			// 	selectedColor: selectedColor,
-			// 	sections: sections
-			// };
-			// console.log(formData)
-			const actionResult = await dispatch(sendCardAsync({ title, titleOverview, textForEndForm, dateEndForm, isMandatoryAuth, selectedColor, sections}));
+			const formData = {
+				title: title,
+				titleOverview: titleOverview,
+				textForEndForm: textForEndForm,
+				dateEndForm: dateEndForm,
+				isMandatoryAuth: isMandatoryAuth,
+				selectedColor: selectedColor,
+				sections: sections
+			};
+			console.log(formData)
+			const actionResult = await dispatch(sendCardAsync({ title, titleOverview, textForEndForm, dateEndForm, isMandatoryAuth, selectedColor, sections }));
 			console.log(isMandatoryAuth)
-			const formId = actionResult.payload.formId;
+			// const formId = actionResult.payload.formId;
 			// navigate(`/form/${formId.formId}`, { state: { formId } });
 		} catch (error) {
 			console.log('Error get Id forms');
@@ -680,8 +687,8 @@ const CreateFormPage: React.FC = () => {
 													{card.selectedComponent === 'Input' && <InputCopmponent disabled={true} />}
 													{card.selectedComponent === 'Textarea' && <TextareaComponent disabled={true} />}
 													{card.selectedComponent === 'Radio' && <RadioComponent sectionIndex={sectionIndex} cardIndex={index} updateCardAnswers={updateCardAnswers} disabled={true} cardType='card' />}
-													{card.selectedComponent === 'Checkbox' && <CheckboxesComponent sectionIndex={sectionIndex} cardIndex={index} updateCardAnswers={updateCardAnswers} addLogic={card.addLogic} disabled={true} updateCardLogic={updateCardLogic} cardType='card' addChangeCardsLogic={card.addChangeCardsLogic} />}
-													{card.selectedComponent === 'Slider' && <SliderComponent sectionIndex={sectionIndex} cardIndex={index} disabled={true} onSliderValuesChange={(values) => updateCardAnswers(sectionIndex, index, [values], 'card')} addChangeCardsLogic={card.addChangeCardsLogic} />}
+													{card.selectedComponent === 'Checkbox' && <CheckboxesComponent sectionIndex={sectionIndex} cardIndex={index} updateCardAnswers={updateCardAnswers} addLogic={card.addLogic} disabled={true} updateCardLogic={updateCardLogic} cardType='card' addChangeCardsLogic={card.addChangeCardsLogic}  onChangeCardsLogic={(logic) => handleСhangeCardsLogic(sectionIndex, index, logic)}/>}
+													{card.selectedComponent === 'Slider' && <SliderComponent sectionIndex={sectionIndex} cardIndex={index} disabled={true} onSliderValuesChange={(values) => updateCardAnswers(sectionIndex, index, [values], 'card')} addChangeCardsLogic={card.addChangeCardsLogic}  onChangeCardsLogic={(logic) => handleСhangeCardsLogic(sectionIndex, index, logic)} />}
 													{card.selectedComponent === 'Data' && <DataComponent disabled={true} />}
 													<Grid item xs={12}>
 														<Box sx={{ mt: 3, display: 'flex', justifyContent: 'center', borderTopColor: "black", alignItems: 'center' }}>
