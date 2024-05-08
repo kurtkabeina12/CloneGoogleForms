@@ -2,14 +2,55 @@ export interface Action {
   type: string;
 }
 
+export interface FormData {
+  id: string;
+  formTitle: string;
+  formOverview: string;
+  formEndText: string;
+  formEndDate: string;
+  isMandatoryAuth: boolean;
+  selectedColor: string;
+  sections: {
+     id: string;
+     title: string;
+     cards: {
+       idQuestion: string;
+       selectedComponent: string;
+       question: string;
+       answer: string[];
+       isRequired: boolean;
+       addLogic: boolean;
+       Logic: string | string[];
+       addImg: boolean;
+       imageUrl: string | string[];
+       addChangeCardsLogic: boolean;
+       changeCardsLogic: string | string[];
+       subQuestion: {
+         idSubQuestion: string;
+         selectedComponent: string;
+         question: string;
+         answer: string[];
+         isRequired: boolean;
+         addLogic: boolean;
+         Logic: string | string[];
+         addImg: boolean;
+         imageUrl: string | string[];
+         addChangeCardsLogic: boolean;
+         changeCardsLogic: string | string[];
+         subQuestion: string | string[];
+       };
+     }[];
+  }[];
+ }
+
 export interface ActionForm {
   type: string;
   payload?: any;
 }
 
 export interface Section {
-	title: string;
-	cards: Card[];
+  title: string;
+  cards: Card[];
 }
 
 export interface SubQuestion {
@@ -17,13 +58,13 @@ export interface SubQuestion {
   question: string;
   isRequired: boolean;
   answer: string | string[];
-	addLogic: boolean;
+  addLogic: boolean;
   Logic: string | string[];
   addImg: boolean,
-	imageUrl:  string[];
-	addChangeCardsLogic: boolean;
+  imageUrl: string[];
+  addChangeCardsLogic: boolean;
   changeCardsLogic: string | string[];
-  subQuestions: SubQuestion[]; 
+  subQuestions: SubQuestion[];
 };
 
 
@@ -32,13 +73,13 @@ export interface Card {
   question: string;
   isRequired: boolean;
   answer: string | string[];
-	addLogic: boolean;
+  addLogic: boolean;
   Logic: string | string[];
   addImg: boolean,
-	imageUrl: string[];
-	addChangeCardsLogic: boolean;
+  imageUrl: string[];
+  addChangeCardsLogic: boolean;
   changeCardsLogic: string | string[];
-  subQuestions: SubQuestion[]; 
+  subQuestions: SubQuestion[];
 }
 
 export interface FormState {

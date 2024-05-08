@@ -1,4 +1,4 @@
-import { Box, Button, Divider, Grid, Paper, Typography } from '@mui/material';
+import { Box, Button, Divider, Grid, Pagination, Paper, Typography, makeStyles } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import TextareaComponent from '../components/TextareaComponent';
@@ -15,33 +15,17 @@ import { unwrapResult } from '@reduxjs/toolkit';
 import RegistrationComponent from '../components/RegistrationComponent';
 import SendIcon from '@mui/icons-material/Send';
 import { sendFormData } from '../store/action/actionSendPassedForm';
-
-interface FormData {
-	formHeader: string;
-	isMandatoryAuth: boolean;
-	cards: {
-		question: string;
-		answer: string[];
-		isRequired: boolean;
-		selectedComponent: string;
-		addLogic: boolean;
-		Logic: string | string[];
-		idQuestion: string;
-		addImg: boolean;
-		imageUrl: string;
-	}[];
-
-}
+import { FormData } from '../types/types';
 
 export default function FormPage() {
 	const { formId } = useParams();
 	const dispatch = useDispatch<AppDispatch>();
 	const navigate = useNavigate();
-
+	const [currentSection, setCurrentSection] = useState(0);
+	const cardsPerPage = 5; // Количество карточек на странице
 	const methods = useForm();
 	const [formData, setFormData] = useState<FormData | null>(null);
 
-	
 	useEffect(() => {
 		const fetchFormData = async () => {
 			try {
@@ -55,10 +39,10 @@ export default function FormPage() {
 				console.error('Failed to fetch form:', error);
 			}
 		};
-		
+
 		fetchFormData();
 	}, [dispatch, formId]);
-	
+
 	const isMandatory = formData?.isMandatoryAuth;
 
 	const onSubmit = async (data: any) => {
@@ -83,14 +67,14 @@ export default function FormPage() {
 									<Box sx={{ mb: 3 }}>
 										<Paper className="header-paper" elevation={2} sx={{ p: 3, borderTop: "8px solid #00862b" }}>
 											<Typography variant="h4" gutterBottom>
-												{formData?.formHeader}
+												{formData?.formTitle}
 											</Typography>
 											<Divider />
 											<RegistrationComponent />
 										</Paper>
 									</Box>
 								</Grid>
-								<Grid container spacing={3} style={{ marginTop: "0.5rem" }} >
+								{/* <Grid container spacing={3} style={{ marginTop: "0.5rem" }} >
 									{
 										formData ? (
 											<Grid container spacing={3} className='FormCenter' >
@@ -103,7 +87,7 @@ export default function FormPage() {
 																		<Typography variant='h6' gutterBottom> {card.question} </Typography>
 																	</Box>
 																	{card.addImg && (
-																		<img src={card.imageUrl} style={{maxWidth:"-webkit-fill-available", marginTop:5}} />
+																		<img src={card.imageUrl} style={{ maxWidth: "-webkit-fill-available", marginTop: 5 }} />
 																	)}
 																	{card.selectedComponent === 'Input' && <InputCopmponent idQuestion={card.idQuestion} disabled={false} quest={card.question} required={card.isRequired} />}
 																	{card.selectedComponent === 'Textarea' && <TextareaComponent idQuestion={card.idQuestion} disabled={false} quest={card.question} required={card.isRequired} />}
@@ -121,7 +105,7 @@ export default function FormPage() {
 											<p>Загружаем конечный вид формы...</p>
 										)
 									}
-								</Grid>
+								</Grid> */}
 								<Button type="submit" variant="contained" endIcon={<SendIcon />} color="success">
 									Отправить
 								</Button>
@@ -132,29 +116,38 @@ export default function FormPage() {
 			)}
 			{!isMandatory && (
 				<FormProvider {...methods}>
-					<form onSubmit={methods.handleSubmit(onSubmit)} style={{ marginTop: 15 }} >
-						<Grid container spacing={3} className='FormCenter' >
+					<form onSubmit={methods.handleSubmit(onSubmit)} style={{ marginTop: 15 }}>
+						<Grid container spacing={3} className='FormCenter'>
 							<Grid item xs={12} sm={8} md={6} style={{ paddingLeft: 0 }}>
 								<Box sx={{ mb: 3 }}>
 									<Paper className="header-paper" elevation={2} sx={{ p: 3, borderTop: "8px solid #00862b" }}>
-										<Typography variant="h4" gutterBottom>
-											{formData?.formHeader}
-										</Typography>
+										<Typography variant="h4" gutterBottom> {formData?.formTitle} </Typography>
+										<Divider />
+										<Typography variant="h6" gutterBottom> {formData?.formOverview} </Typography>
 									</Paper>
 								</Box>
 							</Grid>
-							<Grid container spacing={3} style={{ marginTop: "0.5rem" }} >
-								{
-									formData ? (
-										<Grid container spacing={3} className='FormCenter' >
-											{formData.cards.map((card, index) => {
+							<Grid container spacing={3} style={{ display: 'flex', justifyContent: 'center' }}>
+								{formData ? (
+									<>
+										<Grid container spacing={3} className='FormCenter' sx={{ marginTop: 1 }}>
+											<Paper elevation={2} sx={{ p: 3, paddingTop: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start" }}>
+												<Box sx={{ display: 'flex', flexDirection: "row", width: "-webkit-fill-available", gap: 1, textAlign: 'center' }}>
+													<Typography variant='h6' gutterBottom> {formData.sections[currentSection].title} </Typography>
+												</Box>
+											</Paper>
+											{formData.sections[currentSection].cards.map((card, index) => {
+												console.log(card, 'карточка')
 												return (
-													<Grid key={index} item xs={12} sm={8} md={6} className='body-card'>
+													<Grid key={index} item xs={12} sm={8} md={6}>
 														<Box sx={{ mb: 3 }}>
 															<Paper elevation={2} sx={{ p: 3, paddingTop: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start" }}>
 																<Box sx={{ display: 'flex', flexDirection: "row", width: "-webkit-fill-available", gap: 1, textAlign: 'center' }}>
 																	<Typography variant='h6' gutterBottom> {card.question} </Typography>
 																</Box>
+																{card.addImg && (
+																	<img src={Array.isArray(card.imageUrl) ? card.imageUrl[0] : card.imageUrl} style={{ maxWidth: "-webkit-fill-available", marginTop: 5 }} />
+																)}
 																{card.selectedComponent === 'Input' && <InputCopmponent idQuestion={card.idQuestion} disabled={false} quest={card.question} required={card.isRequired} />}
 																{card.selectedComponent === 'Textarea' && <TextareaComponent idQuestion={card.idQuestion} disabled={false} quest={card.question} required={card.isRequired} />}
 																{card.selectedComponent === 'Radio' && <RadioComponent idQuestion={card.idQuestion} disabled={false} answers={card.answer} quest={card.question} required={card.isRequired} />}
@@ -167,16 +160,26 @@ export default function FormPage() {
 												);
 											})}
 										</Grid>
-									) : (
-										<p>Загружаем конечный вид формы...</p>
-									)
-								}
+										<Box>
+											<Pagination
+												sx={{
+													'& .MuiPaginationItem-page.Mui-selected': {
+														backgroundColor: '#00862b !important',
+														color: '#ffffff !important',
+													},
+												}}
+												count={formData.sections.length}
+												page={currentSection + 1}
+												onChange={(event, value) => setCurrentSection(value - 1)}
+											/>
+										</Box>
+									</>
+								) : (
+									<p>Загружаем конечный вид формы...</p>
+								)}
 							</Grid>
-							<Button type="submit" variant="contained" endIcon={<SendIcon />} color="success">
-								Отправить
-							</Button>
 						</Grid>
-					</form >
+					</form>
 				</FormProvider>
 			)}
 		</>

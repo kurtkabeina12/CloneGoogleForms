@@ -53,8 +53,8 @@ const SliderComponent: React.FC<SliderComponentProps> = ({
 				onChangeCardsLogic(logic);
 			}
 		} else {
-			setLogicChangeBlocks([]);
 			if (onChangeCardsLogic) {
+				setLogicChangeBlocks([]);
 				onChangeCardsLogic([]);
 			}
 		}

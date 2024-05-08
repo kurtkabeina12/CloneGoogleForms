@@ -81,8 +81,8 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
 				onChangeCardsLogic(logic);
 			}
 		} else {
-			setLogicChangeBlocks([]);
 			if (onChangeCardsLogic) {
+			setLogicChangeBlocks([]);
 				onChangeCardsLogic([]);
 			}
 		}
