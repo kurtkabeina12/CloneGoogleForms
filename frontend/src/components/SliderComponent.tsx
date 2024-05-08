@@ -47,12 +47,19 @@ const SliderComponent: React.FC<SliderComponentProps> = ({
 	}, [startValue, lengthValue, onSliderValuesChange]);
 
 	useEffect(() => {
-		if (onChangeCardsLogic) {
-		  const logic = logicChangeBlocks.map(block => `${block.answer}:${block.cardIndex}`).join(',');
-		  onChangeCardsLogic(logic);
+		if (addChangeCardsLogic) {
+			if (onChangeCardsLogic) {
+				const logic = logicChangeBlocks.map(block => `${block.answer}:${block.cardIndex}`).join(',');
+				onChangeCardsLogic(logic);
+			}
+		} else {
+			setLogicChangeBlocks([]);
+			if (onChangeCardsLogic) {
+				onChangeCardsLogic([]);
+			}
 		}
-	  }, [logicChangeBlocks, onChangeCardsLogic]);
-	  
+	}, [logicChangeBlocks, onChangeCardsLogic, addChangeCardsLogic]);
+
 
 	const handleStartChange = (event: SelectChangeEvent<number>) => {
 		setStartValue(Number(event.target.value));
@@ -66,7 +73,7 @@ const SliderComponent: React.FC<SliderComponentProps> = ({
 	for (let i = startValue; i <= lengthValue; i++) {
 		marks.push({ value: i, label: i.toString() });
 	}
-	
+
 	const handleAddNewLogicChange = () => {
 		setLogicChangeBlocks([...logicChangeBlocks, { answer: '', cardIndex: '' }]);
 	};

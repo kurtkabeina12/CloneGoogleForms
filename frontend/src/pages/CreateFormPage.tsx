@@ -459,7 +459,7 @@ const CreateFormPage: React.FC = () => {
 			currentCard.addChangeCardsLogic = !currentCard.addChangeCardsLogic;
 			// Если addChangeCardsLogic установлено в false, очищаем и удаляем все подкарточки
 			if (!currentCard.addChangeCardsLogic) {
-				currentCard.subQuestions = []; // Очищаем подкарточки
+				currentCard.subQuestions = []; // Очищаем подкарточки 
 			}
 		}
 		setSections(newSections);
