@@ -22,7 +22,6 @@ export default function FormPage() {
 	const dispatch = useDispatch<AppDispatch>();
 	const navigate = useNavigate();
 	const [currentSection, setCurrentSection] = useState(0);
-	const cardsPerPage = 5; // Количество карточек на странице
 	const methods = useForm();
 	const [formData, setFormData] = useState<FormData | null>(null);
 
@@ -127,7 +126,7 @@ export default function FormPage() {
 									</Paper>
 								</Box>
 							</Grid>
-							<Grid container spacing={3} style={{ display: 'flex', justifyContent: 'center' }}>
+							<Grid container spacing={3} style={{ display: 'flex', justifyContent: 'center', flexDirection:'column',alignItems:'center' }}>
 								{formData ? (
 									<>
 										<Grid container spacing={3} className='FormCenter' sx={{ marginTop: 1 }}>
