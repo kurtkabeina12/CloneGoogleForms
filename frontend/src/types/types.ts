@@ -25,23 +25,26 @@ export interface FormData {
        imageUrl: string | string[];
        addChangeCardsLogic: boolean;
        changeCardsLogic: string | string[];
-       subQuestion: {
-         idSubQuestion: string;
-         selectedComponent: string;
-         question: string;
-         answer: string[];
-         isRequired: boolean;
-         addLogic: boolean;
-         Logic: string | string[];
-         addImg: boolean;
-         imageUrl: string | string[];
-         addChangeCardsLogic: boolean;
-         changeCardsLogic: string | string[];
-         subQuestion: string | string[];
-       };
+       subQuestions: SubQuestionFormData[];
      }[];
   }[];
  }
+
+ export interface SubQuestionFormData {
+  idSubQuestion: string;
+  selectedComponent: string;
+  question: string;
+  answer: string[];
+  isRequired: boolean;
+  addLogic: boolean;
+  Logic: string | string[];
+  addImg: boolean;
+  imageUrl: string | string[];
+  addChangeCardsLogic: boolean;
+  changeCardsLogic: string | string[];
+  subQuestion: string | string[];
+};
+
 
 export interface ActionForm {
   type: string;
