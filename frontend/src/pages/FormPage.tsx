@@ -25,7 +25,8 @@ export default function FormPage() {
 	const methods = useForm();
 	const [formData, setFormData] = useState<FormData | null>(null);
 	const [selectedSubQuestionIndex, setSelectedSubQuestionIndex] = useState<number | null>(null);
-
+	const [valueSliderNow, setValueSliderNow] = useState<number | null>(null)
+	const [valueSliderForSubQuestion, setValueSliderForSubQuestion] = useState<number | null>(null)
 
 	useEffect(() => {
 		const fetchFormData = async () => {
@@ -47,12 +48,16 @@ export default function FormPage() {
 	const handleSliderValueChange = (value: number, changeCardsLogic: string | string[]) => {
 		if (Array.isArray(changeCardsLogic) && changeCardsLogic.length > 0) {
 			console.log(value, 'элемент слайдера который выбрали')
+			setValueSliderNow(value);
 			const logicString = changeCardsLogic[0];
 			const logic = logicString.split(':')[0] === value.toString();
 			console.log(logic, 'логика')
 			if (logic) {
-				const [_, index] = logicString.split(':');
-				setSelectedSubQuestionIndex(parseInt(index));
+				const [indexValue, indexQuestion] = logicString.split(':');
+				setValueSliderForSubQuestion(parseInt(indexValue));
+				console.log(setValueSliderForSubQuestion, 'индекс выбранного номера в слайдере')
+
+				setSelectedSubQuestionIndex(parseInt(indexQuestion));
 				console.log(selectedSubQuestionIndex, 'индекс выбранного вопроса')
 			}
 		} else {
@@ -169,7 +174,9 @@ export default function FormPage() {
 															{card.selectedComponent === 'Data' && <DataComponent idQuestion={card.idQuestion} disabled={false} quest={card.question} required={card.isRequired} />}
 														</Paper>
 														{card.subQuestions && card.subQuestions.map((subQuestion, subIndex) => {
-															console.log(subIndex, selectedSubQuestionIndex)
+															console.log(subQuestion, "subQuestion")
+															console.log(subIndex, "subIndex в return")
+															console.log(selectedSubQuestionIndex, "selectedSubQuestionIndex в return")
 															return (
 																<Box sx={{ mt: 3 }} key={subIndex}>
 																	{/* <Paper elevation={2} sx={{ p: 3, paddingTop: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: '100%' }}>
@@ -186,7 +193,7 @@ export default function FormPage() {
 																	{subQuestion.selectedComponent === 'Slider' && <SliderComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} required={subQuestion.isRequired} nowSliderValue={handleSliderValueChange} changeCardsLogic={subQuestion.changeCardsLogic} />}
 																	{subQuestion.selectedComponent === 'Data' && <DataComponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} required={subQuestion.isRequired} />}
 																</Paper> */}
-																	{subIndex === selectedSubQuestionIndex && (
+																	{valueSliderNow === valueSliderForSubQuestion && (
 																		<Paper elevation={2} sx={{ p: 3, paddingTop: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: '100%' }}>
 																			<Box sx={{ display: 'flex', flexDirection: "row", width: "-webkit-fill-available", gap: 1, textAlign: 'center' }}>
 																				<Typography variant='subtitle1' gutterBottom> {subQuestion.question} </Typography>
