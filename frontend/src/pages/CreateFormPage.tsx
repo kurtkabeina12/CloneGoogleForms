@@ -87,7 +87,7 @@ const Textarea = styled(BaseTextareaAutosize)(
 );
 
 const CreateFormPage: React.FC = () => {
-	const [cards, setCards] = useState<Card[]>([{ selectedComponent: 'Input', question: '', isRequired: false, answer: "", addLogic: false, Logic: '', addImg: false, imageUrl: [], addChangeCardsLogic: false,  changeCardsLogic: '', subQuestions: [] as SubQuestion[], }]);
+	const [cards, setCards] = useState<Card[]>([{ selectedComponent: 'Input', question: '', isRequired: false, answer: "", addLogic: false, Logic: '', addImg: false, imageUrl: [], addChangeCardsLogic: false, changeCardsLogic: '', subQuestions: [] as SubQuestion[], }]);
 	const [activeCardIndex, setActiveCardIndex] = useState<number | null>(null);
 	const [sections, setSections] = useState<Section[]>([{ title: '', cards: [{ selectedComponent: 'Input', question: '', isRequired: false, answer: "", addLogic: false, Logic: '', addImg: false, imageUrl: [], addChangeCardsLogic: false, changeCardsLogic: '', subQuestions: [] as SubQuestion[], }] }]);
 	const [activeSectionIndex, setActiveSectionIndex] = useState<number | null>(null);
@@ -687,8 +687,8 @@ const CreateFormPage: React.FC = () => {
 													{card.selectedComponent === 'Input' && <InputCopmponent disabled={true} />}
 													{card.selectedComponent === 'Textarea' && <TextareaComponent disabled={true} />}
 													{card.selectedComponent === 'Radio' && <RadioComponent sectionIndex={sectionIndex} cardIndex={index} updateCardAnswers={updateCardAnswers} disabled={true} cardType='card' />}
-													{card.selectedComponent === 'Checkbox' && <CheckboxesComponent sectionIndex={sectionIndex} cardIndex={index} updateCardAnswers={updateCardAnswers} addLogic={card.addLogic} disabled={true} updateCardLogic={updateCardLogic} cardType='card' addChangeCardsLogic={card.addChangeCardsLogic}  onChangeCardsLogic={(logic) => handleСhangeCardsLogic(sectionIndex, index, logic)}/>}
-													{card.selectedComponent === 'Slider' && <SliderComponent sectionIndex={sectionIndex} cardIndex={index} disabled={true} onSliderValuesChange={(values) => updateCardAnswers(sectionIndex, index, [values], 'card')} addChangeCardsLogic={card.addChangeCardsLogic}  onChangeCardsLogic={(logic) => handleСhangeCardsLogic(sectionIndex, index, logic)} />}
+													{card.selectedComponent === 'Checkbox' && <CheckboxesComponent sectionIndex={sectionIndex} cardIndex={index} updateCardAnswers={updateCardAnswers} addLogic={card.addLogic} disabled={true} updateCardLogic={updateCardLogic} cardType='card' addChangeCardsLogic={card.addChangeCardsLogic} onChangeCardsLogic={(logic) => handleСhangeCardsLogic(sectionIndex, index, logic)} />}
+													{card.selectedComponent === 'Slider' && <SliderComponent sectionIndex={sectionIndex} cardIndex={index} disabled={true} onSliderValuesChange={(values) => updateCardAnswers(sectionIndex, index, [values], 'card')} addChangeCardsLogic={card.addChangeCardsLogic} onChangeCardsLogic={(logic) => handleСhangeCardsLogic(sectionIndex, index, logic)} />}
 													{card.selectedComponent === 'Data' && <DataComponent disabled={true} />}
 													<Grid item xs={12}>
 														<Box sx={{ mt: 3, display: 'flex', justifyContent: 'center', borderTopColor: "black", alignItems: 'center' }}>
