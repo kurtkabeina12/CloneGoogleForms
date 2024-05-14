@@ -261,21 +261,43 @@ export default function FormPage() {
 												</Box>
 											);
 										})}
+								
+										<Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+											{currentSection > 0 && (
+												<Button onClick={() => setCurrentSection(currentSection - 1)} color="success" variant="contained">
+													Назад
+												</Button>
+											)}
+
+											{currentSection !== formData.sections.length - 1 && (
+												<Button onClick={() => setCurrentSection(currentSection + 1)} color="success" variant="contained">
+													Далее
+												</Button>
+											)}
+
+											{currentSection === formData.sections.length - 1 && (
+												<Button type="submit" variant="contained" endIcon={<SendIcon />} color="success">
+													Отправить
+												</Button>
+											)}
+
+										</Box>
+
 									</Box>
 
-									<Box>
-										<Pagination
-											sx={{
-												'& .MuiPaginationItem-page.Mui-selected': {
-													backgroundColor: '#00862b !important',
-													color: '#ffffff !important',
-												},
-											}}
-											count={formData.sections.length}
-											page={currentSection + 1}
-											onChange={(event, value) => setCurrentSection(value - 1)}
-										/>
-									</Box>
+									{/* <Box>
+											<Pagination
+												sx={{
+													'& .MuiPaginationItem-page.Mui-selected': {
+														backgroundColor: '#00862b !important',
+														color: '#ffffff !important',
+													},
+												}}
+												count={formData.sections.length}
+												page={currentSection + 1}
+												onChange={(event, value) => setCurrentSection(value - 1)}
+											/>
+										</Box> */}
 								</>
 							) : (
 								<p>Загружаем конечный вид формы...</p>

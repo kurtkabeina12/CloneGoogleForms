@@ -68,6 +68,14 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
 
   const [logicChangeBlocks, setLogicChangeBlocks] = useState<{ answer: string; cardIndex: string }[]>([]);
 
+  const [checkboxIndex, setCheckboxIndex] = useState<number>(0);
+
+  useEffect(() => {
+    if(nowCheckboxChoose){
+      nowCheckboxChoose(String(checkboxIndex), changeCardsLogic);
+      console.log('nowCheckboxChoose', nowCheckboxChoose);
+    }
+  }, [changeCardsLogic, checkboxIndex, nowCheckboxChoose])
 
   //отслеживаем кол-во ответов и число в input 
   useEffect(() => {
