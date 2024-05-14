@@ -22,7 +22,9 @@ interface CheckboxesComponentProps {
   cardType?: string;
   addChangeCardsLogic?: boolean;
   subQuestionIndex?: number;
-	onChangeCardsLogic?: (logic: string | string[]) => void;
+  onChangeCardsLogic?: (logic: string | string[]) => void;
+  nowCheckboxChoose?: (value: string, changeCardsLogic: string | string[]) => void;
+  changeCardsLogic?: string | string[];
 }
 
 const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
@@ -40,7 +42,9 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
   cardType = 'card',
   addChangeCardsLogic = false,
   subQuestionIndex,
-  onChangeCardsLogic
+  onChangeCardsLogic,
+  nowCheckboxChoose,
+  changeCardsLogic =[],
 }) => {
   const { list, addItem, updateItem, setList } = useList<string[]>([['']]);
 
@@ -64,6 +68,7 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
 
   const [logicChangeBlocks, setLogicChangeBlocks] = useState<{ answer: string; cardIndex: string }[]>([]);
 
+
   //отслеживаем кол-во ответов и число в input 
   useEffect(() => {
     const numValue = parseInt(inputLogicValue, 10);
@@ -74,19 +79,19 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
     }
   }, [list, inputLogicValue]);
 
-	useEffect(() => {
-		if (addChangeCardsLogic) {
-			if (onChangeCardsLogic) {
-				const logic = logicChangeBlocks.map(block => `${block.answer}:${block.cardIndex}`).join(',');
-				onChangeCardsLogic(logic);
-			}
-		} else {
-			if (onChangeCardsLogic) {
-			setLogicChangeBlocks([]);
-				onChangeCardsLogic([]);
-			}
-		}
-	}, [logicChangeBlocks, onChangeCardsLogic, addChangeCardsLogic]);
+  useEffect(() => {
+    if (addChangeCardsLogic) {
+      if (onChangeCardsLogic) {
+        const logic = logicChangeBlocks.map(block => `${block.answer}:${block.cardIndex}`).join(',');
+        onChangeCardsLogic(logic);
+      }
+    } else {
+      if (onChangeCardsLogic) {
+        setLogicChangeBlocks([]);
+        onChangeCardsLogic([]);
+      }
+    }
+  }, [logicChangeBlocks, onChangeCardsLogic, addChangeCardsLogic]);
 
   const handleAddAnswer = () => {
     addItem(['']);
@@ -342,7 +347,7 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
               </Button>
             }
           />
-          {addLogic && !addChangeCardsLogic &&(
+          {addLogic && !addChangeCardsLogic && (
             <Box sx={{ display: 'flex', alignItems: 'center', mt: 2, mb: 3 }}>
               <CustomSelect value={selectValue} onChange={handleSelectChange} />
               <TextField

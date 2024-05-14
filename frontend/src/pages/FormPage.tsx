@@ -28,6 +28,9 @@ export default function FormPage() {
 	const [selectedSubQuestionIndex, setSelectedSubQuestionIndex] = useState<number | null>(null);
 	const [valueSliderNow, setValueSliderNow] = useState<number | null>(null)
 	const [valueSliderForSubQuestion, setValueSliderForSubQuestion] = useState<number | null>(null)
+	const [checkboxChooseNow, setChecboxChooseNow] = useState<number | null>(null)
+	const [checkboxChooseForSubQuestion, setCheckboxChooseForSubQuestion] = useState<number | null>(null)
+
 
 	useEffect(() => {
 		const fetchFormData = async () => {
@@ -45,6 +48,44 @@ export default function FormPage() {
 
 		fetchFormData();
 	}, [dispatch, formId]);
+
+	const convertLocalPathToUrl = (localPath: string | string[]) => {
+		const baseUrl = 'http://localhost:8888/UsersImage/';
+		// Используем регулярное выражение с двойным обратным слешем для экранирования
+		const regex = /UsersImage\/(.*)/;
+		const result: string[] = [];
+
+		if (typeof localPath === 'string') {
+			// Заменяем обратные слеши на прямые слеши перед разделением строки
+			const processedPath = localPath.replace(/\\/g, '/');
+			localPath = processedPath;
+			localPath.split(',').forEach((path: string) => {
+				console.log(`Processing path: ${path}`);
+				const match = path.match(regex);
+				if (match) {
+					result.push(`${baseUrl}${match[1]}`);
+				} else {
+					console.log(`No match found for path: ${path}`);
+				}
+			});
+		} else {
+			localPath.forEach((path: string) => {
+				// Заменяем обратные слеши на прямые слеши перед обработкой каждого пути
+				const processedPath = path.replace(/\\/g, '/');
+				path = processedPath;
+				console.log(`Processing path: ${path}`);
+				const match = path.match(regex);
+				if (match) {
+					result.push(`${baseUrl}${match[1]}`);
+				} else {
+					console.log(`No match found for path: ${path}`);
+				}
+			});
+		}
+
+		console.log('Result:', result);
+		return result;
+	};
 
 	const handleSliderValueChange = (value: number, changeCardsLogic: string | string[]) => {
 		if (Array.isArray(changeCardsLogic) && changeCardsLogic.length > 0) {
@@ -64,6 +105,24 @@ export default function FormPage() {
 		}
 	};
 
+	const handleCheckboxChooseChange = (value: string, changeCardsLogic: string | string[]) => {
+		if (Array.isArray(changeCardsLogic) && changeCardsLogic.length > 0) {
+			console.log(value, changeCardsLogic, "formPage")
+			// setChecboxChooseNow(value);
+			// const logicString = changeCardsLogic[0];
+			// const logic = logicString.split(':')[0] === value.toString();
+			// if (logic) {
+			// 	const [indexValue, indexQuestion] = logicString.split(':');
+			// 	setCheckboxChooseForSubQuestion(parseInt(indexValue));
+			// 	console.log(setCheckboxChooseForSubQuestion, 'индекс выбранного номера в чекбоксе')
+
+			// 	setSelectedSubQuestionIndex(parseInt(indexQuestion));
+			// 	console.log(selectedSubQuestionIndex, 'индекс выбранного вопроса')
+			// }
+		} else {
+			console.error('Invalid changeCardsLogic:', changeCardsLogic);
+		}
+	};
 
 	const isMandatory = formData?.isMandatoryAuth;
 
@@ -155,26 +214,32 @@ export default function FormPage() {
 										</Paper>
 										{formData.sections[currentSection].cards.map((card, index) => {
 											console.log(card, 'карточка')
+											const imageUrl = convertLocalPathToUrl(card.imageUrl);
+											console.log(imageUrl, 'карточка')
 											return (
-												<Box key={index} sx={{ mb: 3, mt: 2, minWidth:"300px" }}>
+												<Box key={index} sx={{ mb: 3, mt: 2, minWidth: "300px" }}>
 													<Paper elevation={2} sx={{ p: 3, paddingTop: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", }}>
 														<Box sx={{ display: 'flex', flexDirection: "row", gap: 1, textAlign: 'center' }}>
 															<Typography variant='h6' gutterBottom> {card.question} </Typography>
 														</Box>
 														{card.addImg && (
-															<img src={Array.isArray(card.imageUrl) ? card.imageUrl[0] : card.imageUrl} style={{ maxWidth: "-webkit-fill-available", marginTop: 5 }} />
+															<>
+																{imageUrl.map((imgUrl, index) => (
+																	<img key={index} src={imgUrl} style={{ maxWidth: "-webkit-fill-available", marginTop: 5 }} />
+																))}
+															</>
 														)}
 														{card.selectedComponent === 'Input' && <InputCopmponent idQuestion={card.idQuestion} disabled={false} quest={card.question} required={card.isRequired} />}
 														{card.selectedComponent === 'Textarea' && <TextareaComponent idQuestion={card.idQuestion} disabled={false} quest={card.question} required={card.isRequired} />}
 														{card.selectedComponent === 'Radio' && <RadioComponent idQuestion={card.idQuestion} disabled={false} answers={card.answer} quest={card.question} required={card.isRequired} />}
-														{card.selectedComponent === 'Checkbox' && <CheckboxesComponent idQuestion={card.idQuestion} disabled={false} answers={card.answer} quest={card.question} required={card.isRequired} addLogic={card.addLogic} GetLogic={card.Logic} />}
+														{card.selectedComponent === 'Checkbox' && <CheckboxesComponent idQuestion={card.idQuestion} disabled={false} answers={card.answer} quest={card.question} required={card.isRequired} addLogic={card.addLogic} GetLogic={card.Logic} nowCheckboxChoose={handleCheckboxChooseChange} changeCardsLogic={card.changeCardsLogic} />}
 														{card.selectedComponent === 'Slider' && <SliderComponent idQuestion={card.idQuestion} disabled={false} answers={card.answer} quest={card.question} required={card.isRequired} nowSliderValue={handleSliderValueChange} changeCardsLogic={card.changeCardsLogic} />}
 														{card.selectedComponent === 'Data' && <DataComponent idQuestion={card.idQuestion} disabled={false} quest={card.question} required={card.isRequired} />}
 													</Paper>
 													{card.subQuestions && card.subQuestions.map((subQuestion, subIndex) => {
 														return (
 															<Box sx={{ mt: 3 }} key={subIndex}>
-																{selectedSubQuestionIndex && valueSliderNow === valueSliderForSubQuestion && (selectedSubQuestionIndex - 1) === subIndex && (
+																{selectedSubQuestionIndex && ((valueSliderNow === valueSliderForSubQuestion)) && (selectedSubQuestionIndex - 1) === subIndex && (
 																	<Paper elevation={2} sx={{ p: 3, paddingTop: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: '100%' }}>
 																		<Box sx={{ display: 'flex', flexDirection: "row", width: "-webkit-fill-available", gap: 1, textAlign: 'center' }}>
 																			<Typography variant='subtitle1' gutterBottom> {subQuestion.question} </Typography>
