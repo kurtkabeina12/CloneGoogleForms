@@ -47,11 +47,9 @@ export default function FormPage() {
 
 	const handleSliderValueChange = (value: number, changeCardsLogic: string | string[]) => {
 		if (Array.isArray(changeCardsLogic) && changeCardsLogic.length > 0) {
-			console.log(value, 'элемент слайдера который выбрали')
 			setValueSliderNow(value);
 			const logicString = changeCardsLogic[0];
 			const logic = logicString.split(':')[0] === value.toString();
-			console.log(logic, 'логика')
 			if (logic) {
 				const [indexValue, indexQuestion] = logicString.split(':');
 				setValueSliderForSubQuestion(parseInt(indexValue));
@@ -174,26 +172,9 @@ export default function FormPage() {
 															{card.selectedComponent === 'Data' && <DataComponent idQuestion={card.idQuestion} disabled={false} quest={card.question} required={card.isRequired} />}
 														</Paper>
 														{card.subQuestions && card.subQuestions.map((subQuestion, subIndex) => {
-															console.log(subQuestion, "subQuestion")
-															console.log(subIndex, "subIndex в return")
-															console.log(selectedSubQuestionIndex, "selectedSubQuestionIndex в return")
 															return (
 																<Box sx={{ mt: 3 }} key={subIndex}>
-																	{/* <Paper elevation={2} sx={{ p: 3, paddingTop: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: '100%' }}>
-																	<Box sx={{ display: 'flex', flexDirection: "row", width: "-webkit-fill-available", gap: 1, textAlign: 'center' }}>
-																		<Typography variant='subtitle1' gutterBottom> {subQuestion.question} </Typography>
-																	</Box>
-																	{subQuestion.addImg && (
-																		<img src={Array.isArray(subQuestion.imageUrl) ? subQuestion.imageUrl[0] : subQuestion.imageUrl} style={{ maxWidth: "-webkit-fill-available", marginTop: 5 }} />
-																	)}
-																	{subQuestion.selectedComponent === 'Input' && <InputCopmponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} required={subQuestion.isRequired} />}
-																	{subQuestion.selectedComponent === 'Textarea' && <TextareaComponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} required={subQuestion.isRequired} />}
-																	{subQuestion.selectedComponent === 'Radio' && <RadioComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} required={subQuestion.isRequired} />}
-																	{subQuestion.selectedComponent === 'Checkbox' && <CheckboxesComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} required={subQuestion.isRequired} addLogic={subQuestion.addLogic} GetLogic={subQuestion.Logic} />}
-																	{subQuestion.selectedComponent === 'Slider' && <SliderComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} required={subQuestion.isRequired} nowSliderValue={handleSliderValueChange} changeCardsLogic={subQuestion.changeCardsLogic} />}
-																	{subQuestion.selectedComponent === 'Data' && <DataComponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} required={subQuestion.isRequired} />}
-																</Paper> */}
-																	{valueSliderNow === valueSliderForSubQuestion && (
+																	{selectedSubQuestionIndex && valueSliderNow === valueSliderForSubQuestion && (selectedSubQuestionIndex - 1) === subIndex && (
 																		<Paper elevation={2} sx={{ p: 3, paddingTop: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: '100%' }}>
 																			<Box sx={{ display: 'flex', flexDirection: "row", width: "-webkit-fill-available", gap: 1, textAlign: 'center' }}>
 																				<Typography variant='subtitle1' gutterBottom> {subQuestion.question} </Typography>
