@@ -25,7 +25,8 @@ export default function FormPage() {
 	const [currentSection, setCurrentSection] = useState(0);
 	const methods = useForm();
 	const [formData, setFormData] = useState<FormData | null>(null);
-	const [selectedSubQuestionIndex, setSelectedSubQuestionIndex] = useState<number | null>(null);
+	const [selectedSubQuestionIndexForSlider, setSelectedSubQuestionIndexForSlider] = useState<number | null>(null);
+	const [selectedSubQuestionIndexForCheckbox, setSelectedSubQuestionIndexForCheckbox] = useState<number | null>(null);
 	const [valueSliderNow, setValueSliderNow] = useState<number | null>(null)
 	const [valueSliderForSubQuestion, setValueSliderForSubQuestion] = useState<number | null>(null)
 	const [checkboxChooseNow, setChecboxChooseNow] = useState<number | null>(null)
@@ -94,8 +95,8 @@ export default function FormPage() {
 				setValueSliderForSubQuestion(parseInt(indexValue));
 				console.log(setValueSliderForSubQuestion, 'индекс выбранного номера в слайдере')
 
-				setSelectedSubQuestionIndex(parseInt(indexQuestion));
-				console.log(selectedSubQuestionIndex, 'индекс выбранного вопроса')
+				setSelectedSubQuestionIndexForSlider(parseInt(indexQuestion));
+				console.log(selectedSubQuestionIndexForSlider, 'индекс выбранного вопроса')
 			}
 		} else {
 			console.error('Invalid changeCardsLogic:', changeCardsLogic);
@@ -105,17 +106,24 @@ export default function FormPage() {
 	const handleCheckboxChooseChange = (value: string, changeCardsLogic: string | string[]) => {
 		if (Array.isArray(changeCardsLogic) && changeCardsLogic.length > 0) {
 			console.log(value, changeCardsLogic, "formPage")
-			// setChecboxChooseNow(value);
-			// const logicString = changeCardsLogic[0];
-			// const logic = logicString.split(':')[0] === value.toString();
-			// if (logic) {
-			// 	const [indexValue, indexQuestion] = logicString.split(':');
-			// 	setCheckboxChooseForSubQuestion(parseInt(indexValue));
-			// 	console.log(setCheckboxChooseForSubQuestion, 'индекс выбранного номера в чекбоксе')
-
-			// 	setSelectedSubQuestionIndex(parseInt(indexQuestion));
-			// 	console.log(selectedSubQuestionIndex, 'индекс выбранного вопроса')
-			// }
+			console.log(value.split(""), "formPageValue")
+			const valueArray = value.split("").filter(char => /^\d$/.test(char));;
+			console.log(valueArray.length)
+			if(valueArray.length === 1){
+				const checkboxIndexInPage = (Number(valueArray[0]) + Number(1)); 
+				setChecboxChooseNow(checkboxIndexInPage);
+				const logicString = changeCardsLogic[0];
+				const logic = logicString.split(':')[0] === checkboxIndexInPage.toString();
+				console.log(logic, logicString, checkboxChooseNow)
+				if (logic) {
+					const [indexValue, indexQuestion] = logicString.split(':');
+					setCheckboxChooseForSubQuestion(parseInt(indexValue));
+					console.log(setCheckboxChooseForSubQuestion, 'индекс выбранного номера в чекбоксе')
+	
+					setSelectedSubQuestionIndexForCheckbox(parseInt(indexQuestion));
+					console.log(selectedSubQuestionIndexForCheckbox, 'индекс выбранного вопроса')
+				}
+			}
 		} else {
 			console.error('Invalid changeCardsLogic:', changeCardsLogic);
 		}
@@ -235,7 +243,23 @@ export default function FormPage() {
 													{card.subQuestions && card.subQuestions.map((subQuestion, subIndex) => {
 														return (
 															<Box sx={{ mt: 3 }} key={subIndex}>
-																{selectedSubQuestionIndex && ((valueSliderNow === valueSliderForSubQuestion)) && (selectedSubQuestionIndex - 1) === subIndex && (
+																{card.selectedComponent === 'Slider' && selectedSubQuestionIndexForSlider && ((valueSliderNow === valueSliderForSubQuestion)) && (selectedSubQuestionIndexForSlider - 1) === subIndex && (
+																	<Paper elevation={2} sx={{ p: 3, paddingTop: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: '100%' }}>
+																		<Box sx={{ display: 'flex', flexDirection: "row", width: "-webkit-fill-available", gap: 1, textAlign: 'center' }}>
+																			<Typography variant='subtitle1' gutterBottom> {subQuestion.question} </Typography>
+																		</Box>
+																		{subQuestion.addImg && (
+																			<img src={Array.isArray(subQuestion.imageUrl) ? subQuestion.imageUrl[0] : subQuestion.imageUrl} style={{ maxWidth: "-webkit-fill-available", marginTop: 5 }} />
+																		)}
+																		{subQuestion.selectedComponent === 'Input' && <InputCopmponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} required={subQuestion.isRequired} />}
+																		{subQuestion.selectedComponent === 'Textarea' && <TextareaComponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} required={subQuestion.isRequired} />}
+																		{subQuestion.selectedComponent === 'Radio' && <RadioComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} required={subQuestion.isRequired} />}
+																		{subQuestion.selectedComponent === 'Checkbox' && <CheckboxesComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} required={subQuestion.isRequired} addLogic={subQuestion.addLogic} GetLogic={subQuestion.Logic} />}
+																		{subQuestion.selectedComponent === 'Slider' && <SliderComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} required={subQuestion.isRequired} nowSliderValue={handleSliderValueChange} changeCardsLogic={subQuestion.changeCardsLogic} />}
+																		{subQuestion.selectedComponent === 'Data' && <DataComponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} required={subQuestion.isRequired} />}
+																	</Paper>
+																)}
+																{card.selectedComponent === 'Checkbox' && selectedSubQuestionIndexForCheckbox && ((checkboxChooseNow === checkboxChooseForSubQuestion)) && (selectedSubQuestionIndexForCheckbox - 1) === subIndex && (
 																	<Paper elevation={2} sx={{ p: 3, paddingTop: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: '100%' }}>
 																		<Box sx={{ display: 'flex', flexDirection: "row", width: "-webkit-fill-available", gap: 1, textAlign: 'center' }}>
 																			<Typography variant='subtitle1' gutterBottom> {subQuestion.question} </Typography>
