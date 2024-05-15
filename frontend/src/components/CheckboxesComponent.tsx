@@ -7,6 +7,10 @@ import { useFormContext } from 'react-hook-form';
 import { CustomSelect } from './CustomOptions';
 import AddIcon from '@mui/icons-material/Add';
 
+interface CheckboxState {
+  [key: number]: boolean;
+}
+
 interface CheckboxesComponentProps {
   sectionIndex?: number,
   cardIndex?: number;
@@ -44,7 +48,7 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
   subQuestionIndex,
   onChangeCardsLogic,
   nowCheckboxChoose,
-  changeCardsLogic =[],
+  changeCardsLogic = [],
 }) => {
   const { list, addItem, updateItem, setList } = useList<string[]>([['']]);
 
@@ -68,14 +72,29 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
 
   const [logicChangeBlocks, setLogicChangeBlocks] = useState<{ answer: string; cardIndex: string }[]>([]);
 
-  const [checkboxIndex, setCheckboxIndex] = useState<number>(0);
+  const [nowSelectCheckbox, setNowSelectCheckbox] = useState<CheckboxState>({});
+
+  const [checkboxIndex, setCheckboxIndex] = useState<string>('');
 
   useEffect(() => {
-    if(nowCheckboxChoose){
+    console.log("nowSelectCheckbox:", nowSelectCheckbox);
+    if (nowCheckboxChoose) {
+      let selectedIndices = '';
+      Object.entries(nowSelectCheckbox).forEach(([key, value]) => {
+        if (value) {
+          selectedIndices += key + ', ';
+        }
+      });
+      // Удалить последнюю запятая и пробел из строки
+      if (selectedIndices.endsWith(',')) {
+        selectedIndices = selectedIndices.slice(0, -2);
+      }
+
+      console.log("selectedIndices:", selectedIndices);
+      setCheckboxIndex(selectedIndices);
       nowCheckboxChoose(String(checkboxIndex), changeCardsLogic);
-      console.log('nowCheckboxChoose', nowCheckboxChoose);
     }
-  }, [changeCardsLogic, checkboxIndex, nowCheckboxChoose])
+  }, [changeCardsLogic, checkboxIndex, nowCheckboxChoose, nowSelectCheckbox]);
 
   //отслеживаем кол-во ответов и число в input 
   useEffect(() => {
@@ -247,9 +266,10 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
                       onChange={(e) => {
                         if (e.target.checked) {
                           setValue(`${inputName}[${index}]`, answer);
+                          console.log(e.target.checked, 'checked');
                           // Проверяем, были ли выбраны какие-либо чекбоксы, и обновляем состояние ошибки
                           const selectedAnswers = getValues()[inputName] || [];
-                          console.log(selectedAnswers.length)
+                          // console.log(selectedAnswers.length)
                           if (selectedAnswers.length > 0) {
                             setErrorMessageNoLogic('');
                           }
@@ -259,6 +279,12 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
                           setValue(inputName, newValues);
                           setErrorMessageNoLogic('Выберите ответ');
                         }
+
+                        setNowSelectCheckbox(prevState => ({
+                          ...prevState,
+                          [index]: e.target.checked
+                        }));
+
                       }}
                       onBlur={onBlur}
                     />

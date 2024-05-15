@@ -60,7 +60,6 @@ export default function FormPage() {
 			const processedPath = localPath.replace(/\\/g, '/');
 			localPath = processedPath;
 			localPath.split(',').forEach((path: string) => {
-				console.log(`Processing path: ${path}`);
 				const match = path.match(regex);
 				if (match) {
 					result.push(`${baseUrl}${match[1]}`);
@@ -73,7 +72,6 @@ export default function FormPage() {
 				// Заменяем обратные слеши на прямые слеши перед обработкой каждого пути
 				const processedPath = path.replace(/\\/g, '/');
 				path = processedPath;
-				console.log(`Processing path: ${path}`);
 				const match = path.match(regex);
 				if (match) {
 					result.push(`${baseUrl}${match[1]}`);
@@ -83,7 +81,6 @@ export default function FormPage() {
 			});
 		}
 
-		console.log('Result:', result);
 		return result;
 	};
 
@@ -127,14 +124,14 @@ export default function FormPage() {
 	const isMandatory = formData?.isMandatoryAuth;
 
 	const onSubmit = async (data: any) => {
-		console.log(data)
-		try {
-			const rezultSendData = await dispatch(sendFormData({ formData: data, formId: formId ?? '' }));
-			console.log(rezultSendData);
-			navigate("/stub")
-		} catch (error) {
-			console.error('Failed to send form data:', error);
-		}
+		console.log(data, 'данные для отправки на сервер')
+		// try {
+		// 	const rezultSendData = await dispatch(sendFormData({ formData: data, formId: formId ?? '' }));
+		// 	console.log(rezultSendData);
+		// 	navigate("/stub")
+		// } catch (error) {
+		// 	console.error('Failed to send form data:', error);
+		// }
 	};
 
 	return (
@@ -215,7 +212,6 @@ export default function FormPage() {
 										{formData.sections[currentSection].cards.map((card, index) => {
 											console.log(card, 'карточка')
 											const imageUrl = convertLocalPathToUrl(card.imageUrl);
-											console.log(imageUrl, 'карточка')
 											return (
 												<Box key={index} sx={{ mb: 3, mt: 2, minWidth: "300px" }}>
 													<Paper elevation={2} sx={{ p: 3, paddingTop: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", }}>
@@ -261,7 +257,7 @@ export default function FormPage() {
 												</Box>
 											);
 										})}
-								
+
 										<Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
 											{currentSection > 0 && (
 												<Button onClick={() => setCurrentSection(currentSection - 1)} color="success" variant="contained">
