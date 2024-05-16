@@ -7,6 +7,7 @@ import { Provider } from 'react-redux';
 import FormPage from './pages/FormPage';
 import StubPage from './pages/StubPage';
 import SurveyReportPage from './pages/SurveyReportPage';
+import ChangeFormPage from './pages/ChangeFormPage';
 
 function App() {
   return (
@@ -17,8 +18,9 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/create-form" element={<CreateFormPage />} />
             <Route path="/form/:formId" element={<FormPage />} />
-            <Route path="/stub" element={<StubPage />} />
+            <Route path="/stub/:formId" element={<StubPage />} />
             <Route path="/report/:formId" element={<SurveyReportPage />} />
+            <Route path="/changeForm/:formId" element={<ChangeFormPage />} />
           </Routes>
         </div>
       </Router>

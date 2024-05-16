@@ -12,27 +12,28 @@ import { unwrapResult } from '@reduxjs/toolkit';
 
 interface Forms {
   id: string,
-  formHeader: string,
+  formTitle: string,
+  formEndDate: string,
 }
 
 const HomePage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const [forms, setForms] = useState<Forms[]>([]);
 
-  // useEffect(() => {
-  //   const fetchFormData = async () => {
-  //     try {
-  //       const actionResult = await dispatch(GetAllForms());
-  //       const formData = unwrapResult(actionResult);
-  //       setForms(formData);
-  //       console.log(formData, 'данные с сервера');
-  //     } catch (error) {
-  //       console.error('Failed to fetch form:', error);
-  //     }
-  //   };
+  useEffect(() => {
+    const fetchFormData = async () => {
+      try {
+        const actionResult = await dispatch(GetAllForms());
+        const formData = unwrapResult(actionResult);
+        setForms(formData);
+        console.log(formData, 'данные с сервера');
+      } catch (error) {
+        console.error('Failed to fetch form:', error);
+      }
+    };
 
-  //   fetchFormData();
-  // }, [dispatch]);
+    fetchFormData();
+  }, [dispatch]);
 
   const navigate = useNavigate();
 
@@ -46,9 +47,20 @@ const HomePage: React.FC = () => {
 
   const BackgroundImage = require('../img/background.png');
 
+  function formatDate(dateString: string): string {
+    const date = new Date(dateString);
+
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+
+    return `${day}/${month}/${year}`;
+  }
+
+
   return (
     <div className="home-page">
-      <Box sx={{display:'flex', flexDirection:'row', mt:3, justifyContent:'center', gap:5}}>
+      <Box sx={{ display: 'flex', flexDirection: 'row', mt: 3, justifyContent: 'center', gap: 5 }}>
         <Box>
           <div className='home-header'>
             <DescriptionIcon fontSize='large' sx={{ color: '#00862b' }} />
@@ -89,28 +101,31 @@ const HomePage: React.FC = () => {
           {forms.map((form, index) => {
             return (
               <Grid item xs={12} sm={6} md={4} key={index} onClick={() => navigate(`/report/${form.id}`)}>
-                <Card sx={{ maxWidth: 345 }}>
-                  <CardActionArea>
-                    <CardMedia
-                      component="img"
-                      height="140"
-                      image={BackgroundImage}
-                    />
-                    <CardContent>
-                      <Typography gutterBottom variant="h5" component="div">
-                        {form.formHeader}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        Дата окончания опроса
-                        {/* Add more form details here */}
-                      </Typography>
-                    </CardContent>
-                  </CardActionArea>
-                </Card>
-              </Grid>
-            )
+                {/* <Grid item xs={12} sm={6} md={4} key={index} onClick={() => navigate(`/changeForm/${form.id}`)}> */}
+                  <Card sx={{ maxWidth: 345 }}>
+                    <CardActionArea>
+                      <CardMedia
+                        component="img"
+                        height="140"
+                        image={BackgroundImage}
+                      />
+                      <CardContent>
+                        <Typography gutterBottom variant="h5" component="div">
+                          {form.formTitle}
+                        </Typography>
+                        {form.formEndDate && (
+                          <Typography variant="body2" color="text.secondary">
+                            Дата окончания опроса:
+                            {formatDate(form.formEndDate)}
+                          </Typography>
+                        )}
+                      </CardContent>
+                    </CardActionArea>
+                  </Card>
+                </Grid>
+                )
           })}
-        </Grid>
+              </Grid>
       </Box>
     </div>
   );

@@ -32,7 +32,6 @@ export default function FormPage() {
 	const [checkboxChooseNow, setChecboxChooseNow] = useState<number | null>(null)
 	const [checkboxChooseForSubQuestion, setCheckboxChooseForSubQuestion] = useState<number | null>(null)
 
-
 	useEffect(() => {
 		const fetchFormData = async () => {
 			try {
@@ -133,7 +132,8 @@ export default function FormPage() {
 		// try {
 		// 	const rezultSendData = await dispatch(sendFormData({ formData: data, formId: formId ?? '' }));
 		// 	console.log(rezultSendData);
-		// 	navigate("/stub")
+			navigate(`/stub/${formId}`, {state: {formId: formId }});
+						// navigate(`/form/${formId.formId}`, { state: { formId } });
 		// } catch (error) {
 		// 	console.error('Failed to send form data:', error);
 		// }
