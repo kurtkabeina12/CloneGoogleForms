@@ -264,7 +264,10 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
                       defaultChecked={false}
                       inputRef={ref}
                       onChange={(e) => {
-                        if (e.target.checked) {
+                        const isChecked = e.target.checked;
+                        console.log([index], isChecked, 'checked');
+
+                        if (isChecked) {
                           setValue(`${inputName}[${index}]`, answer);
                           console.log(e.target.checked, 'checked');
                           // Проверяем, были ли выбраны какие-либо чекбоксы, и обновляем состояние ошибки
@@ -282,9 +285,9 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
 
                         setNowSelectCheckbox(prevState => ({
                           ...prevState,
-                          [index]: e.target.checked
+                          [index]: isChecked
                         }));
-
+                        console.log(nowSelectCheckbox, 'nowSelectCheck in OChange')
                       }}
                       onBlur={onBlur}
                     />

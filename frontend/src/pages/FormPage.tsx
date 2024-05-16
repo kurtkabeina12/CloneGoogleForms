@@ -83,46 +83,43 @@ export default function FormPage() {
 		}
 
 		return result;
-	};
+	};		
 
 	const handleSliderValueChange = (value: number, changeCardsLogic: string | string[]) => {
-		if (Array.isArray(changeCardsLogic) && changeCardsLogic.length > 0) {
-			setValueSliderNow(value);
-			const logicString = changeCardsLogic[0];
-			const logic = logicString.split(':')[0] === value.toString();
-			if (logic) {
-				const [indexValue, indexQuestion] = logicString.split(':');
-				setValueSliderForSubQuestion(parseInt(indexValue));
-				console.log(setValueSliderForSubQuestion, 'индекс выбранного номера в слайдере')
+    if (Array.isArray(changeCardsLogic) && changeCardsLogic.length > 0) {
+        setValueSliderNow(value);
+        changeCardsLogic.forEach(logicString => {
+            const logic = logicString.split(':')[0] === value.toString();
+            if (logic) {
+                const [indexValue, indexQuestion] = logicString.split(':');
+                setValueSliderForSubQuestion(parseInt(indexValue));
+                setSelectedSubQuestionIndexForSlider(parseInt(indexQuestion));
+            }
+        });
+    } else {
+        console.error('Invalid changeCardsLogic:', changeCardsLogic);
+    }
+};
 
-				setSelectedSubQuestionIndexForSlider(parseInt(indexQuestion));
-				console.log(selectedSubQuestionIndexForSlider, 'индекс выбранного вопроса')
-			}
-		} else {
-			console.error('Invalid changeCardsLogic:', changeCardsLogic);
-		}
-	};
-
-	const handleCheckboxChooseChange = (value: string, changeCardsLogic: string | string[]) => {
+	const handleCheckboxChooseChange = (value: string, changeCardsLogic: string | any[]) => {
 		if (Array.isArray(changeCardsLogic) && changeCardsLogic.length > 0) {
-			console.log(value, changeCardsLogic, "formPage")
-			console.log(value.split(""), "formPageValue")
-			const valueArray = value.split("").filter(char => /^\d$/.test(char));;
-			console.log(valueArray.length)
-			if(valueArray.length === 1){
-				const checkboxIndexInPage = (Number(valueArray[0]) + Number(1)); 
+			console.log(value, 'valueCheckboxInFormPage')
+			const valueArray = value.split("").filter(char => /^\d$/.test(char));
+			if (valueArray.length === 1) {
+				const checkboxIndexInPage = Number(valueArray[0]) + 1;
 				setChecboxChooseNow(checkboxIndexInPage);
-				const logicString = changeCardsLogic[0];
-				const logic = logicString.split(':')[0] === checkboxIndexInPage.toString();
-				console.log(logic, logicString, checkboxChooseNow)
-				if (logic) {
-					const [indexValue, indexQuestion] = logicString.split(':');
-					setCheckboxChooseForSubQuestion(parseInt(indexValue));
-					console.log(setCheckboxChooseForSubQuestion, 'индекс выбранного номера в чекбоксе')
-	
-					setSelectedSubQuestionIndexForCheckbox(parseInt(indexQuestion));
-					console.log(selectedSubQuestionIndexForCheckbox, 'индекс выбранного вопроса')
-				}
+				changeCardsLogic.forEach(logicString => {
+					const logic = logicString.split(':')[0] === checkboxIndexInPage.toString();
+					if (logic) {
+						const [indexValue, indexQuestion] = logicString.split(':');
+						setCheckboxChooseForSubQuestion(parseInt(indexValue));
+						setSelectedSubQuestionIndexForCheckbox(parseInt(indexQuestion));
+					}
+				});
+			} else {
+				setChecboxChooseNow(null);
+				setCheckboxChooseForSubQuestion(null);
+				setSelectedSubQuestionIndexForCheckbox(null);
 			}
 		} else {
 			console.error('Invalid changeCardsLogic:', changeCardsLogic);
