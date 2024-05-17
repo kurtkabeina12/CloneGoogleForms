@@ -255,7 +255,7 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
       {!disabled && answers.length > 0 && (
         <FormGroup {...register(inputName, { required })}>
           <>
-            {!addLogic && (
+            {!addLogic && !required && (
               <>
                 {answers.map((answer, index) => (
                   <FormControlLabel key={index} value={answer} control={
@@ -267,28 +267,69 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
                         const isChecked = e.target.checked;
                         console.log([index], isChecked, 'checked');
 
-                        if (isChecked) {
-                          setValue(`${inputName}[${index}]`, answer);
-                          console.log(e.target.checked, 'checked');
-                          // Проверяем, были ли выбраны какие-либо чекбоксы, и обновляем состояние ошибки
-                          const selectedAnswers = getValues()[inputName] || [];
-                          // console.log(selectedAnswers.length)
-                          if (selectedAnswers.length > 0) {
-                            setErrorMessageNoLogic('');
-                          }
-                        } else {
-                          const values = getValues();
-                          const newValues = values[inputName].filter((_: any, i: any) => i !== index);
-                          setValue(inputName, newValues);
-                          setErrorMessageNoLogic('Выберите ответ');
-                        }
-
                         setNowSelectCheckbox(prevState => ({
                           ...prevState,
                           [index]: isChecked
                         }));
+                        // if (isChecked) {
+                        //   setValue(`${inputName}[${index}]`, answer);
+                        //   console.log(e.target.checked, 'checked');
+
+                        //   // Проверяем, были ли выбраны какие-либо чекбоксы, и обновляем состояние ошибки
+                        //   const selectedAnswers = getValues()[inputName] || [];
+                        //   // console.log(selectedAnswers.length)
+                        //   if (selectedAnswers.length > 0) {
+                        //     setErrorMessageNoLogic('  ');
+                        //   }
+                        // } else {
+                        //   const values = getValues();
+                        //   const newValues = values[inputName].filter((_: any, i: any) => i !== index);
+                        //   setValue(inputName, newValues);
+                        //   setErrorMessageNoLogic('Выберите ответ');
+                        // }
+
                         console.log(nowSelectCheckbox, 'nowSelectCheck in OChange')
                       }}
+                      onBlur={onBlur}
+                    />
+                  }
+                    label={answer}
+                  />
+                ))}
+                {errors[inputName] && <Typography color="error">{errorMessageNoLogic}</Typography>}
+              </>
+            )}
+            {!addLogic && required && (
+              <>
+                {answers.map((answer, index) => (
+                  <FormControlLabel key={index} value={answer} control={
+                    <Checkbox
+                      color='success'
+                      defaultChecked={false}
+                      inputRef={ref}
+                      onChange={(e) => {
+                        const isChecked = e.target.checked;
+                        console.log([index], isChecked, 'checked');
+                      
+                        setNowSelectCheckbox(prevState => ({
+                         ...prevState,
+                          [index]: isChecked
+                        }));
+                      
+                        const totalCheckboxes = answers.length;
+                        const selectedCheckboxes = Object.values(nowSelectCheckbox).filter(value => value).length;
+                      
+                        const hasAnyCheckboxSelected = selectedCheckboxes > 0;
+                      
+                        if (!hasAnyCheckboxSelected) {
+                          setErrorMessageNoLogic('Выберите ответ');
+                        } else {
+                          setErrorMessageNoLogic('');
+                        }
+                      
+                        console.log(nowSelectCheckbox, 'nowSelectCheck in OChange');
+                      }}
+                      
                       onBlur={onBlur}
                     />
                   }
