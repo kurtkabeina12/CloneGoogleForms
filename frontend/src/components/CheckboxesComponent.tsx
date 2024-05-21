@@ -77,7 +77,6 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
   const [checkboxIndex, setCheckboxIndex] = useState<string>('');
 
   useEffect(() => {
-    console.log("nowSelectCheckbox:", nowSelectCheckbox);
     if (nowCheckboxChoose) {
       let selectedIndices = '';
       Object.entries(nowSelectCheckbox).forEach(([key, value]) => {
@@ -90,7 +89,6 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
         selectedIndices = selectedIndices.slice(0, -2);
       }
 
-      console.log("selectedIndices:", selectedIndices);
       setCheckboxIndex(selectedIndices);
       nowCheckboxChoose(String(checkboxIndex), changeCardsLogic);
     }

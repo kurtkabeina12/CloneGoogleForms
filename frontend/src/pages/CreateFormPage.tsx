@@ -725,7 +725,6 @@ const CreateFormPage: React.FC = () => {
 															</FormControl>
 														</Box>
 														{card.addImg && card.imageUrl.map((image: string, imageIndex: number) => {
-															console.log(imageIndex)
 															return (
 																<div key={imageIndex}>
 																	<img src={image} style={{ maxWidth: "-webkit-fill-available", marginTop: 5 }} />
