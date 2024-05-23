@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Button, FormGroup, FormControlLabel, Input, Radio, RadioGroup, Typography } from '@mui/material';
 import useList from '../hooks/UseList';
 import CloseIcon from '@mui/icons-material/Close';
@@ -15,6 +15,7 @@ interface RadioComponentProps {
   idQuestion?: string;
   cardType?: string;
   subQuestionIndex?: number;
+ cardFormPageType?: string;
 }
 
 const RadioComponent: React.FC<RadioComponentProps> = ({
@@ -27,11 +28,12 @@ const RadioComponent: React.FC<RadioComponentProps> = ({
   required = false,
   answers = [],
   cardType = 'card',
-  subQuestionIndex
+  subQuestionIndex,
+  cardFormPageType
 }) => {
   const { list, addItem, updateItem, setList } = useList<string[]>([['']]);
   const { register, formState: { errors } } = useFormContext();
-  const inputName = idQuestion || 'defaultIdQuestion';
+  const inputName = (idQuestion || 'defaultIdQuestion') + ':' + cardFormPageType;
   const { ref } = register(inputName, { required });
 
   const handleAddAnswer = () => {

@@ -18,6 +18,7 @@ interface SliderComponentProps {
 	onChangeCardsLogic?: (logic: string | string[]) => void;
 	nowSliderValue?: (value: number, changeCardsLogic: string | string[]) => void;
 	changeCardsLogic?: string | string[];
+	cardFormPageType?: string;
 }
 
 const SliderComponent: React.FC<SliderComponentProps> = ({
@@ -32,7 +33,8 @@ const SliderComponent: React.FC<SliderComponentProps> = ({
 	addChangeCardsLogic = false,
 	onChangeCardsLogic,
 	nowSliderValue,
-	changeCardsLogic = []
+	changeCardsLogic = [],
+	cardFormPageType
 }) => {
 	const [startValue, setStartValue] = useState<number>(answers ? parseInt(answers[0], 10) : 0);
 	const [lengthValue, setLengthValue] = useState<number>(answers ? parseInt(answers[1], 10) : 2);
@@ -40,7 +42,7 @@ const SliderComponent: React.FC<SliderComponentProps> = ({
 	const [sliderValue, setSliderValue] = useState<number>(startValue);
 	const { register, control, formState: { errors } } = useFormContext();
 
-	const inputName = idQuestion || 'defaultIdQuestion';
+	const inputName = (idQuestion || 'defaultIdQuestion') + ':' + cardFormPageType;
 
 	register(inputName, { required });
 	useEffect(() => {

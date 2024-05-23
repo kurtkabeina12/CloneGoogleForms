@@ -25,12 +25,12 @@ const SurveyReportPage: React.FC = () => {
 				console.log(formData, 'данные с сервера');
 
 				// Подготовка данных для вопросов и ответов
-				const reportData = formData.questions.map((question: { question: string; idQuestion: string; }) => ({
-					question: question.question,
-					answers: formData.answers.filter((answer: { idQuestion: string; }) => answer.idQuestion === question.idQuestion),
-				}));
+				// const reportData = formData.questions.map((question: { question: string; idQuestion: string; }) => ({
+				// 	question: question.question,
+				// 	answers: formData.answers.filter((answer: { idQuestion: string; }) => answer.idQuestion === question.idQuestion),
+				// }));
 
-				setReportData(reportData);
+				// setReportData(reportData);
 
 			} catch (error) {
 				console.error('Failed to fetch form:', error);

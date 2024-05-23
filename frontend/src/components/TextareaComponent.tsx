@@ -9,6 +9,7 @@ interface TextareaComponentProps {
   required?: boolean;
   quest?: string;
   idQuestion?: string;
+ cardFormPageType?: string;
 }
 
 const green = {
@@ -62,10 +63,10 @@ const Textarea = styled(BaseTextareaAutosize)(
 `,
 );
 
-const TextareaComponent: React.FC<TextareaComponentProps> = ({ disabled = false, required = false, quest, idQuestion }) => {
+const TextareaComponent: React.FC<TextareaComponentProps> = ({ disabled = false, required = false, quest, idQuestion, cardFormPageType }) => {
   const { register, formState: { errors } } = useFormContext();
 
-  const inputName = idQuestion || 'defaultIdQuestion';
+  const inputName = (idQuestion || 'defaultIdQuestion') + ':' + cardFormPageType;
 
   register(inputName, { required: required ? "Заполните поле" : false });
 

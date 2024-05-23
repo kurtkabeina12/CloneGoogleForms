@@ -7,12 +7,13 @@ interface DataComponentProps {
   required?: boolean;
   quest?: string;
   idQuestion?: string;
+  cardFormPageType?: string;
 }
 
-const DataComponent: React.FC<DataComponentProps> = ({ disabled = false, required = false, quest, idQuestion }) => {
+const DataComponent: React.FC<DataComponentProps> = ({ disabled = false, required = false, quest, idQuestion, cardFormPageType }) => {
   const {register, control, formState: { errors } } = useFormContext();
 
-  const inputName = idQuestion || 'defaultIdQuestion';
+  const inputName = (idQuestion || 'defaultIdQuestion') + ':' + cardFormPageType;
 
   register(inputName, { required });
 

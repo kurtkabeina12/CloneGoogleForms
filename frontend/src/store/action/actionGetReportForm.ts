@@ -1,10 +1,10 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 
 export const fetchGetReportForm = createAsyncThunk(
-    'getReportForm',
+    'getFormReport',
     async ({formId} : {formId:string}, thunkAPI) => {
         try {
-            const response = await fetch(`http://localhost:8888/getForms/${formId}`);
+            const response = await fetch(`http://localhost:8888/getFormReport/${formId}`);
             if (!response.ok) {
                 throw new Error('Failed to fetch form');
             }
