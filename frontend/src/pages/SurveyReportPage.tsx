@@ -5,17 +5,24 @@ import { useDispatch } from 'react-redux';
 import { fetchGetReportForm } from '../store/action/actionGetReportForm';
 import { AppDispatch } from '../store/reducers/reducerRoot';
 import { unwrapResult } from '@reduxjs/toolkit';
-import { Box, Paper, Typography } from '@mui/material';
+import { AppBar, Box, Button, IconButton, Paper, Toolbar, Typography } from '@mui/material';
+import CustomShedule from '../components/CustomShedule';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
 
 interface SubQuestion {
-	question: string;
 	answers: { answers: string | string[] }[];
+	idSubQuestion: string;
+	question: string;
+	selectedComponent: string;
 }
 
 interface ReportItem {
-	question: string;
-	subQuestions?: SubQuestion[];
 	answers: { answers: string | string[] }[];
+	idQuestion: string;
+	question: string;
+	selectedComponent: string;
+	subQuestions?: SubQuestion[];
+	chartData?: PieChartData[];
 }
 
 interface formReportInfo {
@@ -24,11 +31,19 @@ interface formReportInfo {
 	selectedColor: string;
 }
 
+interface PieChartData {
+	answer: string;
+	count: number;
+	AllAnswers: string[] | string;
+}
+
 const SurveyReportPage: React.FC = () => {
 	const { formId } = useParams();
 	const dispatch = useDispatch<AppDispatch>();
 	const [reportData, setReportData] = useState<ReportItem[]>([]);
 	const [formReportInfo, setFormReportInfo] = useState<formReportInfo>();
+	const [radioChartData, setRadioChartData] = useState<PieChartData[]>([]);
+	const [checkboxChartData, setCheckboxChartData] = useState<PieChartData[]>([]);
 
 	useEffect(() => {
 		const fetchReportForm = async () => {
@@ -43,19 +58,42 @@ const SurveyReportPage: React.FC = () => {
 				const formInfo = formData.form[0];
 
 				setFormReportInfo(formInfo);
-				// Обработка основных вопросов
-				const mainQuestions = formData.questions.map((question: { question: string; idQuestion: string; }) => ({
-					question: question.question,
-					answers: formData.answers.filter((answer: { idQuestion: string; }) => answer.idQuestion === question.idQuestion),
-				}));
 
-				// Обработка подзапросов
-				const subQuestions = formData.subQuestions.map((subQuestion: { question: string; idSubQuestion: string; }) => ({
-					question: subQuestion.question,
-					answers: formData.answers.filter((answer: { idSubQuestion: string; }) => answer.idSubQuestion === subQuestion.idSubQuestion),
-				}));
+				const processQuestions = (questions: any[], type: string) => {
+					return questions.map(question => {
+						const answers = formData.answers.filter((answer: { [x: string]: any; }) => answer[type] === question.idQuestion || answer[type] === question.idSubQuestion);
+						let answerCounts: Record<string, number> = {};
+						if (question.selectedComponent === 'Radio' || question.selectedComponent === 'Checkbox') {
+							answers.forEach((answer: { answers: any[]; }) => {
+								const ans = Array.isArray(answer.answers) ? answer.answers.join(', ') : answer.answers;
+								answerCounts[ans] = (answerCounts[ans] || 0) + 1;
+							});
+							const chartDataEntries = Object.entries(answerCounts).map(([answer, count]) => {
+								return {
+									answer,
+									count,
+									AllAnswers: question.answer
+								};
+							});
+							return {
+								idQuestion: question.idQuestion,
+								question: question.question,
+								answers: answers,
+								selectedComponent: question.selectedComponent,
+								chartData: chartDataEntries,
+							};
+						}
+						return {
+							idQuestion: question.idQuestion,
+							question: question.question,
+							answers: answers,
+							selectedComponent: question.selectedComponent,
+						};
+					});
+				};
 
-				// Комбинирование основных вопросов и подзапросов
+				const mainQuestions = processQuestions(formData.questions, 'idQuestion');
+				const subQuestions = processQuestions(formData.subQuestions, 'idSubQuestion');
 				const combinedQuestions = mainQuestions.concat(subQuestions);
 
 				setReportData(combinedQuestions);
@@ -78,46 +116,67 @@ const SurveyReportPage: React.FC = () => {
 		return `${day}/${month}/${year}`;
 	}
 
+	const uploadExcelFile = () => {
+		console.log(1);
+	}
+
 	return (
-		<Box>
+		<>
 			{formReportInfo && (
-				<Box>
-					<Paper elevation={2} sx={{ p: 3, m: 4 }}>
-						<Typography variant='h3'>{formReportInfo.formTitle}</Typography>
-					</Paper>
-					<Paper elevation={2} sx={{ p: 3, m: 4 }}>
-						<Typography variant='h5'>{formatDate(formReportInfo.formEndDate)}</Typography>
-					</Paper>
+				<Box sx={{ flexGrow: 1 }}>
+					<AppBar position="static" sx={{ backgroundColor: "white" }}>
+						<Toolbar sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
+							<Box>
+								<Typography variant='h6' color="black">Название опроса: {formReportInfo.formTitle}</Typography>
+							</Box>
+							<Box >
+								<Typography variant='h6' color="black">Дата окончания опроса: {formatDate(formReportInfo.formEndDate)}</Typography>
+							</Box>
+							<IconButton aria-label="uploadFile" color="success" size="small" onClick={() => uploadExcelFile()}>
+								<UploadFileIcon />
+								<Typography variant='h6'>Скачать Excel</Typography>
+							</IconButton>
+						</Toolbar>
+					</AppBar>
 				</Box>
 			)}
-			{reportData.map((item: ReportItem, index: number) => (
-				<Box key={index}>
-					<Paper elevation={2} sx={{ p: 3, m: 4 }}>
-						<Typography variant='h4'>{item.question}</Typography>
-						<ul>
-							{item.answers.map((answer, answerIndex) => (
-								<li key={answerIndex}>
-									{Array.isArray(answer.answers) ? answer.answers.join(', ') : answer.answers}
-								</li>
-							))}
-						</ul>
-						{item.subQuestions && item.subQuestions.map((subQuestion, subIndex) => (
-							<div key={subIndex}>
-								<Typography variant='h6'>{subQuestion.question}</Typography>
-								<ul>
-									{subQuestion.answers.map((answer, answerIndex) => (
-										<li key={answerIndex}>
-											{Array.isArray(answer.answers) ? answer.answers.join(', ') : answer.answers}
-										</li>
+			<Box>
+				{reportData.map((item: ReportItem, index: number) => (
+					<Box key={index}>
+						<Paper elevation={2} sx={{ p: 3, m: 4 }}>
+							<Typography variant='h4'>{item.question}</Typography>
+							{item.selectedComponent === 'Radio' || item.selectedComponent === 'Checkbox' ? (
+								<CustomShedule key={`${index}-custom`} data={item.chartData || []} />
+							) : (
+								<>
+									<ul>
+										{item.answers.map((answer, answerIndex) => (
+											<li key={answerIndex}>
+												{Array.isArray(answer.answers) ? answer.answers.join(', ') : answer.answers}
+											</li>
+										))}
+									</ul>
+									{item.subQuestions && item.subQuestions.map((subQuestion, subIndex) => (
+										<div key={subIndex}>
+											<Typography variant='h6'>{subQuestion.question}</Typography>
+											<ul>
+												{subQuestion.answers.map((answer, answerIndex) => (
+													<li key={answerIndex}>
+														{Array.isArray(answer.answers) ? answer.answers.join(', ') : answer.answers}
+													</li>
+												))}
+											</ul>
+										</div>
 									))}
-								</ul>
-							</div>
-						))}
-					</Paper>
-				</Box>
-			))}
-		</Box>
+								</>
+							)}
+						</Paper>
+					</Box>
+				))}
+			</Box>
+		</>
 	);
+
 };
 
 export default SurveyReportPage;
