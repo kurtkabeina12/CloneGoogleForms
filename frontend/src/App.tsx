@@ -9,6 +9,7 @@ import StubPage from './pages/StubPage';
 import SurveyReportPage from './pages/SurveyReportPage';
 import ChangeFormPage from './pages/ChangeFormPage';
 import AutorizationPage from './pages/AutorizationPage';
+import CreateTestPage from './pages/CreateTestPage';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/create-form" element={<CreateFormPage />} />
+            <Route path="/create-test" element={<CreateTestPage />} />
             <Route path="/form/:formId" element={<FormPage />} />
             <Route path="/stub/:formId" element={<StubPage />} />
             <Route path="/report/:formId" element={<SurveyReportPage />} />

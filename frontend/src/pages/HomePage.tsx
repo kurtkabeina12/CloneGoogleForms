@@ -42,7 +42,7 @@ const HomePage: React.FC = () => {
   };
 
   const handleAddTestClick = () => {
-    navigate('/create-form');
+    navigate('/create-test');
   };
 
   const BackgroundImage = require('../img/background.png');

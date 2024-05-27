@@ -250,6 +250,10 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
     }
   };
 
+  const handleAddQuestionName = (index: number, event: React.ChangeEvent<HTMLInputElement>) =>{
+
+  }
+
   return (
     <FormGroup sx={{ width: '-webkit-fill-available', marginTop: '1rem' }}>
       {!disabled && answers.length > 0 && (
