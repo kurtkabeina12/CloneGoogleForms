@@ -5,9 +5,11 @@ import { useDispatch } from 'react-redux';
 import { fetchGetReportForm } from '../store/action/actionGetReportForm';
 import { AppDispatch } from '../store/reducers/reducerRoot';
 import { unwrapResult } from '@reduxjs/toolkit';
-import { AppBar, Box, Button, IconButton, Paper, Toolbar, Typography } from '@mui/material';
+import { AppBar, Box, IconButton, Paper, Toolbar, Typography } from '@mui/material';
 import CustomShedule from '../components/CustomShedule';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 
 interface SubQuestion {
 	answers: { answers: string | string[] }[];
@@ -42,8 +44,6 @@ const SurveyReportPage: React.FC = () => {
 	const dispatch = useDispatch<AppDispatch>();
 	const [reportData, setReportData] = useState<ReportItem[]>([]);
 	const [formReportInfo, setFormReportInfo] = useState<formReportInfo>();
-	const [radioChartData, setRadioChartData] = useState<PieChartData[]>([]);
-	const [checkboxChartData, setCheckboxChartData] = useState<PieChartData[]>([]);
 
 	useEffect(() => {
 		const fetchReportForm = async () => {
@@ -106,18 +106,56 @@ const SurveyReportPage: React.FC = () => {
 		fetchReportForm();
 	}, [dispatch, formId]);
 
+	//писать какой месяц текстом
+	function getMonthName(monthNumber: number): string {
+		const monthNames = [
+			'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+			'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
+		];
+		return monthNames[monthNumber - 1];
+	}
+
+	// форматировать элементы даты
 	function formatDate(dateString: string): string {
 		const date = new Date(dateString);
 
 		const day = date.getDate().toString().padStart(2, '0');
 		const month = (date.getMonth() + 1).toString().padStart(2, '0');
+		// const month = getMonthName(date.getMonth() + 1); 
 		const year = date.getFullYear();
 
 		return `${day}/${month}/${year}`;
 	}
 
+	function generateExcelFile(data: ReportItem[]) {
+		const wb = XLSX.utils.book_new();
+
+		const headers = ["question", ...Object.keys(data[0]?.question || {})];
+
+		const dataRows = data.flatMap(item => {
+			const row = [item.question];
+			if (item?.answers) {
+				const answersRow = item.answers.map(answer => Array.isArray(answer.answers) ? answer.answers.join(', ') : String(answer.answers)).join('; ');
+				row.push(answersRow);
+			}
+			return [row];
+		});
+
+		const worksheetData = [headers, ...dataRows];
+
+		const ws_data = XLSX.utils.aoa_to_sheet(worksheetData);
+
+		XLSX.utils.book_append_sheet(wb, ws_data, "DataExcel");
+
+		const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+
+		const blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8' });
+
+		saveAs(blob, "DataExcel.xlsx");
+	}
+
 	const uploadExcelFile = () => {
-		console.log(1);
+		generateExcelFile(reportData);
 	}
 
 	return (
@@ -147,6 +185,28 @@ const SurveyReportPage: React.FC = () => {
 							<Typography variant='h4'>{item.question}</Typography>
 							{item.selectedComponent === 'Radio' || item.selectedComponent === 'Checkbox' ? (
 								<CustomShedule key={`${index}-custom`} data={item.chartData || []} />
+							) : item.selectedComponent === 'Data' ? (
+								<>
+									<ul>
+										{item.answers.map((answer, answerIndex) => (
+											<li key={answerIndex}>
+												{formatDate(Array.isArray(answer.answers) ? answer.answers.join(', ') : answer.answers)}
+											</li>
+										))}
+									</ul>
+									{item.subQuestions && item.subQuestions.map((subQuestion, subIndex) => (
+										<div key={subIndex}>
+											<Typography variant='h6'>{subQuestion.question}</Typography>
+											<ul>
+												{subQuestion.answers.map((answer, answerIndex) => (
+													<li key={answerIndex}>
+														{formatDate(Array.isArray(answer.answers) ? answer.answers.join(', ') : answer.answers)}
+													</li>
+												))}
+											</ul>
+										</div>
+									))}
+								</>
 							) : (
 								<>
 									<ul>

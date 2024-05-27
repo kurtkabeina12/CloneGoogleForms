@@ -15,31 +15,57 @@ interface PieChartProps {
 const COLORS = ['#10b981', '#f59e0b', '#3b82f6', '#f43f5e'];
 const RADIAN = Math.PI / 180;
 
-const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, index }: any) => {
+const renderCustomizedLabel = ({
+	cx,
+	cy,
+	midAngle,
+	innerRadius,
+	outerRadius,
+	percent,
+	index,
+}: any) => {
 	const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
 	const x = cx + radius * Math.cos(-midAngle * RADIAN);
 	const y = cy + radius * Math.sin(-midAngle * RADIAN);
-
 	return (
-		<text x={x} y={y} fill="white" textAnchor={x > cx? 'start' : 'end'} dominantBaseline="central">
-			{`${(percent * 100).toFixed(0)}%`}
+		<text
+			x={x}
+			y={y}
+			fill="white"
+			textAnchor={x > cx ? 'start' : 'end'}
+			dominantBaseline="central"
+		>
+			{`${(percent * 100).toFixed()}%`}
 		</text>
 	);
 };
 
 const CustomShedule: React.FC<PieChartProps> = ({ data }) => {
-	const totalCount = data.reduce((total, item) => total + item.count, 0);
+	console.log(data, 'dataForShedule');
 
-	// Добавляем все возможные ответы в данные, даже если их количество равно 0
-	const allPossibleAnswers = Array.from(new Set([...data.flatMap(item => item.AllAnswers)]));
-	const enrichedData = allPossibleAnswers.map(answer => {
-		const foundItem = data.find(item => item.answer === answer);
-		return foundItem || { answer, count: 0 };
-	});
+	const processedData = data
+		.filter(item => item.answer!== 'null') 
+		.map(item => {
+			if (Array.isArray(item.AllAnswers)) {
+				const uniqueAnswers = new Set([...item.AllAnswers]);
+				const counts = Array.from(uniqueAnswers).map(answer => {
+					const foundItem = data.find(dataItem => dataItem.answer === answer);
+					return foundItem? foundItem.count : 0;
+				});
+				return {
+					...item,
+					count: counts.reduce((acc, curr) => acc + curr, 0),
+				};
+			} else {
+				throw new Error('Invalid data format. AllAnswers must be an array.');
+			}
+		});
 
-	const answerPercentages = enrichedData.map(item => ({
+	const totalCount = processedData.reduce((total, item) => total + item.count, 0);
+
+	const answerPercentages = processedData.map(item => ({
 		...item,
-		percentage: ((item.count / totalCount) * 100).toFixed(2),
+		percentage: ((item.count / totalCount) * 100).toFixed(),
 	}));
 
 	return (
@@ -47,7 +73,7 @@ const CustomShedule: React.FC<PieChartProps> = ({ data }) => {
 			<Box sx={{ display: 'flex', alignItems: 'center' }}>
 				<PieChart width={400} height={400}>
 					<Pie
-						data={data}
+						data={answerPercentages}
 						cx={200}
 						cy={200}
 						labelLine={false}
@@ -56,8 +82,12 @@ const CustomShedule: React.FC<PieChartProps> = ({ data }) => {
 						fill="#8884d8"
 						dataKey="count"
 					>
-						{enrichedData.map((entry, index) => (
-							<Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} name={entry.answer} />
+						{processedData.map((entry, index) => (
+							<Cell
+								key={`cell-${index}`}
+								fill={COLORS[index % COLORS.length]}
+								name={entry.answer}
+							/>
 						))}
 					</Pie>
 					<Tooltip />
