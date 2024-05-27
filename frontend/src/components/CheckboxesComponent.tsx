@@ -250,9 +250,6 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
     }
   };
 
-  const handleAddQuestionName = (index: number, event: React.ChangeEvent<HTMLInputElement>) =>{
-
-  }
 
   return (
     <FormGroup sx={{ width: '-webkit-fill-available', marginTop: '1rem' }}>
@@ -270,28 +267,29 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
                       onChange={(e) => {
                         const isChecked = e.target.checked;
                         console.log([index], isChecked, 'checked');
+                        setValue(`${inputName}[${index}]`, answer);
 
                         setNowSelectCheckbox(prevState => ({
                           ...prevState,
                           [index]: isChecked
                         }));
 
-                        if (isChecked) {
-                          setValue(`${inputName}[${index}]`, answer);
-                          console.log(e.target.checked, 'checked');
+                        // if (isChecked) {
+                        //   setValue(`${inputName}[${index}]`, answer);
+                        //   console.log(e.target.checked, 'checked');
 
-                          // Проверяем, были ли выбраны какие-либо чекбоксы, и обновляем состояние ошибки
-                          const selectedAnswers = getValues()[inputName] || [];
-                          // console.log(selectedAnswers.length)
-                          if (selectedAnswers.length > 0) {
-                            setErrorMessageNoLogic('  ');
-                          }
-                        } else {
-                          const values = getValues();
-                          const newValues = values[inputName].filter((_: any, i: any) => i !== index);
-                          setValue(inputName, newValues);
-                          setErrorMessageNoLogic('Выберите ответ');
-                        }
+                        //   // Проверяем, были ли выбраны какие-либо чекбоксы, и обновляем состояние ошибки
+                        //   const selectedAnswers = getValues()[inputName] || [];
+                        //   // console.log(selectedAnswers.length)
+                        //   if (selectedAnswers.length > 0) {
+                        //     setErrorMessageNoLogic('  ');
+                        //   }
+                        // } else {
+                        //   const values = getValues();
+                        //   const newValues = values[inputName].filter((_: any, i: any) => i !== index);
+                        //   setValue(inputName, newValues);
+                        //   setErrorMessageNoLogic('Выберите ответ');
+                        // }
 
                         console.log(nowSelectCheckbox, 'nowSelectCheck in OChange')
                       }}
@@ -301,7 +299,6 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
                     label={answer}
                   />
                 ))}
-                {errors[inputName] && <Typography color="error">{errorMessageNoLogic}</Typography>}
               </>
             )}
             {!addLogic && required && (

@@ -71,11 +71,11 @@ const CustomShedule: React.FC<PieChartProps> = ({ data }) => {
 	return (
 		<>
 			<Box sx={{ display: 'flex', alignItems: 'center' }}>
-				<PieChart width={400} height={400}>
+				<PieChart width={200} height={200}>
 					<Pie
 						data={answerPercentages}
-						cx={200}
-						cy={200}
+						cx={100}
+						cy={100}
 						labelLine={false}
 						label={renderCustomizedLabel}
 						outerRadius={80}
