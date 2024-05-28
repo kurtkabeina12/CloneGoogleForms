@@ -12,7 +12,7 @@ interface PieChartProps {
 	data: PieChartData[];
 }
 
-const COLORS = ['#10b981', '#f59e0b', '#3b82f6', '#f43f5e'];
+const COLORS = ['#10b981', '#f59e0b', '#3b82f6', '#f43f5e', '#8b5cf6', '#eab308'];
 const RADIAN = Math.PI / 180;
 
 const renderCustomizedLabel = ({
@@ -44,13 +44,14 @@ const CustomShedule: React.FC<PieChartProps> = ({ data }) => {
 	console.log(data, 'dataForShedule');
 
 	const processedData = data
-		.filter(item => item.answer!== 'null') 
+		.filter(item => item.answer !== 'null')
+		.filter(item => item.answer !== 'false')
 		.map(item => {
 			if (Array.isArray(item.AllAnswers)) {
 				const uniqueAnswers = new Set([...item.AllAnswers]);
 				const counts = Array.from(uniqueAnswers).map(answer => {
 					const foundItem = data.find(dataItem => dataItem.answer === answer);
-					return foundItem? foundItem.count : 0;
+					return foundItem ? foundItem.count : 0;
 				});
 				return {
 					...item,

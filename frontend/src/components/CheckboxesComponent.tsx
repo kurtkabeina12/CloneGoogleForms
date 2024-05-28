@@ -312,24 +312,31 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
                       onChange={(e) => {
                         const isChecked = e.target.checked;
                         console.log([index], isChecked, 'checked');
+                        setValue(`${inputName}[${index}]`, answer);
 
                         setNowSelectCheckbox(prevState => ({
                           ...prevState,
                           [index]: isChecked
                         }));
 
-                        const totalCheckboxes = answers.length;
-                        const selectedCheckboxes = Object.values(nowSelectCheckbox).filter(value => value).length;
+                        if (isChecked) {
+                          setValue(`${inputName}[${index}]`, answer);
+                          console.log(e.target.checked, 'checked');
 
-                        const hasAnyCheckboxSelected = selectedCheckboxes > 0;
-
-                        if (!hasAnyCheckboxSelected) {
-                          setErrorMessageNoLogic('Выберите ответ');
+                          // Проверяем, были ли выбраны какие-либо чекбоксы, и обновляем состояние ошибки
+                          const selectedAnswers = getValues()[inputName] || [];
+                          // console.log(selectedAnswers.length)
+                          if (selectedAnswers.length > 0) {
+                            setErrorMessageNoLogic('  ');
+                          }
                         } else {
-                          setErrorMessageNoLogic('');
+                          const values = getValues();
+                          const newValues = values[inputName].filter((_: any, i: any) => i !== index);
+                          setValue(inputName, newValues);
+                          setErrorMessageNoLogic('Выберите ответ');
                         }
 
-                        console.log(nowSelectCheckbox, 'nowSelectCheck in OChange');
+                        console.log(nowSelectCheckbox, 'nowSelectCheck in OChange')
                       }}
 
                       onBlur={onBlur}

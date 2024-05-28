@@ -23,7 +23,9 @@ export default function FormPage() {
 	const dispatch = useDispatch<AppDispatch>();
 	const navigate = useNavigate();
 	const [currentSection, setCurrentSection] = useState(0);
-	const methods = useForm();
+	const methods = useForm({
+		mode: 'all',
+	});
 	const [formData, setFormData] = useState<FormData | null>(null);
 	const [selectedSubQuestionIndexForSlider, setSelectedSubQuestionIndexForSlider] = useState<number | null>(null);
 	const [selectedSubQuestionIndexForCheckbox, setSelectedSubQuestionIndexForCheckbox] = useState<number | null>(null);
@@ -126,13 +128,17 @@ export default function FormPage() {
 	};
 
 	const isMandatory = formData?.isMandatoryAuth;
+	
+	const moveToNextSection = (data: any) => {
+		setCurrentSection(currentSection + 1);
+	};
 
 	const onSubmit = async (data: any) => {
 		console.log(data, 'данные для отправки на сервер')
 		try {
 			const rezultSendData = await dispatch(sendFormData({ formData: data, formId: formId ?? '' }));
 			console.log(rezultSendData);
-			// navigate(`/stub/${formId}`, {state: {formId: formId }});
+			navigate(`/stub/${formId}`, { state: { formId: formId } });
 			// navigate(`/form/${formId.formId}`, { state: { formId } });
 		} catch (error) {
 			console.error('Failed to send form data:', error);
@@ -196,12 +202,12 @@ export default function FormPage() {
 																			{subQuestion.addImg && (
 																				<img src={Array.isArray(subQuestion.imageUrl) ? subQuestion.imageUrl[0] : subQuestion.imageUrl} style={{ maxWidth: "-webkit-fill-available", marginTop: 5 }} />
 																			)}
-																			{subQuestion.selectedComponent === 'Input' && <InputCopmponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} required={subQuestion.isRequired} cardFormPageType={'subCard'}/>}
-																			{subQuestion.selectedComponent === 'Textarea' && <TextareaComponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} required={subQuestion.isRequired} cardFormPageType={'subCard'}/>}
-																			{subQuestion.selectedComponent === 'Radio' && <RadioComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} required={subQuestion.isRequired} cardFormPageType={'subCard'}/>}
+																			{subQuestion.selectedComponent === 'Input' && <InputCopmponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} required={subQuestion.isRequired} cardFormPageType={'subCard'} />}
+																			{subQuestion.selectedComponent === 'Textarea' && <TextareaComponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} required={subQuestion.isRequired} cardFormPageType={'subCard'} />}
+																			{subQuestion.selectedComponent === 'Radio' && <RadioComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} required={subQuestion.isRequired} cardFormPageType={'subCard'} />}
 																			{subQuestion.selectedComponent === 'Checkbox' && <CheckboxesComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} required={subQuestion.isRequired} addLogic={subQuestion.addLogic} GetLogic={subQuestion.Logic} cardFormPageType={'subCard'} />}
-																			{subQuestion.selectedComponent === 'Slider' && <SliderComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} required={subQuestion.isRequired} nowSliderValue={handleSliderValueChange} changeCardsLogic={subQuestion.changeCardsLogic} cardFormPageType={'subCard'}/>}
-																			{subQuestion.selectedComponent === 'Data' && <DataComponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} required={subQuestion.isRequired} cardFormPageType={'subCard'}/>}
+																			{subQuestion.selectedComponent === 'Slider' && <SliderComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} required={subQuestion.isRequired} nowSliderValue={handleSliderValueChange} changeCardsLogic={subQuestion.changeCardsLogic} cardFormPageType={'subCard'} />}
+																			{subQuestion.selectedComponent === 'Data' && <DataComponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} required={subQuestion.isRequired} cardFormPageType={'subCard'} />}
 																		</Paper>
 																	)}
 																	{card.selectedComponent === 'Checkbox' && selectedSubQuestionIndexForCheckbox && ((checkboxChooseNow === checkboxChooseForSubQuestion)) && (selectedSubQuestionIndexForCheckbox - 1) === subIndex && (
@@ -213,9 +219,9 @@ export default function FormPage() {
 																				<img src={Array.isArray(subQuestion.imageUrl) ? subQuestion.imageUrl[0] : subQuestion.imageUrl} style={{ maxWidth: "-webkit-fill-available", marginTop: 5 }} />
 																			)}
 																			{subQuestion.selectedComponent === 'Input' && <InputCopmponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} required={subQuestion.isRequired} cardFormPageType={'subCard'} />}
-																			{subQuestion.selectedComponent === 'Textarea' && <TextareaComponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} required={subQuestion.isRequired} cardFormPageType={'subCard'}/>}
+																			{subQuestion.selectedComponent === 'Textarea' && <TextareaComponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} required={subQuestion.isRequired} cardFormPageType={'subCard'} />}
 																			{subQuestion.selectedComponent === 'Radio' && <RadioComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} required={subQuestion.isRequired} cardFormPageType={'subCard'} />}
-																			{subQuestion.selectedComponent === 'Checkbox' && <CheckboxesComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} required={subQuestion.isRequired} addLogic={subQuestion.addLogic} GetLogic={subQuestion.Logic} cardFormPageType={'subCard'}/>}
+																			{subQuestion.selectedComponent === 'Checkbox' && <CheckboxesComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} required={subQuestion.isRequired} addLogic={subQuestion.addLogic} GetLogic={subQuestion.Logic} cardFormPageType={'subCard'} />}
 																			{subQuestion.selectedComponent === 'Slider' && <SliderComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} required={subQuestion.isRequired} nowSliderValue={handleSliderValueChange} changeCardsLogic={subQuestion.changeCardsLogic} cardFormPageType={'subCard'} />}
 																			{subQuestion.selectedComponent === 'Data' && <DataComponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} required={subQuestion.isRequired} cardFormPageType={'subCard'} />}
 																		</Paper>
@@ -235,7 +241,7 @@ export default function FormPage() {
 												)}
 
 												{currentSection !== formData.sections.length - 1 && (
-													<Button onClick={() => setCurrentSection(currentSection + 1)} color="success" variant="contained">
+													<Button onClick={() => methods.handleSubmit(moveToNextSection)()} color="success" variant="contained">
 														Далее
 													</Button>
 												)}
