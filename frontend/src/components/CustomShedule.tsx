@@ -43,30 +43,11 @@ const renderCustomizedLabel = ({
 const CustomShedule: React.FC<PieChartProps> = ({ data }) => {
 	console.log(data, 'dataForShedule');
 
-	const processedData = data
-		.filter(item => item.answer !== 'null')
-		.filter(item => item.answer !== 'false')
-		.map(item => {
-			if (Array.isArray(item.AllAnswers)) {
-				const uniqueAnswers = new Set([...item.AllAnswers]);
-				const counts = Array.from(uniqueAnswers).map(answer => {
-					const foundItem = data.find(dataItem => dataItem.answer === answer);
-					return foundItem ? foundItem.count : 0;
-				});
-				return {
-					...item,
-					count: counts.reduce((acc, curr) => acc + curr, 0),
-				};
-			} else {
-				throw new Error('Invalid data format. AllAnswers must be an array.');
-			}
-		});
+	const totalCount = data.reduce((total, item) => total + (Array.isArray(item.AllAnswers) ? item.count : 0), 0);
 
-	const totalCount = processedData.reduce((total, item) => total + item.count, 0);
-
-	const answerPercentages = processedData.map(item => ({
+	const answerPercentages = data.map(item => ({
 		...item,
-		percentage: ((item.count / totalCount) * 100).toFixed(),
+		percentage: ((Array.isArray(item.AllAnswers) ? item.count : 0) / totalCount * 100).toFixed(),
 	}));
 
 	return (
@@ -83,7 +64,7 @@ const CustomShedule: React.FC<PieChartProps> = ({ data }) => {
 						fill="#8884d8"
 						dataKey="count"
 					>
-						{processedData.map((entry, index) => (
+						{data.map((entry, index) => (
 							<Cell
 								key={`cell-${index}`}
 								fill={COLORS[index % COLORS.length]}
