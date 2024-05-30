@@ -33,16 +33,19 @@ export default function FormPage() {
 	const [valueSliderForSubQuestion, setValueSliderForSubQuestion] = useState<number | null>(null)
 	const [checkboxChooseNow, setChecboxChooseNow] = useState<number | null>(null)
 	const [checkboxChooseForSubQuestion, setCheckboxChooseForSubQuestion] = useState<number | null>(null)
+	const [dateForEndForm, setDateForEndForm] = useState<string | null>(null);
+	const LogoImage = require('../img/LogoVita.png');
 
 	useEffect(() => {
 		const fetchFormData = async () => {
 			try {
 				const actionResult = await dispatch(fetchGetForm({ formId: formId ?? '' }));
 				const formData = unwrapResult(actionResult);
+				setDateForEndForm(formData?.formEndDate);
 				setFormData(formData);
+
 				const selectedColor = formData.selectedColor
 				document.body.style.backgroundColor = selectedColor;
-				console.log(formData, 'данные с сервера')
 			} catch (error) {
 				console.error('Failed to fetch form:', error);
 			}
@@ -128,9 +131,16 @@ export default function FormPage() {
 	};
 
 	const isMandatory = formData?.isMandatoryAuth;
-	
+
 	const moveToNextSection = (data: any) => {
 		setCurrentSection(currentSection + 1);
+	};
+
+	const isSurveyEnded = () => {
+		if (!dateForEndForm) return false;
+		const endDate = new Date(dateForEndForm);
+		const today = new Date();
+		return endDate.toDateString() === today.toDateString();
 	};
 
 	const onSubmit = async (data: any) => {
@@ -147,262 +157,280 @@ export default function FormPage() {
 
 	return (
 		<>
-			{isMandatory && (
+			{isSurveyEnded() ? (
+				<Box sx={{ mt: 3, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+					<Box
+						component="img"
+						src={LogoImage}
+						alt='Logo'
+						sx={{
+							marginTop: "5rem",
+							height: { xs: "50%", sm: "40%", md: "30%", lg: "20%", xl: "15%" },
+							width: { xs: "50%", sm: "40%", md: "30%", lg: "20%", xl: "15%" },
+						}}
+					/>
+					<Typography sx={{mt:3}} variant='h3'>Опрос недоступен</Typography>
+				</Box>
+			) : (
 				<>
-					<FormProvider {...methods}>
-						<form onSubmit={methods.handleSubmit(onSubmit)} style={{ marginTop: 15 }} >
-							<Grid container spacing={3} className='FormCenter' >
-								<Paper className="header-paper" elevation={2} sx={{ p: 3, borderTop: "8px solid #00862b", mt: 3, maxWidth: "400px" }}>
-									<Typography variant="h4" gutterBottom>
-										{formData?.formTitle}
+					{isMandatory && (
+						<>
+							<FormProvider {...methods}>
+								<form onSubmit={methods.handleSubmit(onSubmit)} style={{ marginTop: 15 }} >
+									<Grid container spacing={3} className='FormCenter' >
+										<Paper className="header-paper" elevation={2} sx={{ p: 3, borderTop: "8px solid #00862b", mt: 3, maxWidth: "400px" }}>
+											<Typography variant="h4" gutterBottom>
+												{formData?.formTitle}
+												<Divider />
+												<Typography variant="h6" gutterBottom> {formData?.formOverview} </Typography>
+											</Typography>
+											<Divider />
+											<RegistrationComponent />
+										</Paper>
+										{formData ? (
+											<>
+												<Box sx={{ marginTop: 1 }}>
+													<Paper elevation={2} sx={{ p: 3, paddingTop: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start" }}>
+														<Box sx={{ display: 'flex', flexDirection: "row", gap: 1, textAlign: 'center' }}>
+															<Typography variant='h6' gutterBottom> {formData.sections[currentSection].title} </Typography>
+														</Box>
+													</Paper>
+													{formData.sections[currentSection].cards.map((card, index) => {
+														const imageUrl = convertLocalPathToUrl(card.imageUrl);
+														return (
+															<Box key={index} sx={{ mb: 3, mt: 2, minWidth: "300px" }}>
+																<Paper elevation={2} sx={{ p: 3, paddingTop: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", }}>
+																	<Box sx={{ display: 'flex', flexDirection: "row", gap: 1, textAlign: 'center' }}>
+																		<Typography variant='h6' gutterBottom> {card.question} </Typography>
+																	</Box>
+																	{card.addImg && (
+																		<>
+																			{imageUrl.map((imgUrl, index) => (
+																				<img key={index} src={imgUrl} style={{ maxWidth: "-webkit-fill-available", marginTop: 5 }} />
+																			))}
+																		</>
+																	)}
+																	{card.selectedComponent === 'Input' && <InputCopmponent idQuestion={card.idQuestion} disabled={false} quest={card.question} required={card.isRequired} cardFormPageType={'card'} />}
+																	{card.selectedComponent === 'Textarea' && <TextareaComponent idQuestion={card.idQuestion} disabled={false} quest={card.question} required={card.isRequired} cardFormPageType={'card'} />}
+																	{card.selectedComponent === 'Radio' && <RadioComponent idQuestion={card.idQuestion} disabled={false} answers={card.answer} quest={card.question} required={card.isRequired} cardFormPageType={'card'} />}
+																	{card.selectedComponent === 'Checkbox' && <CheckboxesComponent idQuestion={card.idQuestion} disabled={false} answers={card.answer} quest={card.question} required={card.isRequired} addLogic={card.addLogic} GetLogic={card.Logic} nowCheckboxChoose={handleCheckboxChooseChange} changeCardsLogic={card.changeCardsLogic} cardFormPageType={'card'} />}
+																	{card.selectedComponent === 'Slider' && <SliderComponent idQuestion={card.idQuestion} disabled={false} answers={card.answer} quest={card.question} required={card.isRequired} nowSliderValue={handleSliderValueChange} changeCardsLogic={card.changeCardsLogic} cardFormPageType={'card'} />}
+																	{card.selectedComponent === 'Data' && <DataComponent idQuestion={card.idQuestion} disabled={false} quest={card.question} required={card.isRequired} cardFormPageType={'card'} />}
+																</Paper>
+																{card.subQuestions && card.subQuestions.map((subQuestion, subIndex) => {
+																	return (
+																		<Box sx={{ mt: 3 }} key={subIndex}>
+																			{card.selectedComponent === 'Slider' && selectedSubQuestionIndexForSlider && ((valueSliderNow === valueSliderForSubQuestion)) && (selectedSubQuestionIndexForSlider - 1) === subIndex && (
+																				<Paper elevation={2} sx={{ p: 3, paddingTop: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: '100%' }}>
+																					<Box sx={{ display: 'flex', flexDirection: "row", width: "-webkit-fill-available", gap: 1, textAlign: 'center' }}>
+																						<Typography variant='subtitle1' gutterBottom> {subQuestion.question} </Typography>
+																					</Box>
+																					{subQuestion.addImg && (
+																						<img src={Array.isArray(subQuestion.imageUrl) ? subQuestion.imageUrl[0] : subQuestion.imageUrl} style={{ maxWidth: "-webkit-fill-available", marginTop: 5 }} />
+																					)}
+																					{subQuestion.selectedComponent === 'Input' && <InputCopmponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} required={subQuestion.isRequired} cardFormPageType={'subCard'} />}
+																					{subQuestion.selectedComponent === 'Textarea' && <TextareaComponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} required={subQuestion.isRequired} cardFormPageType={'subCard'} />}
+																					{subQuestion.selectedComponent === 'Radio' && <RadioComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} required={subQuestion.isRequired} cardFormPageType={'subCard'} />}
+																					{subQuestion.selectedComponent === 'Checkbox' && <CheckboxesComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} required={subQuestion.isRequired} addLogic={subQuestion.addLogic} GetLogic={subQuestion.Logic} cardFormPageType={'subCard'} />}
+																					{subQuestion.selectedComponent === 'Slider' && <SliderComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} required={subQuestion.isRequired} nowSliderValue={handleSliderValueChange} changeCardsLogic={subQuestion.changeCardsLogic} cardFormPageType={'subCard'} />}
+																					{subQuestion.selectedComponent === 'Data' && <DataComponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} required={subQuestion.isRequired} cardFormPageType={'subCard'} />}
+																				</Paper>
+																			)}
+																			{card.selectedComponent === 'Checkbox' && selectedSubQuestionIndexForCheckbox && ((checkboxChooseNow === checkboxChooseForSubQuestion)) && (selectedSubQuestionIndexForCheckbox - 1) === subIndex && (
+																				<Paper elevation={2} sx={{ p: 3, paddingTop: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: '100%' }}>
+																					<Box sx={{ display: 'flex', flexDirection: "row", width: "-webkit-fill-available", gap: 1, textAlign: 'center' }}>
+																						<Typography variant='subtitle1' gutterBottom> {subQuestion.question} </Typography>
+																					</Box>
+																					{subQuestion.addImg && (
+																						<img src={Array.isArray(subQuestion.imageUrl) ? subQuestion.imageUrl[0] : subQuestion.imageUrl} style={{ maxWidth: "-webkit-fill-available", marginTop: 5 }} />
+																					)}
+																					{subQuestion.selectedComponent === 'Input' && <InputCopmponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} required={subQuestion.isRequired} cardFormPageType={'subCard'} />}
+																					{subQuestion.selectedComponent === 'Textarea' && <TextareaComponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} required={subQuestion.isRequired} cardFormPageType={'subCard'} />}
+																					{subQuestion.selectedComponent === 'Radio' && <RadioComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} required={subQuestion.isRequired} cardFormPageType={'subCard'} />}
+																					{subQuestion.selectedComponent === 'Checkbox' && <CheckboxesComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} required={subQuestion.isRequired} addLogic={subQuestion.addLogic} GetLogic={subQuestion.Logic} cardFormPageType={'subCard'} />}
+																					{subQuestion.selectedComponent === 'Slider' && <SliderComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} required={subQuestion.isRequired} nowSliderValue={handleSliderValueChange} changeCardsLogic={subQuestion.changeCardsLogic} cardFormPageType={'subCard'} />}
+																					{subQuestion.selectedComponent === 'Data' && <DataComponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} required={subQuestion.isRequired} cardFormPageType={'subCard'} />}
+																				</Paper>
+																			)}
+																		</Box>
+																	)
+																})}
+															</Box>
+														);
+													})}
+
+													<Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+														{currentSection > 0 && (
+															<Button onClick={() => setCurrentSection(currentSection - 1)} color="success" variant="contained">
+																Назад
+															</Button>
+														)}
+
+														{currentSection !== formData.sections.length - 1 && (
+															<Button onClick={() => methods.handleSubmit(moveToNextSection)()} color="success" variant="contained">
+																Далее
+															</Button>
+														)}
+
+														{currentSection === formData.sections.length - 1 && (
+															<Button type="submit" variant="contained" endIcon={<SendIcon />} color="success">
+																Отправить
+															</Button>
+														)}
+
+													</Box>
+
+												</Box>
+
+												{/* <Box>
+													<Pagination
+														sx={{
+															'& .MuiPaginationItem-page.Mui-selected': {
+																backgroundColor: '#00862b !important',
+																color: '#ffffff !important',
+															},
+														}}
+														count={formData.sections.length}
+														page={currentSection + 1}
+														onChange={(event, value) => setCurrentSection(value - 1)}
+													/>
+												</Box> */}
+											</>
+										) : (
+											<p>Загружаем конечный вид формы...</p>
+										)}
+									</Grid>
+								</form >
+							</FormProvider>
+						</>
+					)}
+					{!isMandatory && (
+						<FormProvider {...methods}>
+							<form onSubmit={methods.handleSubmit(onSubmit)} style={{ marginTop: 15 }}>
+								<Grid container spacing={3} className='FormCenter'>
+									<Paper className="header-paper" elevation={2} sx={{ p: 3, borderTop: "8px solid #00862b", mt: 3, maxWidth: "400px" }}>
+										<Typography variant="h4" gutterBottom> {formData?.formTitle} </Typography>
 										<Divider />
 										<Typography variant="h6" gutterBottom> {formData?.formOverview} </Typography>
-									</Typography>
-									<Divider />
-									<RegistrationComponent />
-								</Paper>
-								{formData ? (
-									<>
-										<Box sx={{ marginTop: 1 }}>
-											<Paper elevation={2} sx={{ p: 3, paddingTop: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start" }}>
-												<Box sx={{ display: 'flex', flexDirection: "row", gap: 1, textAlign: 'center' }}>
-													<Typography variant='h6' gutterBottom> {formData.sections[currentSection].title} </Typography>
-												</Box>
-											</Paper>
-											{formData.sections[currentSection].cards.map((card, index) => {
-												const imageUrl = convertLocalPathToUrl(card.imageUrl);
-												return (
-													<Box key={index} sx={{ mb: 3, mt: 2, minWidth: "300px" }}>
-														<Paper elevation={2} sx={{ p: 3, paddingTop: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", }}>
-															<Box sx={{ display: 'flex', flexDirection: "row", gap: 1, textAlign: 'center' }}>
-																<Typography variant='h6' gutterBottom> {card.question} </Typography>
-															</Box>
-															{card.addImg && (
-																<>
-																	{imageUrl.map((imgUrl, index) => (
-																		<img key={index} src={imgUrl} style={{ maxWidth: "-webkit-fill-available", marginTop: 5 }} />
-																	))}
-																</>
-															)}
-															{card.selectedComponent === 'Input' && <InputCopmponent idQuestion={card.idQuestion} disabled={false} quest={card.question} required={card.isRequired} cardFormPageType={'card'} />}
-															{card.selectedComponent === 'Textarea' && <TextareaComponent idQuestion={card.idQuestion} disabled={false} quest={card.question} required={card.isRequired} cardFormPageType={'card'} />}
-															{card.selectedComponent === 'Radio' && <RadioComponent idQuestion={card.idQuestion} disabled={false} answers={card.answer} quest={card.question} required={card.isRequired} cardFormPageType={'card'} />}
-															{card.selectedComponent === 'Checkbox' && <CheckboxesComponent idQuestion={card.idQuestion} disabled={false} answers={card.answer} quest={card.question} required={card.isRequired} addLogic={card.addLogic} GetLogic={card.Logic} nowCheckboxChoose={handleCheckboxChooseChange} changeCardsLogic={card.changeCardsLogic} cardFormPageType={'card'} />}
-															{card.selectedComponent === 'Slider' && <SliderComponent idQuestion={card.idQuestion} disabled={false} answers={card.answer} quest={card.question} required={card.isRequired} nowSliderValue={handleSliderValueChange} changeCardsLogic={card.changeCardsLogic} cardFormPageType={'card'} />}
-															{card.selectedComponent === 'Data' && <DataComponent idQuestion={card.idQuestion} disabled={false} quest={card.question} required={card.isRequired} cardFormPageType={'card'} />}
-														</Paper>
-														{card.subQuestions && card.subQuestions.map((subQuestion, subIndex) => {
-															return (
-																<Box sx={{ mt: 3 }} key={subIndex}>
-																	{card.selectedComponent === 'Slider' && selectedSubQuestionIndexForSlider && ((valueSliderNow === valueSliderForSubQuestion)) && (selectedSubQuestionIndexForSlider - 1) === subIndex && (
-																		<Paper elevation={2} sx={{ p: 3, paddingTop: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: '100%' }}>
-																			<Box sx={{ display: 'flex', flexDirection: "row", width: "-webkit-fill-available", gap: 1, textAlign: 'center' }}>
-																				<Typography variant='subtitle1' gutterBottom> {subQuestion.question} </Typography>
-																			</Box>
-																			{subQuestion.addImg && (
-																				<img src={Array.isArray(subQuestion.imageUrl) ? subQuestion.imageUrl[0] : subQuestion.imageUrl} style={{ maxWidth: "-webkit-fill-available", marginTop: 5 }} />
-																			)}
-																			{subQuestion.selectedComponent === 'Input' && <InputCopmponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} required={subQuestion.isRequired} cardFormPageType={'subCard'} />}
-																			{subQuestion.selectedComponent === 'Textarea' && <TextareaComponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} required={subQuestion.isRequired} cardFormPageType={'subCard'} />}
-																			{subQuestion.selectedComponent === 'Radio' && <RadioComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} required={subQuestion.isRequired} cardFormPageType={'subCard'} />}
-																			{subQuestion.selectedComponent === 'Checkbox' && <CheckboxesComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} required={subQuestion.isRequired} addLogic={subQuestion.addLogic} GetLogic={subQuestion.Logic} cardFormPageType={'subCard'} />}
-																			{subQuestion.selectedComponent === 'Slider' && <SliderComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} required={subQuestion.isRequired} nowSliderValue={handleSliderValueChange} changeCardsLogic={subQuestion.changeCardsLogic} cardFormPageType={'subCard'} />}
-																			{subQuestion.selectedComponent === 'Data' && <DataComponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} required={subQuestion.isRequired} cardFormPageType={'subCard'} />}
-																		</Paper>
-																	)}
-																	{card.selectedComponent === 'Checkbox' && selectedSubQuestionIndexForCheckbox && ((checkboxChooseNow === checkboxChooseForSubQuestion)) && (selectedSubQuestionIndexForCheckbox - 1) === subIndex && (
-																		<Paper elevation={2} sx={{ p: 3, paddingTop: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: '100%' }}>
-																			<Box sx={{ display: 'flex', flexDirection: "row", width: "-webkit-fill-available", gap: 1, textAlign: 'center' }}>
-																				<Typography variant='subtitle1' gutterBottom> {subQuestion.question} </Typography>
-																			</Box>
-																			{subQuestion.addImg && (
-																				<img src={Array.isArray(subQuestion.imageUrl) ? subQuestion.imageUrl[0] : subQuestion.imageUrl} style={{ maxWidth: "-webkit-fill-available", marginTop: 5 }} />
-																			)}
-																			{subQuestion.selectedComponent === 'Input' && <InputCopmponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} required={subQuestion.isRequired} cardFormPageType={'subCard'} />}
-																			{subQuestion.selectedComponent === 'Textarea' && <TextareaComponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} required={subQuestion.isRequired} cardFormPageType={'subCard'} />}
-																			{subQuestion.selectedComponent === 'Radio' && <RadioComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} required={subQuestion.isRequired} cardFormPageType={'subCard'} />}
-																			{subQuestion.selectedComponent === 'Checkbox' && <CheckboxesComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} required={subQuestion.isRequired} addLogic={subQuestion.addLogic} GetLogic={subQuestion.Logic} cardFormPageType={'subCard'} />}
-																			{subQuestion.selectedComponent === 'Slider' && <SliderComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} required={subQuestion.isRequired} nowSliderValue={handleSliderValueChange} changeCardsLogic={subQuestion.changeCardsLogic} cardFormPageType={'subCard'} />}
-																			{subQuestion.selectedComponent === 'Data' && <DataComponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} required={subQuestion.isRequired} cardFormPageType={'subCard'} />}
-																		</Paper>
-																	)}
-																</Box>
-															)
-														})}
+									</Paper>
+									{formData ? (
+										<>
+											<Box sx={{ marginTop: 1 }}>
+												<Paper elevation={2} sx={{ p: 3, paddingTop: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start" }}>
+													<Box sx={{ display: 'flex', flexDirection: "row", gap: 1, textAlign: 'center' }}>
+														<Typography variant='h6' gutterBottom> {formData.sections[currentSection].title} </Typography>
 													</Box>
-												);
-											})}
-
-											<Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-												{currentSection > 0 && (
-													<Button onClick={() => setCurrentSection(currentSection - 1)} color="success" variant="contained">
-														Назад
-													</Button>
-												)}
-
-												{currentSection !== formData.sections.length - 1 && (
-													<Button onClick={() => methods.handleSubmit(moveToNextSection)()} color="success" variant="contained">
-														Далее
-													</Button>
-												)}
-
-												{currentSection === formData.sections.length - 1 && (
-													<Button type="submit" variant="contained" endIcon={<SendIcon />} color="success">
-														Отправить
-													</Button>
-												)}
-
-											</Box>
-
-										</Box>
-
-										{/* <Box>
-											<Pagination
-												sx={{
-													'& .MuiPaginationItem-page.Mui-selected': {
-														backgroundColor: '#00862b !important',
-														color: '#ffffff !important',
-													},
-												}}
-												count={formData.sections.length}
-												page={currentSection + 1}
-												onChange={(event, value) => setCurrentSection(value - 1)}
-											/>
-										</Box> */}
-									</>
-								) : (
-									<p>Загружаем конечный вид формы...</p>
-								)}
-							</Grid>
-						</form >
-					</FormProvider>
-				</>
-			)}
-			{!isMandatory && (
-				<FormProvider {...methods}>
-					<form onSubmit={methods.handleSubmit(onSubmit)} style={{ marginTop: 15 }}>
-						<Grid container spacing={3} className='FormCenter'>
-							<Paper className="header-paper" elevation={2} sx={{ p: 3, borderTop: "8px solid #00862b", mt: 3, maxWidth: "400px" }}>
-								<Typography variant="h4" gutterBottom> {formData?.formTitle} </Typography>
-								<Divider />
-								<Typography variant="h6" gutterBottom> {formData?.formOverview} </Typography>
-							</Paper>
-							{formData ? (
-								<>
-									<Box sx={{ marginTop: 1 }}>
-										<Paper elevation={2} sx={{ p: 3, paddingTop: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start" }}>
-											<Box sx={{ display: 'flex', flexDirection: "row", gap: 1, textAlign: 'center' }}>
-												<Typography variant='h6' gutterBottom> {formData.sections[currentSection].title} </Typography>
-											</Box>
-										</Paper>
-										{formData.sections[currentSection].cards.map((card, index) => {
-											console.log(card, 'карточка')
-											const imageUrl = convertLocalPathToUrl(card.imageUrl);
-											return (
-												<Box key={index} sx={{ mb: 3, mt: 2, minWidth: "300px" }}>
-													<Paper elevation={2} sx={{ p: 3, paddingTop: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", }}>
-														<Box sx={{ display: 'flex', flexDirection: "row", gap: 1, textAlign: 'center' }}>
-															<Typography variant='h6' gutterBottom> {card.question} </Typography>
+												</Paper>
+												{formData.sections[currentSection].cards.map((card, index) => {
+													console.log(card, 'карточка')
+													const imageUrl = convertLocalPathToUrl(card.imageUrl);
+													return (
+														<Box key={index} sx={{ mb: 3, mt: 2, minWidth: "300px" }}>
+															<Paper elevation={2} sx={{ p: 3, paddingTop: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", }}>
+																<Box sx={{ display: 'flex', flexDirection: "row", gap: 1, textAlign: 'center' }}>
+																	<Typography variant='h6' gutterBottom> {card.question} </Typography>
+																</Box>
+																{card.addImg && (
+																	<>
+																		{imageUrl.map((imgUrl, index) => (
+																			<img key={index} src={imgUrl} style={{ maxWidth: "-webkit-fill-available", marginTop: 5 }} />
+																		))}
+																	</>
+																)}
+																{card.selectedComponent === 'Input' && <InputCopmponent idQuestion={card.idQuestion} disabled={false} quest={card.question} required={card.isRequired} />}
+																{card.selectedComponent === 'Textarea' && <TextareaComponent idQuestion={card.idQuestion} disabled={false} quest={card.question} required={card.isRequired} />}
+																{card.selectedComponent === 'Radio' && <RadioComponent idQuestion={card.idQuestion} disabled={false} answers={card.answer} quest={card.question} required={card.isRequired} />}
+																{card.selectedComponent === 'Checkbox' && <CheckboxesComponent idQuestion={card.idQuestion} disabled={false} answers={card.answer} quest={card.question} required={card.isRequired} addLogic={card.addLogic} GetLogic={card.Logic} nowCheckboxChoose={handleCheckboxChooseChange} changeCardsLogic={card.changeCardsLogic} />}
+																{card.selectedComponent === 'Slider' && <SliderComponent idQuestion={card.idQuestion} disabled={false} answers={card.answer} quest={card.question} required={card.isRequired} nowSliderValue={handleSliderValueChange} changeCardsLogic={card.changeCardsLogic} />}
+																{card.selectedComponent === 'Data' && <DataComponent idQuestion={card.idQuestion} disabled={false} quest={card.question} required={card.isRequired} />}
+															</Paper>
+															{card.subQuestions && card.subQuestions.map((subQuestion, subIndex) => {
+																return (
+																	<Box sx={{ mt: 3 }} key={subIndex}>
+																		{card.selectedComponent === 'Slider' && selectedSubQuestionIndexForSlider && ((valueSliderNow === valueSliderForSubQuestion)) && (selectedSubQuestionIndexForSlider - 1) === subIndex && (
+																			<Paper elevation={2} sx={{ p: 3, paddingTop: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: '100%' }}>
+																				<Box sx={{ display: 'flex', flexDirection: "row", width: "-webkit-fill-available", gap: 1, textAlign: 'center' }}>
+																					<Typography variant='subtitle1' gutterBottom> {subQuestion.question} </Typography>
+																				</Box>
+																				{subQuestion.addImg && (
+																					<img src={Array.isArray(subQuestion.imageUrl) ? subQuestion.imageUrl[0] : subQuestion.imageUrl} style={{ maxWidth: "-webkit-fill-available", marginTop: 5 }} />
+																				)}
+																				{subQuestion.selectedComponent === 'Input' && <InputCopmponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} required={subQuestion.isRequired} />}
+																				{subQuestion.selectedComponent === 'Textarea' && <TextareaComponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} required={subQuestion.isRequired} />}
+																				{subQuestion.selectedComponent === 'Radio' && <RadioComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} required={subQuestion.isRequired} />}
+																				{subQuestion.selectedComponent === 'Checkbox' && <CheckboxesComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} required={subQuestion.isRequired} addLogic={subQuestion.addLogic} GetLogic={subQuestion.Logic} />}
+																				{subQuestion.selectedComponent === 'Slider' && <SliderComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} required={subQuestion.isRequired} nowSliderValue={handleSliderValueChange} changeCardsLogic={subQuestion.changeCardsLogic} />}
+																				{subQuestion.selectedComponent === 'Data' && <DataComponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} required={subQuestion.isRequired} />}
+																			</Paper>
+																		)}
+																		{card.selectedComponent === 'Checkbox' && selectedSubQuestionIndexForCheckbox && ((checkboxChooseNow === checkboxChooseForSubQuestion)) && (selectedSubQuestionIndexForCheckbox - 1) === subIndex && (
+																			<Paper elevation={2} sx={{ p: 3, paddingTop: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: '100%' }}>
+																				<Box sx={{ display: 'flex', flexDirection: "row", width: "-webkit-fill-available", gap: 1, textAlign: 'center' }}>
+																					<Typography variant='subtitle1' gutterBottom> {subQuestion.question} </Typography>
+																				</Box>
+																				{subQuestion.addImg && (
+																					<img src={Array.isArray(subQuestion.imageUrl) ? subQuestion.imageUrl[0] : subQuestion.imageUrl} style={{ maxWidth: "-webkit-fill-available", marginTop: 5 }} />
+																				)}
+																				{subQuestion.selectedComponent === 'Input' && <InputCopmponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} required={subQuestion.isRequired} />}
+																				{subQuestion.selectedComponent === 'Textarea' && <TextareaComponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} required={subQuestion.isRequired} />}
+																				{subQuestion.selectedComponent === 'Radio' && <RadioComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} required={subQuestion.isRequired} />}
+																				{subQuestion.selectedComponent === 'Checkbox' && <CheckboxesComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} required={subQuestion.isRequired} addLogic={subQuestion.addLogic} GetLogic={subQuestion.Logic} />}
+																				{subQuestion.selectedComponent === 'Slider' && <SliderComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} required={subQuestion.isRequired} nowSliderValue={handleSliderValueChange} changeCardsLogic={subQuestion.changeCardsLogic} />}
+																				{subQuestion.selectedComponent === 'Data' && <DataComponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} required={subQuestion.isRequired} />}
+																			</Paper>
+																		)}
+																	</Box>
+																)
+															})}
 														</Box>
-														{card.addImg && (
-															<>
-																{imageUrl.map((imgUrl, index) => (
-																	<img key={index} src={imgUrl} style={{ maxWidth: "-webkit-fill-available", marginTop: 5 }} />
-																))}
-															</>
-														)}
-														{card.selectedComponent === 'Input' && <InputCopmponent idQuestion={card.idQuestion} disabled={false} quest={card.question} required={card.isRequired} />}
-														{card.selectedComponent === 'Textarea' && <TextareaComponent idQuestion={card.idQuestion} disabled={false} quest={card.question} required={card.isRequired} />}
-														{card.selectedComponent === 'Radio' && <RadioComponent idQuestion={card.idQuestion} disabled={false} answers={card.answer} quest={card.question} required={card.isRequired} />}
-														{card.selectedComponent === 'Checkbox' && <CheckboxesComponent idQuestion={card.idQuestion} disabled={false} answers={card.answer} quest={card.question} required={card.isRequired} addLogic={card.addLogic} GetLogic={card.Logic} nowCheckboxChoose={handleCheckboxChooseChange} changeCardsLogic={card.changeCardsLogic} />}
-														{card.selectedComponent === 'Slider' && <SliderComponent idQuestion={card.idQuestion} disabled={false} answers={card.answer} quest={card.question} required={card.isRequired} nowSliderValue={handleSliderValueChange} changeCardsLogic={card.changeCardsLogic} />}
-														{card.selectedComponent === 'Data' && <DataComponent idQuestion={card.idQuestion} disabled={false} quest={card.question} required={card.isRequired} />}
-													</Paper>
-													{card.subQuestions && card.subQuestions.map((subQuestion, subIndex) => {
-														return (
-															<Box sx={{ mt: 3 }} key={subIndex}>
-																{card.selectedComponent === 'Slider' && selectedSubQuestionIndexForSlider && ((valueSliderNow === valueSliderForSubQuestion)) && (selectedSubQuestionIndexForSlider - 1) === subIndex && (
-																	<Paper elevation={2} sx={{ p: 3, paddingTop: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: '100%' }}>
-																		<Box sx={{ display: 'flex', flexDirection: "row", width: "-webkit-fill-available", gap: 1, textAlign: 'center' }}>
-																			<Typography variant='subtitle1' gutterBottom> {subQuestion.question} </Typography>
-																		</Box>
-																		{subQuestion.addImg && (
-																			<img src={Array.isArray(subQuestion.imageUrl) ? subQuestion.imageUrl[0] : subQuestion.imageUrl} style={{ maxWidth: "-webkit-fill-available", marginTop: 5 }} />
-																		)}
-																		{subQuestion.selectedComponent === 'Input' && <InputCopmponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} required={subQuestion.isRequired} />}
-																		{subQuestion.selectedComponent === 'Textarea' && <TextareaComponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} required={subQuestion.isRequired} />}
-																		{subQuestion.selectedComponent === 'Radio' && <RadioComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} required={subQuestion.isRequired} />}
-																		{subQuestion.selectedComponent === 'Checkbox' && <CheckboxesComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} required={subQuestion.isRequired} addLogic={subQuestion.addLogic} GetLogic={subQuestion.Logic} />}
-																		{subQuestion.selectedComponent === 'Slider' && <SliderComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} required={subQuestion.isRequired} nowSliderValue={handleSliderValueChange} changeCardsLogic={subQuestion.changeCardsLogic} />}
-																		{subQuestion.selectedComponent === 'Data' && <DataComponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} required={subQuestion.isRequired} />}
-																	</Paper>
-																)}
-																{card.selectedComponent === 'Checkbox' && selectedSubQuestionIndexForCheckbox && ((checkboxChooseNow === checkboxChooseForSubQuestion)) && (selectedSubQuestionIndexForCheckbox - 1) === subIndex && (
-																	<Paper elevation={2} sx={{ p: 3, paddingTop: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: '100%' }}>
-																		<Box sx={{ display: 'flex', flexDirection: "row", width: "-webkit-fill-available", gap: 1, textAlign: 'center' }}>
-																			<Typography variant='subtitle1' gutterBottom> {subQuestion.question} </Typography>
-																		</Box>
-																		{subQuestion.addImg && (
-																			<img src={Array.isArray(subQuestion.imageUrl) ? subQuestion.imageUrl[0] : subQuestion.imageUrl} style={{ maxWidth: "-webkit-fill-available", marginTop: 5 }} />
-																		)}
-																		{subQuestion.selectedComponent === 'Input' && <InputCopmponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} required={subQuestion.isRequired} />}
-																		{subQuestion.selectedComponent === 'Textarea' && <TextareaComponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} required={subQuestion.isRequired} />}
-																		{subQuestion.selectedComponent === 'Radio' && <RadioComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} required={subQuestion.isRequired} />}
-																		{subQuestion.selectedComponent === 'Checkbox' && <CheckboxesComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} required={subQuestion.isRequired} addLogic={subQuestion.addLogic} GetLogic={subQuestion.Logic} />}
-																		{subQuestion.selectedComponent === 'Slider' && <SliderComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} required={subQuestion.isRequired} nowSliderValue={handleSliderValueChange} changeCardsLogic={subQuestion.changeCardsLogic} />}
-																		{subQuestion.selectedComponent === 'Data' && <DataComponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} required={subQuestion.isRequired} />}
-																	</Paper>
-																)}
-															</Box>
-														)
-													})}
+													);
+												})}
+
+												<Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+													{currentSection > 0 && (
+														<Button onClick={() => setCurrentSection(currentSection - 1)} color="success" variant="contained">
+															Назад
+														</Button>
+													)}
+
+													{currentSection !== formData.sections.length - 1 && (
+														<Button onClick={() => setCurrentSection(currentSection + 1)} color="success" variant="contained">
+															Далее
+														</Button>
+													)}
+
+													{currentSection === formData.sections.length - 1 && (
+														<Button type="submit" variant="contained" endIcon={<SendIcon />} color="success">
+															Отправить
+														</Button>
+													)}
+
 												</Box>
-											);
-										})}
 
-										<Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-											{currentSection > 0 && (
-												<Button onClick={() => setCurrentSection(currentSection - 1)} color="success" variant="contained">
-													Назад
-												</Button>
-											)}
+											</Box>
 
-											{currentSection !== formData.sections.length - 1 && (
-												<Button onClick={() => setCurrentSection(currentSection + 1)} color="success" variant="contained">
-													Далее
-												</Button>
-											)}
-
-											{currentSection === formData.sections.length - 1 && (
-												<Button type="submit" variant="contained" endIcon={<SendIcon />} color="success">
-													Отправить
-												</Button>
-											)}
-
-										</Box>
-
-									</Box>
-
-									{/* <Box>
-											<Pagination
-												sx={{
-													'& .MuiPaginationItem-page.Mui-selected': {
-														backgroundColor: '#00862b !important',
-														color: '#ffffff !important',
-													},
-												}}
-												count={formData.sections.length}
-												page={currentSection + 1}
-												onChange={(event, value) => setCurrentSection(value - 1)}
-											/>
-										</Box> */}
-								</>
-							) : (
-								<p>Загружаем конечный вид формы...</p>
-							)}
-						</Grid>
-					</form>
-				</FormProvider>
+											{/* <Box>
+													<Pagination
+														sx={{
+															'& .MuiPaginationItem-page.Mui-selected': {
+																backgroundColor: '#00862b !important',
+																color: '#ffffff !important',
+															},
+														}}
+														count={formData.sections.length}
+														page={currentSection + 1}
+														onChange={(event, value) => setCurrentSection(value - 1)}
+													/>
+												</Box> */}
+										</>
+									) : (
+										<p>Загружаем конечный вид формы...</p>
+									)}
+								</Grid>
+							</form>
+						</FormProvider>
+					)}
+				</>
 			)}
 		</>
 	);
