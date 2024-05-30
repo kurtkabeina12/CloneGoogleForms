@@ -9,7 +9,7 @@ interface TextareaComponentProps {
   required?: boolean;
   quest?: string;
   idQuestion?: string;
- cardFormPageType?: string;
+  cardFormPageType?: string;
 }
 
 const green = {
@@ -83,7 +83,11 @@ const TextareaComponent: React.FC<TextareaComponentProps> = ({ disabled = false,
             <>
               <Textarea
                 {...field}
-                sx={{ width: "-webkit-fill-available", marginTop: "1rem" }}
+                sx={{
+                  width: "-webkit-fill-available",
+                  marginTop: "1rem",
+                  resize: "none"
+                }}
                 aria-label="minimum height"
                 placeholder='Напишите ответ'
                 minRows={5}

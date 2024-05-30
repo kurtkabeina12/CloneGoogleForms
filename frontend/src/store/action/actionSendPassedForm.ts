@@ -4,7 +4,7 @@ export const sendFormData = createAsyncThunk(
 	'form/FormData',
 	async ({ formData, formId }: { formData: FormData; formId: string }, thunkAPI) => {
 		try {
-			const response = await fetch('http://localhost:8888/FormData', {
+			const response = await fetch('http://172.20.15.13:8888/FormData', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',

@@ -9,7 +9,7 @@ function AutorizationPage() {
 	const [password, setPassword] = useState('');
 	const [error, setError] = useState('');
 	const navigate = useNavigate();
-	
+
 	const handlePhoneChange = (event: { target: { value: any; }; }) => {
 		const value = event.target.value;
 		if (/^\+7(\d*)?$/.test(value)) {
@@ -26,6 +26,7 @@ function AutorizationPage() {
 
 	const handleSubmit = async () => {
 		if (!error && password) {
+			navigate(`/form/${formId}`, { state: { formId } });
 			try {
 				const response = await fetch('/api/login', {
 					method: 'POST',

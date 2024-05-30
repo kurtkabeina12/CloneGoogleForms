@@ -4,7 +4,7 @@ export const GetAllForms = createAsyncThunk(
     'getForms',
     async () => {
         try {
-            const response = await fetch('http://localhost:8888/getForms', {
+            const response = await fetch('http://172.20.15.13:8888/getForms', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

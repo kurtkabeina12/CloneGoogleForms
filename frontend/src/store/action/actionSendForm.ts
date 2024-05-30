@@ -5,7 +5,7 @@ export const sendCardAsync = createAsyncThunk(
 	'forms/saveForm',
 	async ({ title, titleOverview, textForEndForm, dateEndForm, isMandatoryAuth, selectedColor, sections }: { title: string, titleOverview: string, textForEndForm: string, dateEndForm: string, isMandatoryAuth: boolean, selectedColor:string, sections: Section[] }, thunkAPI) => {
 		try {
-			const response = await fetch('http://localhost:8888/forms', {
+			const response = await fetch('http://172.20.15.13:8888/forms', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',

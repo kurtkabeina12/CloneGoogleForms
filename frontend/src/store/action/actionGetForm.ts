@@ -4,7 +4,7 @@ export const fetchGetForm = createAsyncThunk(
     'form/getForm',
     async ({formId} : {formId:string}, thunkAPI) => {
         try {
-            const response = await fetch(`http://localhost:8888/forms/${formId}`);
+            const response = await fetch(`http://172.20.15.13:8888/forms/${formId}`);
             if (!response.ok) {
                 throw new Error('Failed to fetch form');
             }

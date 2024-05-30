@@ -11,11 +11,16 @@ interface DataComponentProps {
 }
 
 const DataComponent: React.FC<DataComponentProps> = ({ disabled = false, required = false, quest, idQuestion, cardFormPageType }) => {
-  const {register, control, formState: { errors } } = useFormContext();
+  const { control, formState: { errors } } = useFormContext(); // Исправлено использование register, так как оно не используется напрямую
 
   const inputName = (idQuestion || 'defaultIdQuestion') + ':' + cardFormPageType;
 
-  register(inputName, { required });
+  // Функция для кастомной валидации
+  const validateDate = (value: string) => {
+    if (!value) return true; // Если значение пустое, считаем его валидным
+    const regex = /^\d{4}-\d{2}-\d{2}$/; // Регулярное выражение для проверки формата даты YYYY-MM-DD
+    return regex.test(value) || "Введите корректную дату";
+  };
 
   return (
     <FormGroup sx={{ width: "-webkit-fill-available", marginTop: "1rem" }}>
@@ -34,7 +39,10 @@ const DataComponent: React.FC<DataComponentProps> = ({ disabled = false, require
        name={inputName}
        control={control}
        defaultValue=""
-       rules={{ required: required ? "Заполните поле" : false }}
+       rules={{ 
+         required: required? "Заполните поле" : false,
+         validate: validateDate // Применяем кастомную валидацию
+       }}
        render={({ field }) => (
          <TextField
            {...field}

@@ -52,7 +52,7 @@ export default function FormPage() {
 	}, [dispatch, formId]);
 
 	const convertLocalPathToUrl = (localPath: string | string[]) => {
-		const baseUrl = 'http://localhost:8888/UsersImage/';
+		const baseUrl = 'http://172.20.15.13:8888/UsersImage/';
 		// Используем регулярное выражение с двойным обратным слешем для экранирования
 		const regex = /UsersImage\/(.*)/;
 		const result: string[] = [];

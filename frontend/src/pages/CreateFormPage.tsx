@@ -470,7 +470,7 @@ const CreateFormPage: React.FC = () => {
 			console.log(isMandatoryAuth)
 			const formId = actionResult.payload.formId;
 			setShowAlertDialog(true);
-			const link = `http://localhost:3000/autorization/${formId.formId}`;
+			const link = `http://172.20.15.13:3000/form/${formId.formId}`;
 			setFormLink(link);
 			setStateSnackbar({ ...stateSnackbar, open: true });
 			// navigate(`/form/${formId.formId}`, { state: { formId } });
