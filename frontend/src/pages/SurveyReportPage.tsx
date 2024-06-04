@@ -167,9 +167,11 @@ const SurveyReportPage: React.FC = () => {
 							<Box>
 								<Typography variant='h6' color="black">Название опроса: {formReportInfo.formTitle}</Typography>
 							</Box>
-							<Box >
-								<Typography variant='h6' color="black">Дата окончания опроса: {formatDate(formReportInfo.formEndDate)}</Typography>
-							</Box>
+							{formReportInfo.formEndDate &&
+								<Box >
+									<Typography variant='h6' color="black">Дата окончания опроса: {formatDate(formReportInfo.formEndDate)}</Typography>
+								</Box>
+							}
 							<IconButton aria-label="uploadFile" color="success" size="small" onClick={() => uploadExcelFile()}>
 								<UploadFileIcon />
 								<Typography variant='h6'>Скачать Excel</Typography>

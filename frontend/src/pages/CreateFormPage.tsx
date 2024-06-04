@@ -446,13 +446,32 @@ const CreateFormPage: React.FC = () => {
 	};
 
 
-	const handleCopyFormLink = () => {
-		navigator.clipboard.writeText(formLink).then(() => {
-		}, (err) => {
-			console.error('Failed to copy text: ', err);
-		});
+	function fallbackCopyTextToClipboard(text: string) {
+		const tempInput = document.createElement('input');
+		tempInput.setAttribute('value', text);
+		document.body.appendChild(tempInput);
+		tempInput.select();
+		document.execCommand('copy');
+		document.body.removeChild(tempInput);
+		console.log('Текст успешно скопирован в буфер обмена!');
+	}
+	
+	const handleCopyFormLink = async () => {
+		if (navigator.clipboard && navigator.clipboard.writeText) {
+			try {
+				await navigator.clipboard.writeText(formLink);
+				console.log('Текст успешно скопирован в буфер обмена!');
+			} catch (err) {
+				console.error('Ошибка:', err);
+				fallbackCopyTextToClipboard(formLink); 
+			}
+		} else {
+			fallbackCopyTextToClipboard(formLink);
+		}
 	};
-
+	
+	
+	
 	//отправка данных о карточках с redux
 	const SendCards = async () => {
 		try {
