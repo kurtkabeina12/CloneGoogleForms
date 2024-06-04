@@ -14,7 +14,6 @@ const InputComponent: React.FC<InputComponentProps> = ({ disabled = false, requi
   const { register, formState: { errors } } = useFormContext();
 
   const inputName = (idQuestion || 'defaultIdQuestion') + ':' + cardFormPageType;
-  console.log(inputName);
   const { ref, onChange, onBlur } = register(inputName, { required: required ? "Заполните поле" : false });
 
   return (
