@@ -19,12 +19,20 @@ interface SubQuestion {
 }
 
 interface ReportItem {
-	answers: { answers: string | string[] }[];
+	answers: Answer[];
 	idQuestion: string;
+	idSubQuestion: string;
 	question: string;
 	selectedComponent: string;
 	subQuestions?: SubQuestion[];
 	chartData?: PieChartData[];
+}
+
+interface Answer {
+	answers: string | string[];
+	idQuestion: string;
+	idSubQuestion: string;
+	phoneNumber?: string;
 }
 
 interface formReportInfo {
@@ -79,6 +87,7 @@ const SurveyReportPage: React.FC = () => {
 								idQuestion: question.idQuestion,
 								question: question.question,
 								answers: answers,
+								idSubQuestion: question.idSubQuestion,
 								selectedComponent: question.selectedComponent,
 								chartData: chartDataEntries,
 							};
@@ -87,6 +96,7 @@ const SurveyReportPage: React.FC = () => {
 							idQuestion: question.idQuestion,
 							question: question.question,
 							answers: answers,
+							idSubQuestion: question.idSubQuestion,
 							selectedComponent: question.selectedComponent,
 						};
 					});
@@ -129,29 +139,68 @@ const SurveyReportPage: React.FC = () => {
 
 	function generateExcelFile(data: ReportItem[]) {
 		const wb = XLSX.utils.book_new();
+		console.log(data, 'data');
 
-		const headers = ["question", ...Object.keys(data[0]?.question || {})];
 
-		const dataRows = data.flatMap(item => {
-			const row = [item.question];
-			if (item?.answers) {
-				const answersRow = item.answers.map(answer => Array.isArray(answer.answers) ? answer.answers.join(', ') : String(answer.answers)).join('; ');
-				row.push(answersRow);
-			}
-			return [row];
-		});
+		const uniquePhoneNumbers = Array.from(new Set(data.flatMap(item => item.answers.map(answer => answer.phoneNumber))));
+		console.log(uniquePhoneNumbers, 'uniquePhoneNumbers');
+		if (uniquePhoneNumbers.every(element => element === null)) {
+			const questions = Array.from(new Set(data.map(item => item.question)));
 
-		const worksheetData = [headers, ...dataRows];
+			const headersWithoutMandatory = [...questions];
+			console.log(2)
 
-		const ws_data = XLSX.utils.aoa_to_sheet(worksheetData);
+			const dataRows = questions.map(question => {
+				console.log(question)
+				const answersForQuestion = data.filter(item => item.question === question)
+					.flatMap(item => item.answers)
+					.map(answer => Array.isArray(answer.answers) ? answer.answers.join(', ') : String(answer.answers));
+				return [...answersForQuestion];
+			});
+			console.log(dataRows)
+			const transposedDataRows = dataRows[0].map((_, colIndex) => dataRows.map(row => row[colIndex]));
 
-		XLSX.utils.book_append_sheet(wb, ws_data, "DataExcel");
+			const worksheetData = [headersWithoutMandatory, ...transposedDataRows];
 
-		const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+			const ws_data = XLSX.utils.aoa_to_sheet(worksheetData);
+			XLSX.utils.book_append_sheet(wb, ws_data, "DataExcel");
 
-		const blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8' });
+			const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+			const blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8' });
+			saveAs(blob, "DataExcel.xlsx");
 
-		saveAs(blob, "DataExcel.xlsx");
+		} else {
+			const questionsWithIds = Array.from(
+				new Set(data.map(item => ({
+					question: item.question,
+					idQuestion: item.idQuestion,
+					idSubQuestion: item.idSubQuestion,
+				})))
+			).map(({ question, idQuestion, idSubQuestion }: { question: string; idQuestion: string; idSubQuestion: string }) => ({ question, idQuestion, idSubQuestion }));
+			const headers = ["Users", ...questionsWithIds.map(item => item.question)];
+			const dataRows = uniquePhoneNumbers.map(phoneNumber => {
+				const userAnswers = data.flatMap(item =>
+					item.answers.filter(answer => answer.phoneNumber === phoneNumber)
+				);
+				console.log(userAnswers, "userAnswers");
+				return [phoneNumber, ...questionsWithIds.map(questionItem => {
+					console.log(questionItem, 'questionItem');
+					const answer = userAnswers.find(userAnswer => 
+						userAnswer.idQuestion === questionItem.idQuestion ||
+						userAnswer.idSubQuestion === questionItem.idSubQuestion
+				)?.answers || '';
+					return Array.isArray(answer) ? answer.join(', ') : String(answer);
+				})];
+			});
+			const worksheetData = [headers, ...dataRows];
+			const ws_data = XLSX.utils.aoa_to_sheet(worksheetData);
+			XLSX.utils.book_append_sheet(wb, ws_data, "DataExcel");
+
+			const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+			const blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8' });
+			saveAs(blob, "DataExcel.xlsx");
+			console.log(dataRows, "userDataRows");
+		}
 	}
 
 	const uploadExcelFile = () => {

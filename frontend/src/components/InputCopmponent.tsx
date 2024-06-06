@@ -12,7 +12,6 @@ interface InputComponentProps {
 
 const InputComponent: React.FC<InputComponentProps> = ({ disabled = false, required = false, quest, idQuestion, cardFormPageType }) => {
   const { register, formState: { errors } } = useFormContext();
-
   const inputName = (idQuestion || 'defaultIdQuestion') + ':' + cardFormPageType;
   const { ref, onChange, onBlur } = register(inputName, { required: required ? "Заполните поле" : false });
 

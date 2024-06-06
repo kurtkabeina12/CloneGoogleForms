@@ -521,16 +521,16 @@ const CreateFormPage: React.FC = () => {
 
 	const handleOnDragEnd = (result: any) => {
 		if (!result.destination) return; // Ensure there's a valid drop target
-	
+
 		const items = Array.from(sections);
-		const [reorderedSection] = items.splice(result.source.sectionIndex, 1); 
-	
+		const [reorderedSection] = items.splice(result.source.sectionIndex, 1);
+
 		const draggedCard = reorderedSection.cards.splice(result.source.index, 1)[0];
-	
+
 		reorderedSection.cards.splice(result.destination.index, 0, draggedCard);
-	
+
 		items.splice(result.destination.sectionIndex, 0, reorderedSection);
-	
+
 		setSections(items);
 	};
 
