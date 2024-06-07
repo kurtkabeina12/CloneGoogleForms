@@ -102,30 +102,30 @@ const HomePage: React.FC = () => {
             return (
               <Grid item xs={12} sm={6} md={4} key={index} onClick={() => navigate(`/report/${form.id}`)}>
                 {/* <Grid item xs={12} sm={6} md={4} key={index} onClick={() => navigate(`/changeForm/${form.id}`)}> */}
-                  <Card sx={{ maxWidth: 345 }}>
-                    <CardActionArea>
-                      <CardMedia
-                        component="img"
-                        height="140"
-                        image={BackgroundImage}
-                      />
-                      <CardContent>
-                        <Typography gutterBottom variant="h5" component="div">
-                          {form.formTitle}
+                <Card sx={{ maxWidth: 345 }}>
+                  <CardActionArea>
+                    <CardMedia
+                      component="img"
+                      height="140"
+                      image={BackgroundImage}
+                    />
+                    <CardContent>
+                      <Typography gutterBottom variant="h5" component="div">
+                        {form.formTitle}
+                      </Typography>
+                      {form.formEndDate && (
+                        <Typography variant="body2" color="text.secondary">
+                          Дата окончания опроса:
+                          {formatDate(form.formEndDate)}
                         </Typography>
-                        {form.formEndDate && (
-                          <Typography variant="body2" color="text.secondary">
-                            Дата окончания опроса:
-                            {formatDate(form.formEndDate)}
-                          </Typography>
-                        )}
-                      </CardContent>
-                    </CardActionArea>
-                  </Card>
-                </Grid>
-                )
-          })}
+                      )}
+                    </CardContent>
+                  </CardActionArea>
+                </Card>
               </Grid>
+            )
+          })}
+        </Grid>
       </Box>
     </div>
   );

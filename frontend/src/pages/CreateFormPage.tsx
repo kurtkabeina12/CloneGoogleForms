@@ -211,7 +211,6 @@ const CreateFormPage: React.FC = () => {
 		setSections(newSections);
 	};
 
-
 	// Функция для добавления нового раздела
 	const handleAddSection = () => {
 		setSections([...sections, { title: '', cards: [{ selectedComponent: 'Input', question: '', isRequired: false, answer: "", addLogic: false, Logic: '', addImg: false, imageUrl: [], addChangeCardsLogic: false, changeCardsLogic: '', subQuestions: [] as SubQuestion[] }] }]);
@@ -252,7 +251,6 @@ const CreateFormPage: React.FC = () => {
 		}
 		setSections(newSections);
 	};
-
 
 	//переключения статуса обязательности карточки
 	const handleSwitchChange = (sectionIndex: number, index: number, isRequired: boolean, cardType: string, subQuestionIndex?: number) => {
