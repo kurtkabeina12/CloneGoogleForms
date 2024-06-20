@@ -19,6 +19,9 @@ interface SliderComponentProps {
 	nowSliderValue?: (value: number, changeCardsLogic: string | string[]) => void;
 	changeCardsLogic?: string | string[];
 	cardFormPageType?: string;
+	points?: number | string;
+	updateCorrectAnswer?: (sectionIndex: number, index: number, correctAnswer: string | string[], cardType: string, subQuestionIndex?: number) => void;
+	cardType?: string;
 }
 
 const SliderComponent: React.FC<SliderComponentProps> = ({
@@ -34,7 +37,10 @@ const SliderComponent: React.FC<SliderComponentProps> = ({
 	onChangeCardsLogic,
 	nowSliderValue,
 	changeCardsLogic = [],
-	cardFormPageType
+	cardFormPageType,
+	points,
+	updateCorrectAnswer,
+	cardType
 }) => {
 	const [startValue, setStartValue] = useState<number>(answers ? parseInt(answers[0], 10) : 0);
 	const [lengthValue, setLengthValue] = useState<number>(answers ? parseInt(answers[1], 10) : 2);
@@ -42,7 +48,7 @@ const SliderComponent: React.FC<SliderComponentProps> = ({
 	const [sliderValue, setSliderValue] = useState<number>(startValue);
 	const { register, control, formState: { errors } } = useFormContext();
 
-	const inputName = (idQuestion || 'defaultIdQuestion') + ':' + cardFormPageType;
+	const inputName = (idQuestion || 'defaultIdQuestionSlider') + ':' + cardFormPageType;
 
 	register(inputName, { required });
 	useEffect(() => {
@@ -72,7 +78,7 @@ const SliderComponent: React.FC<SliderComponentProps> = ({
 	}, [logicChangeBlocks, onChangeCardsLogic, addChangeCardsLogic]);
 
 	useEffect(() => {
-		if (addChangeCardsLogic  && !disabled && Array.isArray(changeCardsLogic)) {
+		if (addChangeCardsLogic && !disabled && Array.isArray(changeCardsLogic)) {
 			const parsedLogic = changeCardsLogic.map((logic: string) => {
 				const [answer, cardIndex] = logic.split(':');
 				return { answer, cardIndex };
@@ -107,6 +113,15 @@ const SliderComponent: React.FC<SliderComponentProps> = ({
 			setLogicChangeBlocks(logicChangeBlocks.filter((_, i) => i !== index));
 		}
 	};
+
+	const handleCorrectAnswer = (event: any) => {
+		const correctAnswer = event.target.value;
+		if (updateCorrectAnswer) {
+			updateCorrectAnswer(sectionIndex!, cardIndex!, correctAnswer, cardType!, undefined);
+			console.log(event.target.value, 'event for Slider')
+		}
+	}
+
 	return (
 		<>
 			{!disabled && answers && (
@@ -134,7 +149,80 @@ const SliderComponent: React.FC<SliderComponentProps> = ({
 					{errors[inputName] && <Typography color="error">{errors[inputName]?.message?.toString() || ''}</Typography>}
 				</FormGroup>
 			)}
-			{disabled && (
+			{disabled && (points === 0 || points) && (
+				<>
+					<Box sx={{ marginTop: "1rem", display: "flex", alignItems: "center", textAlign: "center" }}>
+						<Typography sx={{ marginRight: "0.5rem" }}>От </Typography>
+						<Select variant='standard' color='success' value={startValue} onChange={handleStartChange}>
+							<MenuItem value={0}>0</MenuItem>
+							<MenuItem value={1}>1</MenuItem>
+						</Select>
+						<Typography sx={{ marginRight: "0.5rem", marginLeft: "0.5rem" }} >До</Typography>
+						<Select variant='standard' color='success' value={lengthValue} onChange={handleLengthChange}>
+							<MenuItem value={2}>2</MenuItem>
+							<MenuItem value={3}>3</MenuItem>
+							<MenuItem value={4}>4</MenuItem>
+							<MenuItem value={5}>5</MenuItem>
+							<MenuItem value={6}>6</MenuItem>
+							<MenuItem value={7}>7</MenuItem>
+							<MenuItem value={8}>8</MenuItem>
+							<MenuItem value={9}>9</MenuItem>
+							<MenuItem value={10}>10</MenuItem>
+						</Select>
+					</Box>
+					<FormGroup sx={{ width: "-webkit-fill-available", marginTop: "1rem" }}>
+						<Slider
+							marks={marks}
+							max={lengthValue}
+							min={startValue}
+							color='success'
+							valueLabelDisplay="auto"
+							onChange={handleCorrectAnswer}
+						/>
+						{addChangeCardsLogic && (
+							<>
+								{logicChangeBlocks.map((block, index) => (
+									<Box key={index} sx={{ display: 'flex', flexDirection: 'row', flexWrap: 'nowrap', mt: 2 }}>
+										<Typography variant='body1' color='black' sx={{ mr: 2 }}>При выборе ответа:</Typography>
+										<TextField
+											variant="standard"
+											value={block.answer}
+											onChange={(e) => {
+												const newLogicChangeBlocks = [...logicChangeBlocks];
+												newLogicChangeBlocks[index].answer = e.target.value;
+												setLogicChangeBlocks(newLogicChangeBlocks);
+											}}
+										/>
+										<Typography variant='body1' color='black' sx={{ mr: 2 }}>открыть карточку:</Typography>
+										<TextField
+											variant="standard"
+											value={block.cardIndex}
+											onChange={(e) => {
+												const newLogicChangeBlocks = [...logicChangeBlocks];
+												newLogicChangeBlocks[index].cardIndex = e.target.value;
+												setLogicChangeBlocks(newLogicChangeBlocks);
+											}}
+										/>
+										{logicChangeBlocks.length > 1 && (
+											<IconButton aria-label="removeNewLogicChange" size='small' onClick={() => handleRemoveNewLogicChange(index)}>
+												<CloseIcon />
+											</IconButton>
+										)}
+									</Box>
+								))}
+								<Box sx={{ marginTop: "1rem", display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
+									<Tooltip title="Добавить условие">
+										<IconButton aria-label="addNewLogicChange" size='small' onClick={handleAddNewLogicChange}>
+											<AddIcon />
+										</IconButton>
+									</Tooltip>
+								</Box>
+							</>
+						)}
+					</FormGroup>
+				</>
+			)}
+			{disabled && !points && points !== 0 && (
 				<>
 					<Box sx={{ marginTop: "1rem", display: "flex", alignItems: "center", textAlign: "center" }}>
 						<Typography sx={{ marginRight: "0.5rem" }}>От </Typography>

@@ -1,5 +1,5 @@
-import React from 'react';
-import { Button, FormGroup, FormControlLabel, Input, Radio, RadioGroup, Typography } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { Button, FormGroup, FormControlLabel, Input, Radio, RadioGroup, Typography, Box } from '@mui/material';
 import useList from '../hooks/UseList';
 import CloseIcon from '@mui/icons-material/Close';
 import { useFormContext } from 'react-hook-form';
@@ -15,7 +15,9 @@ interface RadioComponentProps {
   idQuestion?: string;
   cardType?: string;
   subQuestionIndex?: number;
- cardFormPageType?: string;
+  cardFormPageType?: string;
+  points?: number | string;
+  updateCorrectAnswer?: (sectionIndex: number, index: number, correctAnswer: string | string[], cardType: string, subQuestionIndex?: number) => void;
 }
 
 const RadioComponent: React.FC<RadioComponentProps> = ({
@@ -29,12 +31,17 @@ const RadioComponent: React.FC<RadioComponentProps> = ({
   answers = [],
   cardType = 'card',
   subQuestionIndex,
-  cardFormPageType
+  cardFormPageType,
+  points,
+  updateCorrectAnswer
 }) => {
   const { list, addItem, updateItem, setList } = useList<string[]>([['']]);
   const { register, formState: { errors } } = useFormContext();
-  const inputName = (idQuestion || 'defaultIdQuestion') + ':' + cardFormPageType;
+  const inputName = (idQuestion || 'defaultIdQuestionRadio') + ':' + cardFormPageType;
   const { ref } = register(inputName, { required });
+  const [selectedItemIndex, setSelectedItemIndex] = useState<number | null>(null);
+  const [userAnswers, setUserAnswers] = useState<string[]>([]);
+  const [correctAnswers, setCorrectAnswers] = useState<string[]>([]);
 
   const handleAddAnswer = () => {
     addItem(['']);
@@ -44,32 +51,76 @@ const RadioComponent: React.FC<RadioComponentProps> = ({
     console.log('Updating answer:', sectionIndex, index, value);
     const newAnswers = [...list];
     if (cardType === 'subQuestion' && subQuestionIndex !== undefined) {
-        console.log('Updating subQuestion answer:', sectionIndex, cardIndex || 0, subQuestionIndex, value);
-        newAnswers[index][subQuestionIndex] = value;
-        console.log('New answers:', newAnswers);
-        updateItem(index, [newAnswers[index][subQuestionIndex]]);
-        if (updateCardAnswers) {
-            updateCardAnswers(sectionIndex, cardIndex || 0, newAnswers.map(answer => answer[0]), cardType, subQuestionIndex);
-        }
+      console.log('Updating subQuestion answer:', sectionIndex, cardIndex || 0, subQuestionIndex, value);
+      newAnswers[index][subQuestionIndex] = value;
+      console.log('New answers:', newAnswers);
+      updateItem(index, [newAnswers[index][subQuestionIndex]]);
+      if (updateCardAnswers) {
+        updateCardAnswers(sectionIndex, cardIndex || 0, newAnswers.map(answer => answer[0]), cardType, subQuestionIndex);
+      }
     } else {
-        newAnswers[index] = [value];
-        updateItem(index, [newAnswers[index][0]]);
-        if (updateCardAnswers) {
-            updateCardAnswers(sectionIndex, cardIndex || 0, newAnswers.map(answer => answer[0]), cardType);
-        }
+      newAnswers[index] = [value];
+      updateItem(index, [newAnswers[index][0]]);
+      if (updateCardAnswers) {
+        updateCardAnswers(sectionIndex, cardIndex || 0, newAnswers.map(answer => answer[0]), cardType);
+      }
     }
-};
-   
+    setSelectedItemIndex(index);
+  };
 
-  const handleRemoveAnswer = (sectionIndex: number, index: number) => {
+  const handleRemoveAnswer = (sectionIndex: number, index: number, clearSelectionOnly: boolean = false) => {
     if (list.length > 1) {
-      if(cardType ==='subQuestion' && subQuestionIndex!== undefined) {
+      if (cardType === 'subQuestion' && subQuestionIndex !== undefined) {
         const newList = list.filter((_, i) => i !== subQuestionIndex);
         setList(newList);
         if (updateCardAnswers) {
           updateCardAnswers(sectionIndex, cardIndex || 0, newList.map(answer => answer[0]), cardType, subQuestionIndex);
         }
-      }else{
+      } else {
+        const newList = list.filter((_, i) => i !== index);
+        setList(newList);
+        if (updateCardAnswers) {
+          updateCardAnswers(sectionIndex, cardIndex || 0, newList.map(answer => answer[0]), cardType);
+        }
+      }
+    }
+  };
+
+  const handleUpdateAnswerForTest = (sectionIndex: number, index: number, value: string) => {
+    console.log('Before update:', selectedItemIndex, index, value);
+    const newAnswers = [...list];
+    if (cardType === 'subQuestion' && subQuestionIndex!== undefined) {
+      newAnswers[index][subQuestionIndex] = value || userAnswers[index];
+      updateItem(index, [newAnswers[index][subQuestionIndex]]);
+      if (updateCardAnswers) {
+        updateCardAnswers(sectionIndex, cardIndex || 0, newAnswers.map(answer => answer[0]), cardType, subQuestionIndex);
+      }
+    } else {
+      newAnswers[index] = [value || userAnswers[index]];
+      updateItem(index, [newAnswers[index][0]]);
+      if (updateCardAnswers) {
+        updateCardAnswers(sectionIndex, cardIndex || 0, newAnswers.map(answer => answer[0]), cardType);
+      }
+    }
+  
+    if (updateCorrectAnswer) {
+      setCorrectAnswers([value]);
+      updateCorrectAnswer(sectionIndex, cardIndex || 0, value, cardType);
+    }
+  
+    setSelectedItemIndex(index);
+    console.log('After update:', selectedItemIndex, index, value);
+  };
+
+  const handleRemoveAnswerForTest = (sectionIndex: number, index: number, clearSelectionOnly: boolean = false) => {
+    if (list.length > 1) {
+      if (cardType === 'subQuestion' && subQuestionIndex !== undefined) {
+        const newList = list.filter((_, i) => i !== subQuestionIndex);
+        setList(newList);
+        if (updateCardAnswers) {
+          updateCardAnswers(sectionIndex, cardIndex || 0, newList.map(answer => answer[0]), cardType, subQuestionIndex);
+        }
+      } else {
         const newList = list.filter((_, i) => i !== index);
         setList(newList);
         if (updateCardAnswers) {
@@ -91,7 +142,41 @@ const RadioComponent: React.FC<RadioComponentProps> = ({
           {errors[inputName] && <Typography color="error">Выберите ответ</Typography>}
         </RadioGroup>
       )}
-      {disabled && (
+      {disabled && (points === 0 || points) && (
+        <>
+          <Typography variant='body1' color="black">Выберите правильный ответ:</Typography>
+          {list.map((item, index) => (
+            <>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <FormControlLabel key={index}
+                  control={
+                    <Radio
+                      color='success'
+                      checked={selectedItemIndex === index}
+                      onChange={(e) => handleUpdateAnswerForTest(sectionIndex || 0, index, e.target.value)}
+                    />
+                  }
+                  label={
+                    <Input
+                      placeholder='Ответ'
+                      value={item[0] || ''}
+                      onChange={(e) => handleUpdateAnswerForTest(sectionIndex || 0, index, e.target.value)}
+                    />
+                  }
+                />
+                {list.length > 1 && (
+                  <CloseIcon style={{ color: "rgb(0 0 0 / 42%)" }} onClick={() => handleRemoveAnswerForTest(sectionIndex || 0, index)} />
+                )}
+              </div>
+            </>
+          ))}
+          <Box sx={{ display: 'flex' }}>
+            <FormControlLabel disabled={true} sx={{ marginLeft: "0.8rem" }} control={<Radio color='success' />} label={
+              <Button color='success' variant="text" onClick={handleAddAnswer}> Добавить вариант </Button>} />
+          </Box>
+        </>
+      )}
+      {disabled && !points && points !== 0 && (
         <>
           {list.map((item, index) => (
             <div style={{ display: 'flex', alignItems: 'center' }}>

@@ -10,6 +10,11 @@ interface TextareaComponentProps {
   quest?: string;
   idQuestion?: string;
   cardFormPageType?: string;
+  points?: number | string;
+  sectionIndex?: number;
+  cardIndex?: number;
+  cardType?: string;
+  updateCorrectAnswer?: (sectionIndex: number, index: number, correctAnswer: string | string[], cardType: string, subQuestionIndex?: number) => void;
 }
 
 const green = {
@@ -63,17 +68,27 @@ const Textarea = styled(BaseTextareaAutosize)(
 `,
 );
 
-const TextareaComponent: React.FC<TextareaComponentProps> = ({ disabled = false, required = false, quest, idQuestion, cardFormPageType }) => {
+const TextareaComponent: React.FC<TextareaComponentProps> = ({ disabled = false, required = false, quest, idQuestion, cardFormPageType, points, sectionIndex, cardIndex, cardType, updateCorrectAnswer }) => {
   const { register, formState: { errors } } = useFormContext();
 
-  const inputName = (idQuestion || 'defaultIdQuestion') + ':' + cardFormPageType;
+  const inputName = (idQuestion || 'defaultIdQuestionTextarea') + ':' + cardFormPageType;
 
   register(inputName, { required: required ? "Заполните поле" : false });
-
+  
+  const handleUpdateCorrectAnswer = (e: { target: { value: any; }; }) => {
+    const correctAnswer = e.target.value;
+    if (updateCorrectAnswer) {
+      updateCorrectAnswer(sectionIndex!, cardIndex!, correctAnswer, cardType!, undefined); 
+    }
+  };
+  
   return (
     <>
-      {disabled &&
+      {disabled && !points && points !== 0 &&
         <Textarea sx={{ width: "-webkit-fill-available", marginTop: "1rem" }} aria-label="minimum height" placeholder='Напишите ответ' disabled minRows={5} />
+      }
+      {disabled && (points === 0 || points) &&
+        <Textarea sx={{ width: "-webkit-fill-available", marginTop: "1rem" }} aria-label="minimum height" placeholder='Напишите правильный ответ' minRows={5} onChange={handleUpdateCorrectAnswer}/>
       }
       {!disabled &&
         <Controller

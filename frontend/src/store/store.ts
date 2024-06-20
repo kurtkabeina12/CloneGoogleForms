@@ -7,6 +7,8 @@ import { sendFormData } from './action/actionSendPassedForm';
 import { GetAllForms } from './action/actionGetAllForms';
 import { fetchGetReportForm } from './action/actionGetReportForm';
 import { fetchGetStubInfo } from './action/actionGetInfoStub';
+import { sendCardTest } from './action/actionSendTest';
+import { fetchGetTest } from './action/actionGetTest';
 
 const rootReducer = combineReducers({
   form: formReducer,
@@ -17,6 +19,8 @@ const rootReducer = combineReducers({
   getAllForms: GetAllForms,
   getReportForm: fetchGetReportForm,
   getStubInfo: fetchGetStubInfo,
+  test: sendCardTest,
+  getTest: fetchGetTest
 });
 
 export default rootReducer;

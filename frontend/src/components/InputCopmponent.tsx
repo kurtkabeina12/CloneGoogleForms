@@ -8,16 +8,29 @@ interface InputComponentProps {
   quest?: string;
   idQuestion?: string;
   cardFormPageType?: string;
+  points?: number | string;
+  sectionIndex?: number;
+  cardIndex?: number;
+  cardType?: string;
+  updateCorrectAnswer?: (sectionIndex: number, index: number, correctAnswer: string | string[], cardType: string, subQuestionIndex?: number) => void;
 }
 
-const InputComponent: React.FC<InputComponentProps> = ({ disabled = false, required = false, quest, idQuestion, cardFormPageType }) => {
+const InputComponent: React.FC<InputComponentProps> = ({ disabled = false, required = false, quest, idQuestion, cardFormPageType, points, sectionIndex, cardIndex, cardType, updateCorrectAnswer }) => {
   const { register, formState: { errors } } = useFormContext();
-  const inputName = (idQuestion || 'defaultIdQuestion') + ':' + cardFormPageType;
+  const inputName = (idQuestion || 'defaultIdQuestionInput') + ':' + cardFormPageType;
   const { ref, onChange, onBlur } = register(inputName, { required: required ? "Заполните поле" : false });
 
+  const handleUpdateCorrectAnswer = (e: { target: { value: any; }; }) => {
+    const correctAnswer = e.target.value;
+    if (updateCorrectAnswer) {
+      updateCorrectAnswer(sectionIndex!, cardIndex!, correctAnswer, cardType!, undefined); 
+    }
+  };
+
+  console.log(points)
   return (
     <>
-      {disabled &&
+      {disabled && !points && points !== 0 &&
         <TextField
           variant="standard"
           placeholder="Напишите ответ"
@@ -27,6 +40,19 @@ const InputComponent: React.FC<InputComponentProps> = ({ disabled = false, requi
           fullWidth
           disabled
         />
+      }
+      {disabled && (points === 0 || points) &&
+        <>
+          <TextField
+            variant="standard"
+            placeholder="Напишите правильный ответ"
+            name="title"
+            type='text'
+            sx={{ mb: 3, marginTop: "1rem" }}
+            fullWidth
+            onChange={handleUpdateCorrectAnswer}
+          />
+        </>
       }
       {!disabled &&
         <>

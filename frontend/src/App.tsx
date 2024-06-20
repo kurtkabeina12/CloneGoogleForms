@@ -10,6 +10,7 @@ import SurveyReportPage from './pages/SurveyReportPage';
 import ChangeFormPage from './pages/ChangeFormPage';
 import AutorizationPage from './pages/AutorizationPage';
 import CreateTestPage from './pages/CreateTestPage';
+import TestPage from './pages/TestPage';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
             <Route path="/report/:formId" element={<SurveyReportPage />} />
             <Route path="/changeForm/:formId" element={<ChangeFormPage />} />
             <Route path="/autorization/:formId" element={<AutorizationPage />} />
+            <Route path="/test/:testId" element={<TestPage />} />
           </Routes>
         </div>
       </Router>

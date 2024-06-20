@@ -12,6 +12,12 @@ import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
 import CheckBoxOutlinedIcon from '@mui/icons-material/CheckBoxOutlined';
 import LinearScaleIcon from '@mui/icons-material/LinearScale';
 import EventIcon from '@mui/icons-material/Event';
+import ImageIcon from '@mui/icons-material/Image';
+import ConstructionIcon from '@mui/icons-material/Construction';
+import SplitscreenIcon from '@mui/icons-material/Splitscreen';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+import ClearIcon from '@mui/icons-material/Clear';
+import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import InputCopmponent from '../components/InputCopmponent';
 import TextareaComponent from '../components/TextareaComponent';
 import RadioComponent from '../components/RadioComponent';
@@ -24,19 +30,13 @@ import { Card, Section, SubQuestion } from '../types/types';
 import { sendCardAsync } from '../store/action/actionSendForm';
 import { AppDispatch } from '../store/reducers/reducerRoot';
 import { useNavigate } from 'react-router-dom';
-import ConstructionIcon from '@mui/icons-material/Construction';
 import { FormProvider, useForm } from 'react-hook-form';
 import { CustomSwitch } from '../components/CustomSwitch';
-import ImageIcon from '@mui/icons-material/Image';
 import { TextareaAutosize as BaseTextareaAutosize } from '@mui/base/TextareaAutosize';
 import { styled } from '@mui/system';
-import SplitscreenIcon from '@mui/icons-material/Splitscreen';
 import SettingsIcon from '@mui/icons-material/Settings';
-import AddCircleIcon from '@mui/icons-material/AddCircle';
-import ClearIcon from '@mui/icons-material/Clear';
 import { TransitionProps } from '@mui/material/transitions';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
-import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import { number } from 'yup';
 
 const green = {
@@ -532,7 +532,6 @@ const CreateFormPage: React.FC = () => {
 		setSections(items);
 	};
 
-
 	return (
 		<>
 			<div id="dialog-background" onClick={handleClickOutside}>
@@ -815,137 +814,139 @@ const CreateFormPage: React.FC = () => {
 																					</Box>
 																				</Grid>
 																			</Paper>
-																			<>
-																				<Grid sx={{ display: 'flex', gap: 1, mt: 1 }}>
-																					{card.subQuestions.map((subQuestion, subQuestionIndex) => {
-																						return (
-																							<Grid item xs={12} sm={8} md={6} className='body-subquestion' onClick={() => handleCardClick(sectionIndex, subQuestionIndex)}>
-																								<Paper elevation={2} sx={{
-																									p: 3,
-																									paddingTop: 0,
-																									display: "flex",
-																									flexDirection: "column",
-																									alignItems: "center",
-																									justifyContent: "flex-start",
-																									borderLeft: activeCardIndex === index ? "8px solid #00862b" : "none",
-																								}}>
-																									<Box sx={{ display: 'flex', flexDirection: "row", width: "-webkit-fill-available", gap: 1, mt: 3 }}>
-																										<TextField
-																											variant="standard"
-																											placeholder="Напишите вопрос"
-																											name="title"
-																											value={subQuestion.question}
-																											onChange={(event) => handleQuestionChange(index, event.target.value, sectionIndex, "subQuestion", subQuestionIndex)}
-																											sx={{ mb: 3 }}
-																											fullWidth
-																										/>
-																										<IconButton aria-label="addImage" size='small' onClick={() => handleAddImage(sectionIndex, index, "subQuestion", subQuestionIndex)}>
-																											<ImageIcon />
-																										</IconButton>
-																										<FormControl fullWidth>
-																											<InputLabel id="demo-simple-select-label">Тип ответа</InputLabel>
-																											<Select
-																												labelId="demo-simple-select-label"
-																												id="demo-simple-select"
-																												value={subQuestion.selectedComponent}
-																												label="Тип ответа"
-																												onChange={(event) => handleSelectChange(event, index, sectionIndex, "subQuestion", subQuestionIndex)}
-																												color='success'
-																											>
-																												<MenuItem value="Input">
-																													<ShortTextIcon
-																														sx={{
-																															color: "#6b6b6b",
-																															marginRight: "5px",
-																														}}
-																													/>
-																													Короткий текст
-																												</MenuItem>
-																												<MenuItem value="Textarea">
-																													<SubjectIcon
-																														sx={{
-																															color: "#6b6b6b",
-																															marginRight: "5px",
-																														}}
-																													/>
-																													Длинный текст
-																												</MenuItem>
-																												<MenuItem value="Radio">
-																													<RadioButtonCheckedIcon
-																														sx={{
-																															color: "#6b6b6b",
-																															marginRight: "5px",
-																														}}
-																													/>
-																													Один из списка
-																												</MenuItem>
-																												<MenuItem value="Checkbox">
-																													<CheckBoxOutlinedIcon
-																														sx={{
-																															color: "#6b6b6b",
-																															marginRight: "5px",
-																														}}
-																													/>
-																													Множество из списка
-																												</MenuItem>
-																												<MenuItem value="Slider">
-																													<LinearScaleIcon
-																														sx={{
-																															color: "#6b6b6b",
-																															marginRight: "5px",
-																														}}
-																													/>
-																													Шкала
-																												</MenuItem>
-																												<MenuItem value="Data">
-																													<EventIcon
-																														sx={{
-																															color: "#6b6b6b",
-																															marginRight: "5px",
-																														}}
-																													/>
-																													Дата
-																												</MenuItem>
-																											</Select>
-																										</FormControl>
-																									</Box>
-																									{subQuestion.addImg && subQuestion.imageUrl.map((image: string, imageIndex: number) => {
-																										console.log(imageIndex)
-																										return (
-																											<div key={imageIndex}>
-																												<img src={image} style={{ maxWidth: "50%", marginTop: 5 }} />
-																												<IconButton aria-label="removeImage" size='small' onClick={() => handleDeleteImage(sectionIndex, index, 'subQuestion', imageIndex, subQuestionIndex)}>
-																													<ClearIcon />
-																												</IconButton>
-																											</div>
-																										)
-																									})}
-																									{subQuestion.selectedComponent === 'Input' && <InputCopmponent disabled={true} />}
-																									{subQuestion.selectedComponent === 'Textarea' && <TextareaComponent disabled={true} />}
-																									{subQuestion.selectedComponent === 'Radio' && <RadioComponent sectionIndex={sectionIndex} cardIndex={index} updateCardAnswers={updateCardAnswers} disabled={true} cardType='subQuestion' subQuestionIndex={subQuestionIndex} />}
-																									{subQuestion.selectedComponent === 'Checkbox' && <CheckboxesComponent sectionIndex={sectionIndex} cardIndex={index} updateCardAnswers={updateCardAnswers} addLogic={subQuestion.addLogic} disabled={true} updateCardLogic={updateCardLogic} cardType='subQuestion' addChangeCardsLogic={subQuestion.addChangeCardsLogic} subQuestionIndex={subQuestionIndex} />}
-																									{subQuestion.selectedComponent === 'Slider' && <SliderComponent sectionIndex={sectionIndex} cardIndex={index} disabled={true} onSliderValuesChange={(values) => updateCardAnswers(sectionIndex, index, [values], "subQuestion", subQuestionIndex)} addChangeCardsLogic={subQuestion.addChangeCardsLogic} />}
-																									{subQuestion.selectedComponent === 'Data' && <DataComponent disabled={true} />}
-																									<Grid item xs={12}>
-																										<Box sx={{ mt: 3, display: 'flex', justifyContent: 'center', borderTopColor: "black", alignItems: 'center' }}>
-																											<Tooltip title="Удалить карточку">
-																												<IconButton aria-label="delete" color="warning" size="small" onClick={() => handleDeleteCard(sectionIndex, index, "subQuestion", subQuestionIndex)}>
-																													<DeleteIcon style={{ color: "red" }} />
-																												</IconButton>
-																											</Tooltip>
-																											<Tooltip title="Дублировать карточку">
-																												<IconButton aria-label="duplicate" color="success" size="small" onClick={() => handleDuplicateCard(sectionIndex, index, "subQuestion", subQuestionIndex)}>
-																													<FileCopyIcon />
-																												</IconButton>
-																											</Tooltip>
+																			{(card.selectedComponent === 'Checkbox' || card.selectedComponent === 'Slider') && (
+																				<>
+																					<Grid sx={{ display: 'flex', gap: 1, mt: 1 }}>
+																						{card.subQuestions.map((subQuestion, subQuestionIndex) => {
+																							return (
+																								<Grid item xs={12} sm={8} md={6} className='body-subquestion' onClick={() => handleCardClick(sectionIndex, subQuestionIndex)}>
+																									<Paper elevation={2} sx={{
+																										p: 3,
+																										paddingTop: 0,
+																										display: "flex",
+																										flexDirection: "column",
+																										alignItems: "center",
+																										justifyContent: "flex-start",
+																										borderLeft: activeCardIndex === index ? "8px solid #00862b" : "none",
+																									}}>
+																										<Box sx={{ display: 'flex', flexDirection: "row", width: "-webkit-fill-available", gap: 1, mt: 3 }}>
+																											<TextField
+																												variant="standard"
+																												placeholder="Напишите вопрос"
+																												name="title"
+																												value={subQuestion.question}
+																												onChange={(event) => handleQuestionChange(index, event.target.value, sectionIndex, "subQuestion", subQuestionIndex)}
+																												sx={{ mb: 3 }}
+																												fullWidth
+																											/>
+																											<IconButton aria-label="addImage" size='small' onClick={() => handleAddImage(sectionIndex, index, "subQuestion", subQuestionIndex)}>
+																												<ImageIcon />
+																											</IconButton>
+																											<FormControl fullWidth>
+																												<InputLabel id="demo-simple-select-label">Тип ответа</InputLabel>
+																												<Select
+																													labelId="demo-simple-select-label"
+																													id="demo-simple-select"
+																													value={subQuestion.selectedComponent}
+																													label="Тип ответа"
+																													onChange={(event) => handleSelectChange(event, index, sectionIndex, "subQuestion", subQuestionIndex)}
+																													color='success'
+																												>
+																													<MenuItem value="Input">
+																														<ShortTextIcon
+																															sx={{
+																																color: "#6b6b6b",
+																																marginRight: "5px",
+																															}}
+																														/>
+																														Короткий текст
+																													</MenuItem>
+																													<MenuItem value="Textarea">
+																														<SubjectIcon
+																															sx={{
+																																color: "#6b6b6b",
+																																marginRight: "5px",
+																															}}
+																														/>
+																														Длинный текст
+																													</MenuItem>
+																													<MenuItem value="Radio">
+																														<RadioButtonCheckedIcon
+																															sx={{
+																																color: "#6b6b6b",
+																																marginRight: "5px",
+																															}}
+																														/>
+																														Один из списка
+																													</MenuItem>
+																													<MenuItem value="Checkbox">
+																														<CheckBoxOutlinedIcon
+																															sx={{
+																																color: "#6b6b6b",
+																																marginRight: "5px",
+																															}}
+																														/>
+																														Множество из списка
+																													</MenuItem>
+																													<MenuItem value="Slider">
+																														<LinearScaleIcon
+																															sx={{
+																																color: "#6b6b6b",
+																																marginRight: "5px",
+																															}}
+																														/>
+																														Шкала
+																													</MenuItem>
+																													<MenuItem value="Data">
+																														<EventIcon
+																															sx={{
+																																color: "#6b6b6b",
+																																marginRight: "5px",
+																															}}
+																														/>
+																														Дата
+																													</MenuItem>
+																												</Select>
+																											</FormControl>
 																										</Box>
-																									</Grid>
-																								</Paper>
-																							</Grid>
-																						)
-																					})}
-																				</Grid>
-																			</>
+																										{subQuestion.addImg && subQuestion.imageUrl.map((image: string, imageIndex: number) => {
+																											console.log(imageIndex)
+																											return (
+																												<div key={imageIndex}>
+																													<img src={image} style={{ maxWidth: "50%", marginTop: 5 }} />
+																													<IconButton aria-label="removeImage" size='small' onClick={() => handleDeleteImage(sectionIndex, index, 'subQuestion', imageIndex, subQuestionIndex)}>
+																														<ClearIcon />
+																													</IconButton>
+																												</div>
+																											)
+																										})}
+																										{subQuestion.selectedComponent === 'Input' && <InputCopmponent disabled={true} />}
+																										{subQuestion.selectedComponent === 'Textarea' && <TextareaComponent disabled={true} />}
+																										{subQuestion.selectedComponent === 'Radio' && <RadioComponent sectionIndex={sectionIndex} cardIndex={index} updateCardAnswers={updateCardAnswers} disabled={true} cardType='subQuestion' subQuestionIndex={subQuestionIndex} />}
+																										{subQuestion.selectedComponent === 'Checkbox' && <CheckboxesComponent sectionIndex={sectionIndex} cardIndex={index} updateCardAnswers={updateCardAnswers} addLogic={subQuestion.addLogic} disabled={true} updateCardLogic={updateCardLogic} cardType='subQuestion' addChangeCardsLogic={subQuestion.addChangeCardsLogic} subQuestionIndex={subQuestionIndex} />}
+																										{subQuestion.selectedComponent === 'Slider' && <SliderComponent sectionIndex={sectionIndex} cardIndex={index} disabled={true} onSliderValuesChange={(values) => updateCardAnswers(sectionIndex, index, [values], "subQuestion", subQuestionIndex)} addChangeCardsLogic={subQuestion.addChangeCardsLogic} />}
+																										{subQuestion.selectedComponent === 'Data' && <DataComponent disabled={true} />}
+																										<Grid item xs={12}>
+																											<Box sx={{ mt: 3, display: 'flex', justifyContent: 'center', borderTopColor: "black", alignItems: 'center' }}>
+																												<Tooltip title="Удалить карточку">
+																													<IconButton aria-label="delete" color="warning" size="small" onClick={() => handleDeleteCard(sectionIndex, index, "subQuestion", subQuestionIndex)}>
+																														<DeleteIcon style={{ color: "red" }} />
+																													</IconButton>
+																												</Tooltip>
+																												<Tooltip title="Дублировать карточку">
+																													<IconButton aria-label="duplicate" color="success" size="small" onClick={() => handleDuplicateCard(sectionIndex, index, "subQuestion", subQuestionIndex)}>
+																														<FileCopyIcon />
+																													</IconButton>
+																												</Tooltip>
+																											</Box>
+																										</Grid>
+																									</Paper>
+																								</Grid>
+																							)
+																						})}
+																					</Grid>
+																				</>
+																			)}
 																		</Box>
 																	</Grid>
 																)}
@@ -1004,7 +1005,7 @@ const CreateFormPage: React.FC = () => {
 					/>
 				</DialogContent>
 				<DialogActions>
-					<Button variant="contained" color="success" onClick={handleCopyFormLink}>Копировать</Button>
+					{/* <Button variant="contained" color="success" onClick={handleCopyFormLink}>Копировать</Button> */}
 				</DialogActions>
 			</Dialog>
 			<Snackbar

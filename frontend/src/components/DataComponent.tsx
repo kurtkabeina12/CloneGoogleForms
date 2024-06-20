@@ -8,12 +8,17 @@ interface DataComponentProps {
   quest?: string;
   idQuestion?: string;
   cardFormPageType?: string;
+  points?: number | string;
+  sectionIndex?: number;
+  cardIndex?: number;
+  cardType?: string;
+	updateCorrectAnswer?: (sectionIndex: number, index: number, correctAnswer: string | string[], cardType: string, subQuestionIndex?: number) => void;
 }
 
-const DataComponent: React.FC<DataComponentProps> = ({ disabled = false, required = false, quest, idQuestion, cardFormPageType }) => {
+const DataComponent: React.FC<DataComponentProps> = ({ disabled = false, required = false, quest, idQuestion, cardFormPageType, points, sectionIndex, cardIndex, cardType, updateCorrectAnswer }) => {
   const { control, formState: { errors } } = useFormContext(); // Исправлено использование register, так как оно не используется напрямую
 
-  const inputName = (idQuestion || 'defaultIdQuestion') + ':' + cardFormPageType;
+  const inputName = (idQuestion || 'defaultIdQuestionData') + ':' + cardFormPageType;
 
   // Функция для кастомной валидации
   const validateDate = (value: string) => {
@@ -22,15 +27,32 @@ const DataComponent: React.FC<DataComponentProps> = ({ disabled = false, require
     return regex.test(value) || "Введите корректную дату";
   };
 
+  const handleUpdateCorrectAnswer = (e: { target: { value: any; }; }) => {
+    const correctAnswer = e.target.value;
+    if (updateCorrectAnswer) {
+      updateCorrectAnswer(sectionIndex!, cardIndex!, correctAnswer, cardType!, undefined); 
+    }
+  };
+
   return (
     <FormGroup sx={{ width: "-webkit-fill-available", marginTop: "1rem" }}>
-      {disabled &&
+      {disabled && !points && points !== 0 &&
         <TextField
           type="date"
           InputLabelProps={{
             shrink: true,
           }}
           disabled
+          color='success'
+        />
+      }
+      {disabled && (points === 0 || points) &&
+        <TextField
+          type="date"
+          InputLabelProps={{
+            shrink: true,
+          }}
+          onChange={handleUpdateCorrectAnswer}
           color='success'
         />
       }

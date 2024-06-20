@@ -30,6 +30,8 @@ interface CheckboxesComponentProps {
   nowCheckboxChoose?: (value: string, changeCardsLogic: string | string[]) => void;
   changeCardsLogic?: string | string[];
   cardFormPageType?: string;
+  points?: number | string;
+  updateCorrectAnswer?: (sectionIndex: number, index: number, correctAnswer: string | string[], cardType: string, subQuestionIndex?: number) => void;
 }
 
 const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
@@ -50,13 +52,15 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
   onChangeCardsLogic,
   nowCheckboxChoose,
   changeCardsLogic = [],
-  cardFormPageType
+  cardFormPageType,
+  points,
+  updateCorrectAnswer
 }) => {
   const { list, addItem, updateItem, setList } = useList<string[]>([['']]);
 
   const { register, formState: { errors }, setValue, getValues } = useFormContext();
 
-  const inputName = (idQuestion || 'defaultIdQuestion') + ':' + cardFormPageType;
+  const inputName = (idQuestion || 'defaultIdQuestionCheckbox') + ':' + cardFormPageType;
 
   const { ref, onBlur } = register(inputName, { required });
 
@@ -78,6 +82,10 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
 
   const [checkboxIndex, setCheckboxIndex] = useState<string>('');
 
+  const [selectedTestCheckboxes, setSelectedTestCheckboxes] = useState<CheckboxState>({});
+
+  const [correctAnswer, setCorrectAnswer] = useState([]);
+  
   useEffect(() => {
     if (nowCheckboxChoose) {
       let selectedIndices = '';
@@ -96,6 +104,10 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
     }
   }, [changeCardsLogic, checkboxIndex, nowCheckboxChoose, nowSelectCheckbox]);
 
+  useEffect(() => {
+    console.log(selectedTestCheckboxes, 'selected UseEffect');
+  }, [selectedTestCheckboxes]);
+  
   //отслеживаем кол-во ответов и число в input 
   useEffect(() => {
     const numValue = parseInt(inputLogicValue, 10);
@@ -251,6 +263,47 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
   };
 
 
+  
+  const handleToggleSelection = (sectionIndex: number, index: number) => {
+    setSelectedTestCheckboxes(prevState => {
+        const newState = {...prevState, [index]:!prevState[index] };
+        // Construct selectedAnswers here, ensuring it uses the updated state
+        const selectedAnswers: string | string[] = [];
+        list.forEach((answer, i) => {
+            if (newState[i]) {
+                selectedAnswers.push(answer[0]);
+            }
+        });
+        // Log and perform actions with selectedAnswers here
+        console.log(selectedAnswers, 'selectedAnswers');
+        if (selectedAnswers.length > 0 && updateCorrectAnswer) {
+            updateCorrectAnswer(sectionIndex, cardIndex || 0, selectedAnswers, cardType);
+        }
+        return newState;
+    });
+};
+
+
+  const handleAddCorrectAnswer = (sectionIndex: number, index: number, value: string) => {
+    const newAnswers = [...list];
+
+    if (cardType === 'subQuestion' && subQuestionIndex !== undefined) {
+      console.log('Updating subQuestion answer:', sectionIndex, cardIndex || 0, subQuestionIndex, value);
+      newAnswers[index][subQuestionIndex] = value;
+      console.log('New answers:', newAnswers);
+      updateItem(index, [newAnswers[index][subQuestionIndex]]);
+      if (updateCardAnswers) {
+        updateCardAnswers(sectionIndex, cardIndex || 0, newAnswers.map(answer => answer[0]), cardType, subQuestionIndex);
+      }
+    } else {
+      newAnswers[index] = [value];
+      updateItem(index, [newAnswers[index][0]]);
+      if (updateCardAnswers) {
+        updateCardAnswers(sectionIndex, cardIndex || 0, newAnswers.map(answer => answer[0]), cardType);
+      }
+    }
+  };
+
   return (
     <FormGroup sx={{ width: '-webkit-fill-available', marginTop: '1rem' }}>
       {!disabled && answers.length > 0 && (
@@ -402,8 +455,91 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
           </>
         </FormGroup>
       )}
-
-      {disabled && (
+      {disabled && (points === 0 || points) && (
+        <>
+          <Typography variant='body1' color="black">Выберите правильные ответы:</Typography>
+          {list.map((item, index) => (
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <FormControlLabel
+                key={index}
+                control={
+                  <Checkbox
+                    color='success'
+                    checked={selectedTestCheckboxes[index] || false} // Track selection status
+                    onChange={() => handleToggleSelection(sectionIndex || 0, index)} // Handle checkbox click
+                  />
+                }
+                label={
+                  <Input
+                    placeholder='Ответ'
+                    value={item[0] || ''}
+                    onChange={(e) => handleAddCorrectAnswer(sectionIndex || 0, index, e.target.value)}
+                  />
+                }
+              />
+              {list.length > 1 && (
+                <CloseIcon style={{ color: "rgb(0 0 0 / 42%)" }} onClick={() => handleRemoveAnswer(sectionIndex || 0, index)} />
+              )}
+            </div>
+          ))}
+          <FormControlLabel
+            disabled={true}
+            sx={{ marginLeft: "0.8rem" }}
+            control={<Checkbox color='success' />}
+            label={
+              <Button color='success' variant="text" onClick={handleAddAnswer}>
+                Добавить вариант
+              </Button>
+            }
+          />
+          {/* <Box sx={{display:"contents"}}>
+            <Input
+              placeholder='Впишите номера правильных ответов'
+            />
+          </Box> */}
+          {addChangeCardsLogic && (
+            <>
+              {logicChangeBlocks.map((block, index) => (
+                <Box key={index} sx={{ display: 'flex', flexDirection: 'row', flexWrap: 'nowrap', mt: 2 }}>
+                  <Typography variant='body1' color='black' sx={{ mr: 2 }}>При выборе ответа:</Typography>
+                  <TextField
+                    variant="standard"
+                    value={block.answer}
+                    onChange={(e) => {
+                      const newLogicChangeBlocks = [...logicChangeBlocks];
+                      newLogicChangeBlocks[index].answer = e.target.value;
+                      setLogicChangeBlocks(newLogicChangeBlocks);
+                    }}
+                  />
+                  <Typography variant='body1' color='black' sx={{ mr: 2 }}>открыть карточку:</Typography>
+                  <TextField
+                    variant="standard"
+                    value={block.cardIndex}
+                    onChange={(e) => {
+                      const newLogicChangeBlocks = [...logicChangeBlocks];
+                      newLogicChangeBlocks[index].cardIndex = e.target.value;
+                      setLogicChangeBlocks(newLogicChangeBlocks);
+                    }}
+                  />
+                  {logicChangeBlocks.length > 1 && (
+                    <IconButton aria-label="removeNewLogicChange" size='small' onClick={() => handleRemoveNewLogicChange(index)}>
+                      <CloseIcon />
+                    </IconButton>
+                  )}
+                </Box>
+              ))}
+              <Box sx={{ marginTop: "1rem", display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
+                <Tooltip title="Добавить условие">
+                  <IconButton aria-label="addNewLogicChange" size='small' onClick={handleAddNewLogicChange}>
+                    <AddIcon />
+                  </IconButton>
+                </Tooltip>
+              </Box>
+            </>
+          )}
+        </>
+      )}
+      {disabled && !points && points !== 0 && (
         <>
           {list.map((item, index) => (
             <div style={{ display: 'flex', alignItems: 'center' }}>
