@@ -3,14 +3,14 @@ import { SectionForTest } from '../../types/types';
 
 export const sendCardTest = createAsyncThunk(
 	'tests/saveTest',
-	async ({ title, titleOverview, textForEndtest, dateEndtest, isMandatoryAuth, selectedColor, sections }: { title: string, titleOverview: string, textForEndtest: string, dateEndtest: string, isMandatoryAuth: boolean, selectedColor:string, sections: SectionForTest[] }, thunkAPI) => {
+	async ({ title, titleOverview, textForEndtest, dateEndtest, selectedColor, sections }: { title: string, titleOverview: string, textForEndtest: string, dateEndtest: string,  selectedColor:string, sections: SectionForTest[] }, thunkAPI) => {
 		try {
 			const response = await fetch('http://172.20.15.13:8888/tests', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
 				},
-				body: JSON.stringify({ testTitle: title, testOverview: titleOverview, testEndText: textForEndtest, testEndDate: dateEndtest, testBody: sections, isMandatoryAuth: isMandatoryAuth, selectedColor: selectedColor }),
+				body: JSON.stringify({ testTitle: title, testOverview: titleOverview, testEndText: textForEndtest, testEndDate: dateEndtest, testBody: sections, selectedColor: selectedColor }),
 			});
 
 			if (!response.ok) {

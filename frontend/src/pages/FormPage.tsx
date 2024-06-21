@@ -178,7 +178,7 @@ export default function FormPage() {
 							<FormProvider {...methods}>
 								<form onSubmit={methods.handleSubmit(onSubmit)} style={{ marginTop: 15 }} >
 									<Grid container spacing={3} className='FormCenter' >
-										<Paper className="header-paper" elevation={2} sx={{ p: 3, borderTop: "8px solid #00862b", mt: 3, maxWidth: "400px" }}>
+										<Paper className="header-paper" elevation={2} sx={{ p: 3, borderTop: "8px solid #00862b", mt: 3, maxWidth: "92vh" }}>
 											<Typography variant="h4" gutterBottom>
 												{formData?.formTitle}
 												<Divider />
@@ -308,7 +308,7 @@ export default function FormPage() {
 						<FormProvider {...methods}>
 							<form onSubmit={methods.handleSubmit(onSubmit)} style={{ marginTop: 15 }}>
 								<Grid container spacing={3} className='FormCenter'>
-									<Paper className="header-paper" elevation={2} sx={{ p: 3, borderTop: "8px solid #00862b", mt: 3, maxWidth: "400px" }}>
+									<Paper className="header-paper" elevation={2} sx={{ p: 3, borderTop: "8px solid #00862b", mt: 3, maxWidth: "90vh" }}>
 										<Typography variant="h4" gutterBottom> {formData?.formTitle} </Typography>
 										<Divider />
 										<Typography variant="h6" gutterBottom> {formData?.formOverview} </Typography>

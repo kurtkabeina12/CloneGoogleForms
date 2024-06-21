@@ -12,10 +12,12 @@ interface InputComponentProps {
   sectionIndex?: number;
   cardIndex?: number;
   cardType?: string;
+  cardPoints?: number | string;
+  cardCorrectAnswer?: string | string[];
   updateCorrectAnswer?: (sectionIndex: number, index: number, correctAnswer: string | string[], cardType: string, subQuestionIndex?: number) => void;
 }
 
-const InputComponent: React.FC<InputComponentProps> = ({ disabled = false, required = false, quest, idQuestion, cardFormPageType, points, sectionIndex, cardIndex, cardType, updateCorrectAnswer }) => {
+const InputComponent: React.FC<InputComponentProps> = ({ disabled = false, required = false, quest, idQuestion, cardFormPageType, points, sectionIndex, cardIndex, cardType, cardPoints, cardCorrectAnswer, updateCorrectAnswer }) => {
   const { register, formState: { errors } } = useFormContext();
   const inputName = (idQuestion || 'defaultIdQuestionInput') + ':' + cardFormPageType;
   const { ref, onChange, onBlur } = register(inputName, { required: required ? "Заполните поле" : false });
@@ -27,7 +29,6 @@ const InputComponent: React.FC<InputComponentProps> = ({ disabled = false, requi
     }
   };
 
-  console.log(points)
   return (
     <>
       {disabled && !points && points !== 0 &&

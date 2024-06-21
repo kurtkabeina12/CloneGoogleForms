@@ -36,7 +36,6 @@ export interface TestData {
   testOverview: string;
   testEndText: string;
   testEndDate: string;
-  isMandatoryAuth: boolean;
   selectedColor: string;
   sections: {
     id: string;

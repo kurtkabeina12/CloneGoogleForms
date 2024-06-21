@@ -432,12 +432,11 @@ const CreateFormPage: React.FC = () => {
 				titleOverview: titleOverview,
 				textForEndtest: textForEndtest,
 				dateEndtest: dateEndtest,
-				isMandatoryAuth: isMandatoryAuth,
 				selectedColor: selectedColor,
 				sections: sections
 			};
 			console.log(formData, 'данные для отправки на сервер')
-			const actionResult = await dispatch(sendCardTest({ title, titleOverview, textForEndtest, dateEndtest, isMandatoryAuth, selectedColor, sections }));
+			const actionResult = await dispatch(sendCardTest({ title, titleOverview, textForEndtest, dateEndtest, selectedColor, sections }));
 			// console.log(isMandatoryAuth)
 			const testId = actionResult.payload.testId;
 			setShowAlertDialog(true);
