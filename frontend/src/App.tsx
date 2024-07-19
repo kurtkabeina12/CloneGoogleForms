@@ -11,6 +11,7 @@ import ChangeFormPage from './pages/ChangeFormPage';
 import AutorizationPage from './pages/AutorizationPage';
 import CreateTestPage from './pages/CreateTestPage';
 import TestPage from './pages/TestPage';
+import StubTestPage from './pages/StubTestPage';
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
             <Route path="/changeForm/:formId" element={<ChangeFormPage />} />
             <Route path="/autorization/:formId" element={<AutorizationPage />} />
             <Route path="/test/:testId" element={<TestPage />} />
+            <Route path="/stubTest/:testId" element={<StubTestPage />} />
           </Routes>
         </div>
       </Router>

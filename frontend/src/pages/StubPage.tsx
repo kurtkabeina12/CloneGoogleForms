@@ -7,16 +7,15 @@ import { AppDispatch } from '../store/reducers/reducerRoot';
 import { unwrapResult } from '@reduxjs/toolkit';
 import { fetchGetStubInfo } from '../store/action/actionGetInfoStub';
 
-interface FormDataStub{
-  formEndText:string;
-  selectedColor:string;
+interface FormDataStub {
+  formEndText: string;
+  selectedColor: string;
 }
 
 const StubPage: React.FC = () => {
   const LogoImage = require('../img/LogoVita.png');
   const { formId } = useParams();
-	const [formData, setFormData] = useState<FormDataStub | null>(null);
-
+  const [formData, setFormData] = useState<FormDataStub | null>(null);
   const dispatch = useDispatch<AppDispatch>();
 
   useEffect(() => {

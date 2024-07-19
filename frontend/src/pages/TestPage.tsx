@@ -50,7 +50,6 @@ export default function TestPage() {
 				console.error('Failed to fetch form:', error);
 			}
 		};
-
 		fetchFormData();
 	}, [dispatch, testId]);
 
@@ -146,8 +145,10 @@ export default function TestPage() {
 		console.log(data, 'данные для отправки на сервер')
 		try {
 			const rezultSendData = await dispatch(sendTestData({ testData: data, testId: testId ?? '' }));
-			console.log(rezultSendData);
-			// navigate(`/stub/${formId}`, { state: { formId: formId } });
+			const totalRezult = unwrapResult(rezultSendData);
+			const totalPoints = totalRezult.totalPoints;
+			const userEmail = totalRezult.userEmail;
+			navigate(`/stubTest/${testId}`, { state: { testId: testId, totalPoints: totalPoints, userEmail: userEmail } });
 			// navigate(`/form/${formId.formId}`, { state: { formId } });
 		} catch (error) {
 			console.error('Failed to send form data:', error);
@@ -207,7 +208,7 @@ export default function TestPage() {
 																	))}
 																</>
 															)}
-															{card.selectedComponent === 'Input' && <InputCopmponent idQuestion={card.idQuestion} disabled={false} quest={card.question} required={card.isRequired} cardPoints = {card.points} cardCorrectAnswer = {card.correctAnswer} cardFormPageType={'card'} />}
+															{card.selectedComponent === 'Input' && <InputCopmponent idQuestion={card.idQuestion} disabled={false} quest={card.question} required={card.isRequired} cardPoints={card.points} cardCorrectAnswer={card.correctAnswer} cardFormPageType={'card'} />}
 															{card.selectedComponent === 'Textarea' && <TextareaComponent idQuestion={card.idQuestion} disabled={false} quest={card.question} required={card.isRequired} cardFormPageType={'card'} />}
 															{card.selectedComponent === 'Radio' && <RadioComponent idQuestion={card.idQuestion} disabled={false} answers={card.answer} quest={card.question} required={card.isRequired} cardFormPageType={'card'} />}
 															{card.selectedComponent === 'Checkbox' && <CheckboxesComponent idQuestion={card.idQuestion} disabled={false} answers={card.answer} quest={card.question} required={card.isRequired} nowCheckboxChoose={handleCheckboxChooseChange} changeCardsLogic={card.changeCardsLogic} cardFormPageType={'card'} />}
