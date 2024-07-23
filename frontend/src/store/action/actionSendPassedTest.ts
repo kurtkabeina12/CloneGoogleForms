@@ -13,13 +13,15 @@ export const sendTestData = createAsyncThunk(
 			});
 
 			if (!response.ok) {
-				throw new Error('Failed to send cards');
-			}
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to send cards');
+            }
 
 			const data = await response.json();
 			return data;
 		} catch (error) {
 			const err = error as Error;
+			console.log(err.message)
 			return thunkAPI.rejectWithValue({ error: err.message });
 		}
 	}

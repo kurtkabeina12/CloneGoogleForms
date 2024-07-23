@@ -1,4 +1,4 @@
-import { Box, Button, Divider, Grid, Pagination, Paper, Typography } from '@mui/material';
+import { Box, Button, Divider, Grid, Snackbar, Alert, Paper, Typography, IconButton } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import TextareaComponent from '../components/TextareaComponent';
@@ -17,6 +17,7 @@ import { fetchGetTest } from '../store/action/actionGetTest';
 import { TestData } from '../types/types';
 import RegistratioEmailComponent from '../components/RegistrationEmailComponent';
 import { sendTestData } from '../store/action/actionSendPassedTest';
+import CloseIcon from '@mui/icons-material/Close';
 
 export default function TestPage() {
 	const { testId } = useParams();
@@ -35,6 +36,7 @@ export default function TestPage() {
 	const [checkboxChooseForSubQuestion, setCheckboxChooseForSubQuestion] = useState<number | null>(null)
 	const [dateForEndTest, setDateForEndTest] = useState<string | null>(null);
 	const LogoImage = require('../img/LogoVita.png');
+	const [openSnackbar, setOpenSnackbar] = useState(false);
 
 	useEffect(() => {
 		const fetchFormData = async () => {
@@ -47,6 +49,7 @@ export default function TestPage() {
 				const selectedColor = testData.selectedColor
 				document.body.style.backgroundColor = selectedColor;
 			} catch (error) {
+				console.log(error, 'оштбка')
 				console.error('Failed to fetch form:', error);
 			}
 		};
@@ -129,6 +132,9 @@ export default function TestPage() {
 		}
 	};
 
+	const handleCloseSnackbar = () => {
+		setOpenSnackbar(false);
+	};
 
 	const moveToNextSection = (data: any) => {
 		setCurrentSection(currentSection + 1);
@@ -152,8 +158,28 @@ export default function TestPage() {
 			// navigate(`/form/${formId.formId}`, { state: { formId } });
 		} catch (error) {
 			console.error('Failed to send form data:', error);
+			const err = error as { error?: string };
+			if (err.error === 'User already exists') {
+				setOpenSnackbar(true);
+			}
 		}
 	};
+
+	const action = (
+		<React.Fragment>
+			<Button color="secondary" size="small" onClick={handleCloseSnackbar}>
+				UNDO
+			</Button>
+			<IconButton
+				size="small"
+				aria-label="close"
+				color="inherit"
+				onClick={handleCloseSnackbar}
+			>
+				<CloseIcon fontSize="small" />
+			</IconButton>
+		</React.Fragment>
+	);
 
 	return (
 		<>
@@ -302,6 +328,23 @@ export default function TestPage() {
 					</FormProvider>
 				</>
 			)}
+
+			<Snackbar
+				open={openSnackbar}
+				autoHideDuration={6000}
+				onClose={handleCloseSnackbar}
+				action={action}
+				anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+			>
+				<Alert
+					severity="error"
+					variant="filled"
+					sx={{ width: '100%' }}
+				>
+					Пользователь уже существует
+				</Alert>
+			</Snackbar>
+
 		</>
 	);
 }
