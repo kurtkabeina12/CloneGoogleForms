@@ -12,6 +12,7 @@ import AutorizationPage from './pages/AutorizationPage';
 import CreateTestPage from './pages/CreateTestPage';
 import TestPage from './pages/TestPage';
 import StubTestPage from './pages/StubTestPage';
+import CheckTestAnswersPage from './pages/CheckTestAnswersPage';
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
             <Route path="/autorization/:formId" element={<AutorizationPage />} />
             <Route path="/test/:testId" element={<TestPage />} />
             <Route path="/stubTest/:testId" element={<StubTestPage />} />
+            <Route path="/checkTestAnswers/:testId/:userId" element={<CheckTestAnswersPage />} />
           </Routes>
         </div>
       </Router>

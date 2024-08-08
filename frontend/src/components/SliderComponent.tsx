@@ -87,8 +87,6 @@ const SliderComponent: React.FC<SliderComponentProps> = ({
 		}
 	}, [changeCardsLogic, addChangeCardsLogic, disabled]);
 
-
-
 	const handleStartChange = (event: SelectChangeEvent<number>) => {
 		setStartValue(Number(event.target.value));
 	};

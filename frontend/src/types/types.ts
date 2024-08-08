@@ -64,6 +64,7 @@ export interface SubQuestionFormData {
   answer: string[];
   isRequired: boolean;
   addLogic: boolean;
+  order: number;
   Logic: string | string[];
   addImg: boolean;
   imageUrl: string | string[];

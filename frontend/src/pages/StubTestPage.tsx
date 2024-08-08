@@ -5,7 +5,6 @@ import { useLocation, useParams } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '../store/reducers/reducerRoot';
 import { unwrapResult } from '@reduxjs/toolkit';
-import { fetchGetStubInfo } from '../store/action/actionGetInfoStub';
 import { fetchGetStubInfoTest } from '../store/action/actionGetInfoStubTest';
 
 interface FormDataStub {
@@ -21,7 +20,8 @@ const StubPage: React.FC = () => {
 	const location = useLocation();
 	const totalPoints = location.state.totalPoints;
 	const userEmail = location.state.userEmail;
-	console.log(testId, totalPoints, userEmail)
+	const userId = location.state.userId;
+	console.log(testId, totalPoints, userEmail, userId)
 
 	useEffect(() => {
 		const fetchFormData = async () => {

@@ -32,6 +32,7 @@ interface CheckboxesComponentProps {
   cardFormPageType?: string;
   points?: number | string;
   updateCorrectAnswer?: (sectionIndex: number, index: number, correctAnswer: string | string[], cardType: string, subQuestionIndex?: number) => void;
+  isTest?: boolean;
 }
 
 const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
@@ -54,7 +55,8 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
   changeCardsLogic = [],
   cardFormPageType,
   points,
-  updateCorrectAnswer
+  updateCorrectAnswer,
+  isTest = false,
 }) => {
   const { list, addItem, updateItem, setList } = useList<string[]>([['']]);
 
@@ -85,7 +87,7 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
   const [selectedTestCheckboxes, setSelectedTestCheckboxes] = useState<CheckboxState>({});
 
   const [correctAnswer, setCorrectAnswer] = useState([]);
-  
+
   useEffect(() => {
     if (nowCheckboxChoose) {
       let selectedIndices = '';
@@ -107,7 +109,7 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
   useEffect(() => {
     console.log(selectedTestCheckboxes, 'selected UseEffect');
   }, [selectedTestCheckboxes]);
-  
+
   //отслеживаем кол-во ответов и число в input 
   useEffect(() => {
     const numValue = parseInt(inputLogicValue, 10);
@@ -263,25 +265,25 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
   };
 
 
-  
+
   const handleToggleSelection = (sectionIndex: number, index: number) => {
     setSelectedTestCheckboxes(prevState => {
-        const newState = {...prevState, [index]:!prevState[index] };
-        // Construct selectedAnswers here, ensuring it uses the updated state
-        const selectedAnswers: string | string[] = [];
-        list.forEach((answer, i) => {
-            if (newState[i]) {
-                selectedAnswers.push(answer[0]);
-            }
-        });
-        // Log and perform actions with selectedAnswers here
-        console.log(selectedAnswers, 'selectedAnswers');
-        if (selectedAnswers.length > 0 && updateCorrectAnswer) {
-            updateCorrectAnswer(sectionIndex, cardIndex || 0, selectedAnswers, cardType);
+      const newState = { ...prevState, [index]: !prevState[index] };
+      // Construct selectedAnswers here, ensuring it uses the updated state
+      const selectedAnswers: string | string[] = [];
+      list.forEach((answer, i) => {
+        if (newState[i]) {
+          selectedAnswers.push(answer[0]);
         }
-        return newState;
+      });
+      // Log and perform actions with selectedAnswers here
+      console.log(selectedAnswers, 'selectedAnswers');
+      if (selectedAnswers.length > 0 && updateCorrectAnswer) {
+        updateCorrectAnswer(sectionIndex, cardIndex || 0, selectedAnswers, cardType);
+      }
+      return newState;
     });
-};
+  };
 
 
   const handleAddCorrectAnswer = (sectionIndex: number, index: number, value: string) => {
@@ -304,12 +306,31 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
     }
   };
 
+  const handleCheckboxChangeForTest = (index: number) => {
+    setSelectedCheckboxes(prevState => {
+      const newState = [...prevState];
+      newState[index] = !newState[index];
+  
+      const newValues = newState.map((isChecked, i) => isChecked ? answers[i] : null).filter(Boolean);
+      setValue(inputName, newValues);
+  
+      setNowSelectCheckbox(prevState => ({
+        ...prevState,
+        [index]: !newState[index]
+      }));
+  
+      console.log(newState, nowSelectCheckbox); 
+  
+      return newState;
+    });
+  };
+  
   return (
     <FormGroup sx={{ width: '-webkit-fill-available', marginTop: '1rem' }}>
       {!disabled && answers.length > 0 && (
         <FormGroup {...register(inputName, { required })}>
           <>
-            {!addLogic && !required && (
+            {!addLogic && !required && !isTest && (
               <>
                 {answers.map((answer, index) => (
                   <FormControlLabel key={index} value={answer} control={
@@ -327,25 +348,43 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
                           [index]: isChecked
                         }));
 
-                        // if (isChecked) {
-                        //   setValue(`${inputName}[${index}]`, answer);
-                        //   console.log(e.target.checked, 'checked');
+                        if (isChecked) {
+                          setValue(`${inputName}[${index}]`, answer);
+                          console.log(e.target.checked, 'checked');
 
-                        //   // Проверяем, были ли выбраны какие-либо чекбоксы, и обновляем состояние ошибки
-                        //   const selectedAnswers = getValues()[inputName] || [];
-                        //   // console.log(selectedAnswers.length)
-                        //   if (selectedAnswers.length > 0) {
-                        //     setErrorMessageNoLogic('  ');
-                        //   }
-                        // } else {
-                        //   const values = getValues();
-                        //   const newValues = values[inputName].filter((_: any, i: any) => i !== index);
-                        //   setValue(inputName, newValues);
-                        //   setErrorMessageNoLogic('Выберите ответ');
-                        // }
+                          // Проверяем, были ли выбраны какие-либо чекбоксы, и обновляем состояние ошибки
+                          const selectedAnswers = getValues()[inputName] || [];
+                          // console.log(selectedAnswers.length)
+                          if (selectedAnswers.length > 0) {
+                            setErrorMessageNoLogic('  ');
+                          }
+                        } else {
+                          const values = getValues();
+                          const newValues = values[inputName].filter((_: any, i: any) => i !== index);
+                          setValue(inputName, newValues);
+                          setErrorMessageNoLogic('Выберите ответ');
+                        }
 
                         console.log(nowSelectCheckbox, 'nowSelectCheck in OChange')
                       }}
+                      onBlur={onBlur}
+                    />
+                  }
+                    label={answer}
+                  />
+                ))}
+              </>
+            )}
+            {!addLogic && !required && isTest && (
+              <>
+                {answers.map((answer, index) => (
+                  <FormControlLabel key={index} value={answer} control={
+                    <Checkbox
+                      color='success'
+                      defaultChecked={false}
+                      inputRef={ref}
+                      checked={selectedCheckboxes[index]}
+                      onChange={() => handleCheckboxChangeForTest(index)}
                       onBlur={onBlur}
                     />
                   }

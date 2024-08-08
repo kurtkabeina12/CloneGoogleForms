@@ -19,7 +19,7 @@ import RegistratioEmailComponent from '../components/RegistrationEmailComponent'
 import { sendTestData } from '../store/action/actionSendPassedTest';
 import CloseIcon from '@mui/icons-material/Close';
 
-export default function TestPage() {
+export default function CheckTestAnswersPage() {
 	const { testId } = useParams();
 	const dispatch = useDispatch<AppDispatch>();
 	const navigate = useNavigate();
@@ -152,11 +152,9 @@ export default function TestPage() {
 		try {
 			const rezultSendData = await dispatch(sendTestData({ testData: data, testId: testId ?? '' }));
 			const totalRezult = unwrapResult(rezultSendData);
-			console.log(totalRezult, 'результат отправки на сервер')
 			const totalPoints = totalRezult.totalPoints;
 			const userEmail = totalRezult.userEmail;
-			const userId = totalRezult.userId;
-			navigate(`/stubTest/${testId}`, { state: { testId: testId, totalPoints: totalPoints, userEmail: userEmail, userId: userId } });
+			navigate(`/stubTest/${testId}`, { state: { testId: testId, totalPoints: totalPoints, userEmail: userEmail } });
 			// navigate(`/form/${formId.formId}`, { state: { formId } });
 		} catch (error) {
 			console.error('Failed to send form data:', error);
@@ -216,13 +214,11 @@ export default function TestPage() {
 								{testData ? (
 									<>
 										<Box sx={{ marginTop: 1 }}>
-											{testData?.sections[currentSection].title &&
-												<Paper elevation={2} sx={{ p: 3, paddingTop: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start" }}>
-													<Box sx={{ display: 'flex', flexDirection: "row", gap: 1, textAlign: 'center' }}>
-														<Typography variant='h6' gutterBottom> {testData.sections[currentSection].title} </Typography>
-													</Box>
-												</Paper>
-											}
+											<Paper elevation={2} sx={{ p: 3, paddingTop: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start" }}>
+												<Box sx={{ display: 'flex', flexDirection: "row", gap: 1, textAlign: 'center' }}>
+													<Typography variant='h6' gutterBottom> {testData.sections[currentSection].title} </Typography>
+												</Box>
+											</Paper>
 											{testData.sections[currentSection].cards.map((card, index) => {
 												const imageUrl = convertLocalPathToUrl(card.imageUrl);
 												return (
@@ -242,7 +238,7 @@ export default function TestPage() {
 															{card.selectedComponent === 'Input' && <InputCopmponent idQuestion={card.idQuestion} disabled={false} quest={card.question} required={card.isRequired} cardPoints={card.points} cardCorrectAnswer={card.correctAnswer} cardFormPageType={'card'} />}
 															{card.selectedComponent === 'Textarea' && <TextareaComponent idQuestion={card.idQuestion} disabled={false} quest={card.question} required={card.isRequired} cardFormPageType={'card'} />}
 															{card.selectedComponent === 'Radio' && <RadioComponent idQuestion={card.idQuestion} disabled={false} answers={card.answer} quest={card.question} required={card.isRequired} cardFormPageType={'card'} />}
-															{card.selectedComponent === 'Checkbox' && <CheckboxesComponent idQuestion={card.idQuestion} disabled={false} answers={card.answer} quest={card.question} required={card.isRequired} nowCheckboxChoose={handleCheckboxChooseChange} changeCardsLogic={card.changeCardsLogic} cardFormPageType={'card'} isTest={true} />}
+															{card.selectedComponent === 'Checkbox' && <CheckboxesComponent idQuestion={card.idQuestion} disabled={false} answers={card.answer} quest={card.question} required={card.isRequired} nowCheckboxChoose={handleCheckboxChooseChange} changeCardsLogic={card.changeCardsLogic} cardFormPageType={'card'} />}
 															{card.selectedComponent === 'Slider' && <SliderComponent idQuestion={card.idQuestion} disabled={false} answers={card.answer} quest={card.question} required={card.isRequired} nowSliderValue={handleSliderValueChange} changeCardsLogic={card.changeCardsLogic} cardFormPageType={'card'} />}
 															{card.selectedComponent === 'Data' && <DataComponent idQuestion={card.idQuestion} disabled={false} quest={card.question} required={card.isRequired} cardFormPageType={'card'} />}
 														</Paper>
@@ -261,7 +257,7 @@ export default function TestPage() {
 																			{subQuestion.selectedComponent === 'Input' && <InputCopmponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} cardFormPageType={'subCard'} />}
 																			{subQuestion.selectedComponent === 'Textarea' && <TextareaComponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} cardFormPageType={'subCard'} />}
 																			{subQuestion.selectedComponent === 'Radio' && <RadioComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} cardFormPageType={'subCard'} />}
-																			{subQuestion.selectedComponent === 'Checkbox' && <CheckboxesComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} cardFormPageType={'subCard'} isTest={true} />}
+																			{subQuestion.selectedComponent === 'Checkbox' && <CheckboxesComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} cardFormPageType={'subCard'} />}
 																			{subQuestion.selectedComponent === 'Slider' && <SliderComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} nowSliderValue={handleSliderValueChange} changeCardsLogic={subQuestion.changeCardsLogic} cardFormPageType={'subCard'} />}
 																			{subQuestion.selectedComponent === 'Data' && <DataComponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} cardFormPageType={'subCard'} />}
 																		</Paper>
@@ -278,7 +274,7 @@ export default function TestPage() {
 																			{subQuestion.selectedComponent === 'Input' && <InputCopmponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} cardFormPageType={'subCard'} />}
 																			{subQuestion.selectedComponent === 'Textarea' && <TextareaComponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} cardFormPageType={'subCard'} />}
 																			{subQuestion.selectedComponent === 'Radio' && <RadioComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} cardFormPageType={'subCard'} />}
-																			{subQuestion.selectedComponent === 'Checkbox' && <CheckboxesComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} cardFormPageType={'subCard'} isTest={true} />}
+																			{subQuestion.selectedComponent === 'Checkbox' && <CheckboxesComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} cardFormPageType={'subCard'} />}
 																			{subQuestion.selectedComponent === 'Slider' && <SliderComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} nowSliderValue={handleSliderValueChange} changeCardsLogic={subQuestion.changeCardsLogic} cardFormPageType={'subCard'} />}
 																			{subQuestion.selectedComponent === 'Data' && <DataComponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} cardFormPageType={'subCard'} />}
 																		</Paper>
@@ -334,8 +330,7 @@ export default function TestPage() {
 						</form >
 					</FormProvider>
 				</>
-			)
-			}
+			)}
 
 			<Snackbar
 				open={openSnackbar}
