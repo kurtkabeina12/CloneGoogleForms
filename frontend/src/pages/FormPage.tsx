@@ -98,56 +98,56 @@ export default function FormPage() {
 	};
 
 	const handleSliderValueChange = (value: number, changeCardsLogic: string | string[], idQuestion: string, subQuestions?: SubQuestionFormData[]) => {
-    // console.log("Current Value:", value, "ID Question:", idQuestion, "Change Cards Logic:", changeCardsLogic, 'SubQuestions:', subQuestions);
+		// console.log("Current Value:", value, "ID Question:", idQuestion, "Change Cards Logic:", changeCardsLogic, 'SubQuestions:', subQuestions);
 
-    const updatedVisibility: SubCardVisibilityType = {...subCardVisibility };
-    let conditionMet = false; 
+		const updatedVisibility: SubCardVisibilityType = { ...subCardVisibility };
+		let conditionMet = false;
 
-    if (Array.isArray(changeCardsLogic) && changeCardsLogic.length > 0) {
-        changeCardsLogic.forEach((logicString) => {
-            const parts = logicString.split(':');
-            let showSubCard = false;
-            let subQuestionOrder = parseInt(parts[1], 10);
+		if (Array.isArray(changeCardsLogic) && changeCardsLogic.length > 0) {
+			changeCardsLogic.forEach((logicString) => {
+				const parts = logicString.split(':');
+				let showSubCard = false;
+				let subQuestionOrder = parseInt(parts[1], 10);
 
-            if (parts[0].includes('-')) {
-                const [startRangeStr, endRangeStr] = parts[0].split('-');
-                const startRange = parseInt(startRangeStr, 10);
-                const endRange = parseInt(endRangeStr, 10);
-                showSubCard = value >= startRange && value <= endRange;
-            } else {
-                showSubCard = parts[0] === value.toString();
-            }
+				if (parts[0].includes('-')) {
+					const [startRangeStr, endRangeStr] = parts[0].split('-');
+					const startRange = parseInt(startRangeStr, 10);
+					const endRange = parseInt(endRangeStr, 10);
+					showSubCard = value >= startRange && value <= endRange;
+				} else {
+					showSubCard = parts[0] === value.toString();
+				}
 
-            conditionMet = conditionMet || showSubCard; 
+				conditionMet = conditionMet || showSubCard;
 
-            if (showSubCard && subQuestions) {
-                subQuestions.forEach(subQuestion => {
-                    if (subQuestion.order === subQuestionOrder) {
-                        updatedVisibility[subQuestion.idSubQuestion] = true;
-                    } else {
-                        updatedVisibility[subQuestion.idSubQuestion] = false;
-                    }
-                });
-            }
-        });
+				if (showSubCard && subQuestions) {
+					subQuestions.forEach(subQuestion => {
+						if (subQuestion.order === subQuestionOrder) {
+							updatedVisibility[subQuestion.idSubQuestion] = true;
+						} else {
+							updatedVisibility[subQuestion.idSubQuestion] = false;
+						}
+					});
+				}
+			});
 
-        if (!conditionMet && subQuestions) {
-            subQuestions.forEach(subQuestion => {
-                updatedVisibility[subQuestion.idSubQuestion] = false;
-            });
-        }
-    }
+			if (!conditionMet && subQuestions) {
+				subQuestions.forEach(subQuestion => {
+					updatedVisibility[subQuestion.idSubQuestion] = false;
+				});
+			}
+		}
 
-    // console.log("Updated Visibility:", updatedVisibility);
-    if (JSON.stringify(updatedVisibility)!== JSON.stringify(subCardVisibility)) {
-        setSubCardVisibility(updatedVisibility);
-    }
-};
-
+		// console.log("Updated Visibility:", updatedVisibility);
+		if (JSON.stringify(updatedVisibility) !== JSON.stringify(subCardVisibility)) {
+			setSubCardVisibility(updatedVisibility);
+		}
+	};
+	
 
 	const handleCheckboxChooseChange = (value: string, changeCardsLogic: string | any[]) => {
 		if (Array.isArray(changeCardsLogic) && changeCardsLogic.length > 0) {
-			// console.log(value, 'valueCheckboxInFormPage')
+			console.log(value, 'valueCheckboxInFormPage')
 			const valueArray = value.split("").filter(char => /^\d$/.test(char));
 			if (valueArray.length === 1) {
 				const checkboxIndexInPage = Number(valueArray[0]) + 1;
@@ -269,6 +269,7 @@ export default function FormPage() {
 																						<Typography variant='subtitle1' gutterBottom> {subQuestion.question} </Typography>
 																					</Box>
 																					{subQuestion.addImg && (
+																						// eslint-disable-next-line jsx-a11y/alt-text
 																						<img src={Array.isArray(subQuestion.imageUrl) ? subQuestion.imageUrl[0] : subQuestion.imageUrl} style={{ maxWidth: "-webkit-fill-available", marginTop: 5 }} />
 																					)}
 																					{subQuestion.selectedComponent === 'Input' && <InputCopmponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} required={subQuestion.isRequired} cardFormPageType={'subCard'} />}
@@ -350,7 +351,7 @@ export default function FormPage() {
 					)}
 					{!isMandatory && (
 						<FormProvider {...methods}>
-							<form onSubmit={methods.handleSubmit(onSubmit)} style={{ marginTop: 15, marginLeft:"2rem", marginRight:"1rem" }}>
+							<form onSubmit={methods.handleSubmit(onSubmit)} style={{ marginTop: 15, marginLeft: "2rem", marginRight: "1rem" }}>
 								<Grid container spacing={3} className='FormCenter'>
 									<Paper className="header-paper" elevation={2} sx={{ p: 3, borderTop: "8px solid #00862b", mt: 3, maxWidth: "90vh" }}>
 										<Typography variant="h4" gutterBottom> {formData?.formTitle} </Typography>
@@ -400,6 +401,7 @@ export default function FormPage() {
 																					<Typography variant='subtitle1' gutterBottom> {subQuestion.question} </Typography>
 																				</Box>
 																				{subQuestion.addImg && (
+																					// eslint-disable-next-line jsx-a11y/alt-text
 																					<img src={Array.isArray(subQuestion.imageUrl) ? subQuestion.imageUrl[0] : subQuestion.imageUrl} style={{ maxWidth: "-webkit-fill-available", marginTop: 5 }} />
 																				)}
 																				{subQuestion.selectedComponent === 'Input' && <InputCopmponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} required={subQuestion.isRequired} cardFormPageType={'subCard'} />}
