@@ -43,6 +43,7 @@ export default function FormPage() {
 	const [selectedQuestionId, setSelectedQuestionId] = useState<string | null>(null);
 	const [showSubCardForSlider, setShowSubCardForSlider] = useState<boolean>(false)
 	const [subCardVisibility, setSubCardVisibility] = useState<SubCardVisibilityType>({});
+	const [resetStateOnOpen, setResetStateOnOpen] = useState<boolean>(false);
 
 	useEffect(() => {
 		const fetchFormData = async () => {
@@ -124,6 +125,7 @@ export default function FormPage() {
 					subQuestions.forEach(subQuestion => {
 						if (subQuestion.order === subQuestionOrder) {
 							updatedVisibility[subQuestion.idSubQuestion] = true;
+							setResetStateOnOpen(true);
 						} else {
 							updatedVisibility[subQuestion.idSubQuestion] = false;
 						}
@@ -143,7 +145,7 @@ export default function FormPage() {
 			setSubCardVisibility(updatedVisibility);
 		}
 	};
-	
+
 
 	const handleCheckboxChooseChange = (value: string, changeCardsLogic: string | any[]) => {
 		if (Array.isArray(changeCardsLogic) && changeCardsLogic.length > 0) {
@@ -188,7 +190,7 @@ export default function FormPage() {
 		try {
 			const rezultSendData = await dispatch(sendFormData({ formData: data, formId: formId ?? '' }));
 			console.log(rezultSendData);
-			navigate(`/stub/${formId}`, { state: { formId: formId } });
+			// navigate(`/stub/${formId}`, { state: { formId: formId } });
 			// navigate(`/form/${formId.formId}`, { state: { formId } });
 		} catch (error) {
 			console.error('Failed to send form data:', error);
@@ -407,7 +409,7 @@ export default function FormPage() {
 																				{subQuestion.selectedComponent === 'Input' && <InputCopmponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} required={subQuestion.isRequired} cardFormPageType={'subCard'} />}
 																				{subQuestion.selectedComponent === 'Textarea' && <TextareaComponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} required={subQuestion.isRequired} cardFormPageType={'subCard'} />}
 																				{subQuestion.selectedComponent === 'Radio' && <RadioComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} required={subQuestion.isRequired} cardFormPageType={'subCard'} />}
-																				{subQuestion.selectedComponent === 'Checkbox' && <CheckboxesComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} required={subQuestion.isRequired} addLogic={subQuestion.addLogic} GetLogic={subQuestion.Logic} cardFormPageType={'subCard'} />}
+																				{subQuestion.selectedComponent === 'Checkbox' && <CheckboxesComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} required={subQuestion.isRequired} addLogic={subQuestion.addLogic} GetLogic={subQuestion.Logic} cardFormPageType={'subCard'} resetStateOnOpen={resetStateOnOpen} />}
 																				{subQuestion.selectedComponent === 'Slider' && <SliderComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} required={subQuestion.isRequired} nowSliderValue={(value) => handleSliderValueChange(value, subQuestion.changeCardsLogic, subQuestion.idSubQuestion)} changeCardsLogic={subQuestion.changeCardsLogic} cardFormPageType={'subCard'} />}
 																				{subQuestion.selectedComponent === 'Data' && <DataComponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} required={subQuestion.isRequired} cardFormPageType={'subCard'} />}
 																			</Paper>

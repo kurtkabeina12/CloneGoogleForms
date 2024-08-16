@@ -33,6 +33,7 @@ interface CheckboxesComponentProps {
   points?: number | string;
   updateCorrectAnswer?: (sectionIndex: number, index: number, correctAnswer: string | string[], cardType: string, subQuestionIndex?: number) => void;
   isTest?: boolean;
+  resetStateOnOpen?: boolean;
 }
 
 const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
@@ -57,6 +58,7 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
   points,
   updateCorrectAnswer,
   isTest = false,
+  resetStateOnOpen = false
 }) => {
   const { list, addItem, updateItem, setList } = useList<string[]>([['']]);
 
@@ -87,6 +89,16 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
   const [selectedTestCheckboxes, setSelectedTestCheckboxes] = useState<CheckboxState>({});
 
   const [correctAnswer, setCorrectAnswer] = useState([]);
+
+
+  useEffect(() => {
+    if (resetStateOnOpen) {
+      // Сбрасываем состояние выбранных чекбоксов при изменении subQuestionIndexForCheckbox
+      resetSelectedCheckboxes();
+
+      console.log(selectedCheckboxes, 'выбор чекбоксов после смены подкарточки')
+    }
+  }, [resetStateOnOpen]);
 
   useEffect(() => {
     if (nowCheckboxChoose) {
@@ -136,6 +148,26 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
 
   const handleAddAnswer = () => {
     addItem(['']);
+  };
+
+  const resetSelectedCheckboxes = () => {
+    setSelectedCheckboxes(new Array(answers.length).fill(false));
+  };
+
+  const handleCheckboxChangeValue = (index: number, checked: boolean) => {
+    setSelectedCheckboxes(prevState => ({
+      ...prevState,
+      [index]: checked,
+    }));
+
+    if (nowCheckboxChoose) {
+      const selectedIndices = Object.entries(selectedCheckboxes)
+        .filter(([_, value]) => value)
+        .map(([key]) => key)
+        .join(', ');
+
+      nowCheckboxChoose(selectedIndices, changeCardsLogic);
+    }
   };
 
   //Добавить ответ
@@ -310,21 +342,21 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
     setSelectedCheckboxes(prevState => {
       const newState = [...prevState];
       newState[index] = !newState[index];
-  
+
       const newValues = newState.map((isChecked, i) => isChecked ? answers[i] : null).filter(Boolean);
       setValue(inputName, newValues);
-  
+
       setNowSelectCheckbox(prevState => ({
         ...prevState,
         [index]: !newState[index]
       }));
-  
-      console.log(newState, nowSelectCheckbox); 
-  
+
+      console.log(newState, nowSelectCheckbox);
+
       return newState;
     });
   };
-  
+
   return (
     <FormGroup sx={{ width: '-webkit-fill-available', marginTop: '1rem' }}>
       {!disabled && answers.length > 0 && (
@@ -338,35 +370,29 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
                       color='success'
                       defaultChecked={false}
                       inputRef={ref}
-                      onChange={(e) => {
-                        const isChecked = e.target.checked;
-                        console.log([index], isChecked, 'checked');
-                        setValue(`${inputName}[${index}]`, answer);
+                      // onChange={(e) => {
+                      //   console.log([index], e.target.checked, 'checked');
+                      //   setValue(`${inputName}[${index}]`, answer);
 
-                        setNowSelectCheckbox(prevState => ({
-                          ...prevState,
-                          [index]: isChecked
-                        }));
+                      //   setNowSelectCheckbox(prevState => ({
+                      //     ...prevState,
+                      //     [index]: e.target.checked
+                      //   }));
 
-                        if (isChecked) {
-                          setValue(`${inputName}[${index}]`, answer);
-                          console.log(e.target.checked, 'checked');
+                      //   if (e.target.checked) {
+                      //     setValue(`${inputName}[${index}]`, answer);
+                      //     console.log(e.target.checked, 'checked');
 
-                          // Проверяем, были ли выбраны какие-либо чекбоксы, и обновляем состояние ошибки
-                          const selectedAnswers = getValues()[inputName] || [];
-                          // console.log(selectedAnswers.length)
-                          if (selectedAnswers.length > 0) {
-                            setErrorMessageNoLogic('  ');
-                          }
-                        } else {
-                          const values = getValues();
-                          const newValues = values[inputName].filter((_: any, i: any) => i !== index);
-                          setValue(inputName, newValues);
-                          setErrorMessageNoLogic('Выберите ответ');
-                        }
-
-                        console.log(nowSelectCheckbox, 'nowSelectCheck in OChange')
-                      }}
+                      //     // Проверяем, были ли выбраны какие-либо чекбоксы, и обновляем состояние ошибки
+                      //     const selectedAnswers = getValues()[inputName] || [];
+                      //     // console.log(selectedAnswers.length)
+                      //     if (selectedAnswers.length > 0) {
+                      //       setErrorMessageNoLogic('  ');
+                      //     }
+                      //   }
+                      //   console.log(nowSelectCheckbox, 'nowSelectCheck in OChange')
+                      // }}
+                      onChange={(e) => handleCheckboxChangeValue(index, e.target.checked)}
                       onBlur={onBlur}
                     />
                   }

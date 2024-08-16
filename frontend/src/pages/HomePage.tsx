@@ -98,10 +98,11 @@ const HomePage: React.FC = () => {
           Ваши формы
         </Typography>
         <Grid container spacing={2}>
-          {forms.map((form, index) => {
-            return (
+          {(forms === null || forms === undefined || forms.length === 0) ? (
+            <Typography variant="h6">Нет доступных форм</Typography>
+          ) : (
+            forms.map((form, index) => (
               <Grid item xs={12} sm={6} md={4} key={index} onClick={() => navigate(`/report/${form.id}`)}>
-                {/* <Grid item xs={12} sm={6} md={4} key={index} onClick={() => navigate(`/changeForm/${form.id}`)}> */}
                 <Card sx={{ maxWidth: 345 }}>
                   <CardActionArea>
                     <CardMedia
@@ -123,8 +124,8 @@ const HomePage: React.FC = () => {
                   </CardActionArea>
                 </Card>
               </Grid>
-            )
-          })}
+            ))
+          )}
         </Grid>
       </Box>
     </div>
