@@ -8,11 +8,11 @@ import FormPage from './pages/FormPage';
 import StubPage from './pages/StubPage';
 import SurveyReportPage from './pages/SurveyReportPage';
 import ChangeFormPage from './pages/ChangeFormPage';
-import AutorizationPage from './pages/AutorizationPage';
 import CreateTestPage from './pages/CreateTestPage';
 import TestPage from './pages/TestPage';
 import StubTestPage from './pages/StubTestPage';
 import CheckTestAnswersPage from './pages/CheckTestAnswersPage';
+import AdminPage from './pages/AdminPage';
 
 function App() {
   return (
@@ -21,13 +21,13 @@ function App() {
         <div className='App'>
           <Routes>
             <Route path="/" element={<HomePage />} />
+            <Route path="/adminPage" element={<AdminPage/>}/>
             <Route path="/create-form" element={<CreateFormPage />} />
             <Route path="/create-test" element={<CreateTestPage />} />
             <Route path="/form/:formId" element={<FormPage />} />
             <Route path="/stub/:formId" element={<StubPage />} />
             <Route path="/report/:formId" element={<SurveyReportPage />} />
             <Route path="/changeForm/:formId" element={<ChangeFormPage />} />
-            <Route path="/autorization/:formId" element={<AutorizationPage />} />
             <Route path="/test/:testId" element={<TestPage />} />
             <Route path="/stubTest/:testId" element={<StubTestPage />} />
             <Route path="/checkTestAnswers/:testId/:userId" element={<CheckTestAnswersPage />} />

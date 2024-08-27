@@ -7,7 +7,7 @@ import DataComponent from '../components/DataComponent';
 import RadioComponent from '../components/RadioComponent';
 import CheckboxesComponent from '../components/CheckboxesComponent';
 import SliderComponent from '../components/SliderComponent';
-import { FormProvider, useForm } from 'react-hook-form';
+import { FormProvider, useForm, useFormContext } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '../store/reducers/reducerRoot';
 import { fetchGetForm } from '../store/action/actionGetForm';
@@ -32,16 +32,11 @@ export default function FormPage() {
 		mode: 'all',
 	});
 	const [formData, setFormData] = useState<FormData | null>(null);
-	const [selectedSubQuestionIndexForSlider, setSelectedSubQuestionIndexForSlider] = useState<number | null>(null);
 	const [selectedSubQuestionIndexForCheckbox, setSelectedSubQuestionIndexForCheckbox] = useState<number | null>(null);
-	const [valueSliderNow, setValueSliderNow] = useState<number | null>(null)
-	const [valueSliderForSubQuestion, setValueSliderForSubQuestion] = useState<number | null>(null)
 	const [checkboxChooseNow, setChecboxChooseNow] = useState<number | null>(null)
 	const [checkboxChooseForSubQuestion, setCheckboxChooseForSubQuestion] = useState<number | null>(null)
 	const [dateForEndForm, setDateForEndForm] = useState<string | null>(null);
 	const LogoImage = require('../img/LogoVita.png');
-	const [selectedQuestionId, setSelectedQuestionId] = useState<string | null>(null);
-	const [showSubCardForSlider, setShowSubCardForSlider] = useState<boolean>(false)
 	const [subCardVisibility, setSubCardVisibility] = useState<SubCardVisibilityType>({});
 	const [resetStateOnOpen, setResetStateOnOpen] = useState<boolean>(false);
 
@@ -52,7 +47,7 @@ export default function FormPage() {
 				const formData = unwrapResult(actionResult);
 				setDateForEndForm(formData?.formEndDate);
 				setFormData(formData);
-
+				console.log(formData);
 				const selectedColor = formData.selectedColor
 				document.body.style.backgroundColor = selectedColor;
 			} catch (error) {
@@ -128,6 +123,13 @@ export default function FormPage() {
 							setResetStateOnOpen(true);
 						} else {
 							updatedVisibility[subQuestion.idSubQuestion] = false;
+							if (subQuestions) {
+								subQuestions.forEach(subQuestion => {
+									if (!updatedVisibility[subQuestion.idSubQuestion]) {
+										methods.setValue(`${subQuestion.idSubQuestion}:subCard`, null);
+									}
+								});
+							}
 						}
 					});
 				}
@@ -140,35 +142,59 @@ export default function FormPage() {
 			}
 		}
 
-		// console.log("Updated Visibility:", updatedVisibility);
 		if (JSON.stringify(updatedVisibility) !== JSON.stringify(subCardVisibility)) {
 			setSubCardVisibility(updatedVisibility);
 		}
 	};
 
 
-	const handleCheckboxChooseChange = (value: string, changeCardsLogic: string | any[]) => {
+	const handleCheckboxChooseChange = (value: string, changeCardsLogic: string | string[], idQuestion: string, subQuestions?: SubQuestionFormData[]) => {
+		const updatedVisibility: SubCardVisibilityType = { ...subCardVisibility };
+		let conditionMet = false;
+
 		if (Array.isArray(changeCardsLogic) && changeCardsLogic.length > 0) {
-			console.log(value, 'valueCheckboxInFormPage')
 			const valueArray = value.split("").filter(char => /^\d$/.test(char));
-			if (valueArray.length === 1) {
-				const checkboxIndexInPage = Number(valueArray[0]) + 1;
-				setChecboxChooseNow(checkboxIndexInPage);
-				changeCardsLogic.forEach(logicString => {
-					const logic = logicString.split(':')[0] === checkboxIndexInPage.toString();
-					if (logic) {
-						const [indexValue, indexQuestion] = logicString.split(':');
-						setCheckboxChooseForSubQuestion(parseInt(indexValue));
-						setSelectedSubQuestionIndexForCheckbox(parseInt(indexQuestion));
-					}
+
+			if (subQuestions) {
+				subQuestions.forEach(subQuestion => {
+					updatedVisibility[subQuestion.idSubQuestion] = false;
 				});
-			} else {
-				setChecboxChooseNow(null);
-				setCheckboxChooseForSubQuestion(null);
-				setSelectedSubQuestionIndexForCheckbox(null);
 			}
+
+			if (valueArray.length === 1) {
+				valueArray.forEach((checkboxValue) => {
+					const checkboxIndexInPage = Number(checkboxValue) + 1;
+
+					changeCardsLogic.forEach(logicString => {
+						const parts = logicString.split(':');
+						const logic = parts[0] === checkboxIndexInPage.toString();
+						let subQuestionOrder = parseInt(parts[1], 10);
+						console.log(parts, checkboxIndexInPage, checkboxValue,valueArray, valueArray.length)
+						if (logic && subQuestions) {
+							conditionMet = true;
+							const subQuestionToShow = subQuestions.find(subQuestion => subQuestion.order === subQuestionOrder);
+							if (subQuestionToShow) {
+								updatedVisibility[subQuestionToShow.idSubQuestion] = true;
+								setResetStateOnOpen(true);
+							}
+						}
+					});
+				});
+			}
+
+			if (!conditionMet && subQuestions) {
+				subQuestions.forEach(subQuestion => {
+					updatedVisibility[subQuestion.idSubQuestion] = false;
+					methods.setValue(`${subQuestion.idSubQuestion}:subCard`, null);
+				});
+			}
+
 		} else {
 			console.error('Invalid changeCardsLogic:', changeCardsLogic);
+		}
+
+		if (JSON.stringify(updatedVisibility) !== JSON.stringify(subCardVisibility)) {
+			setSubCardVisibility(updatedVisibility);
 		}
 	};
 
@@ -233,7 +259,7 @@ export default function FormPage() {
 											<>
 												<Box sx={{ marginTop: 1 }}>
 													{formData?.sections[currentSection].title &&
-														<Paper elevation={2} sx={{ p: 3, paddingTop: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start" }}>
+														<Paper elevation={2} sx={{ p: 3, paddingTop: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", maxWidth:"90vh" }}>
 															<Box sx={{ display: 'flex', flexDirection: "row", gap: 1, textAlign: 'center' }}>
 																<Typography variant='h6' gutterBottom> {formData.sections[currentSection].title} </Typography>
 															</Box>
@@ -243,7 +269,7 @@ export default function FormPage() {
 														const imageUrl = convertLocalPathToUrl(card.imageUrl);
 														return (
 															<Box key={index} sx={{ mb: 3, mt: 2, minWidth: "300px" }}>
-																<Paper elevation={2} sx={{ p: 3, paddingTop: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", }}>
+																<Paper elevation={2} sx={{ p: 3, paddingTop: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", maxWidth:"80vh", minWidth:"40vh" }}>
 																	<Box sx={{ display: 'flex', flexDirection: "row", gap: 1, textAlign: 'center' }}>
 																		<Typography variant='h6' gutterBottom> {card.question} </Typography>
 																	</Box>
@@ -258,7 +284,7 @@ export default function FormPage() {
 																	{card.selectedComponent === 'Input' && <InputCopmponent idQuestion={card.idQuestion} disabled={false} quest={card.question} required={card.isRequired} cardFormPageType={'card'} />}
 																	{card.selectedComponent === 'Textarea' && <TextareaComponent idQuestion={card.idQuestion} disabled={false} quest={card.question} required={card.isRequired} cardFormPageType={'card'} />}
 																	{card.selectedComponent === 'Radio' && <RadioComponent idQuestion={card.idQuestion} disabled={false} answers={card.answer} quest={card.question} required={card.isRequired} cardFormPageType={'card'} />}
-																	{card.selectedComponent === 'Checkbox' && <CheckboxesComponent idQuestion={card.idQuestion} disabled={false} answers={card.answer} quest={card.question} required={card.isRequired} addLogic={card.addLogic} GetLogic={card.Logic} nowCheckboxChoose={handleCheckboxChooseChange} changeCardsLogic={card.changeCardsLogic} cardFormPageType={'card'} />}
+																	{card.selectedComponent === 'Checkbox' && <CheckboxesComponent idQuestion={card.idQuestion} disabled={false} answers={card.answer} quest={card.question} required={card.isRequired} addLogic={card.addLogic} GetLogic={card.Logic} nowCheckboxChoose={(value) => handleCheckboxChooseChange(value, card.changeCardsLogic, card.idQuestion, card.subQuestions)} changeCardsLogic={card.changeCardsLogic} cardFormPageType={'card'} />}
 																	{card.selectedComponent === 'Slider' && <SliderComponent idQuestion={card.idQuestion} disabled={false} answers={card.answer} quest={card.question} required={card.isRequired} nowSliderValue={(value) => handleSliderValueChange(value, card.changeCardsLogic, card.idQuestion, card.subQuestions)} changeCardsLogic={card.changeCardsLogic} cardFormPageType={'card'} />}
 																	{card.selectedComponent === 'Data' && <DataComponent idQuestion={card.idQuestion} disabled={false} quest={card.question} required={card.isRequired} cardFormPageType={'card'} />}
 																</Paper>
@@ -266,24 +292,7 @@ export default function FormPage() {
 																	return (
 																		<Box sx={{ mt: 3 }} key={subIndex}>
 																			{subCardVisibility[subQuestion.idSubQuestion] && (
-																				<Paper elevation={2} sx={{ p: 3, paddingTop: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: '100%' }}>
-																					<Box sx={{ display: 'flex', flexDirection: "row", width: "-webkit-fill-available", gap: 1, textAlign: 'center' }}>
-																						<Typography variant='subtitle1' gutterBottom> {subQuestion.question} </Typography>
-																					</Box>
-																					{subQuestion.addImg && (
-																						// eslint-disable-next-line jsx-a11y/alt-text
-																						<img src={Array.isArray(subQuestion.imageUrl) ? subQuestion.imageUrl[0] : subQuestion.imageUrl} style={{ maxWidth: "-webkit-fill-available", marginTop: 5 }} />
-																					)}
-																					{subQuestion.selectedComponent === 'Input' && <InputCopmponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} required={subQuestion.isRequired} cardFormPageType={'subCard'} />}
-																					{subQuestion.selectedComponent === 'Textarea' && <TextareaComponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} required={subQuestion.isRequired} cardFormPageType={'subCard'} />}
-																					{subQuestion.selectedComponent === 'Radio' && <RadioComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} required={subQuestion.isRequired} cardFormPageType={'subCard'} />}
-																					{subQuestion.selectedComponent === 'Checkbox' && <CheckboxesComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} required={subQuestion.isRequired} addLogic={subQuestion.addLogic} GetLogic={subQuestion.Logic} cardFormPageType={'subCard'} />}
-																					{subQuestion.selectedComponent === 'Slider' && <SliderComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} required={subQuestion.isRequired} nowSliderValue={(value) => handleSliderValueChange(value, subQuestion.changeCardsLogic, subQuestion.idSubQuestion)} changeCardsLogic={subQuestion.changeCardsLogic} cardFormPageType={'subCard'} />}
-																					{subQuestion.selectedComponent === 'Data' && <DataComponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} required={subQuestion.isRequired} cardFormPageType={'subCard'} />}
-																				</Paper>
-																			)}
-																			{card.selectedComponent === 'Checkbox' && selectedSubQuestionIndexForCheckbox && ((checkboxChooseNow === checkboxChooseForSubQuestion)) && (selectedSubQuestionIndexForCheckbox - 1) === subIndex && (
-																				<Paper elevation={2} sx={{ p: 3, paddingTop: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: '100%' }}>
+																				<Paper elevation={2} sx={{ p: 3, paddingTop: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", maxWidth:"52vh" }}>
 																					<Box sx={{ display: 'flex', flexDirection: "row", width: "-webkit-fill-available", gap: 1, textAlign: 'center' }}>
 																						<Typography variant='subtitle1' gutterBottom> {subQuestion.question} </Typography>
 																					</Box>
@@ -364,18 +373,18 @@ export default function FormPage() {
 										<>
 											<Box sx={{ marginTop: 1 }}>
 												{formData?.sections[currentSection].title &&
-													<Paper elevation={2} sx={{ p: 3, paddingTop: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start" }}>
+													<Paper elevation={2} sx={{ p: 3, paddingTop: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", maxWidth: "60vh" }}>
 														<Box sx={{ display: 'flex', flexDirection: "row", gap: 1, textAlign: 'center' }}>
 															<Typography variant='h6' gutterBottom> {formData.sections[currentSection].title} </Typography>
 														</Box>
 													</Paper>
 												}
 												{formData.sections[currentSection].cards.map((card, index) => {
-													console.log(card, 'карточка')
+													// console.log(card, 'карточка')
 													const imageUrl = convertLocalPathToUrl(card.imageUrl);
 													return (
-														<Box key={index} sx={{ mb: 3, mt: 2, minWidth: "300px" }}>
-															<Paper elevation={2} sx={{ p: 3, paddingTop: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", }}>
+														<Box key={index} sx={{ mb: 3, mt: 2 }}>
+															<Paper elevation={2} sx={{ p: 3, paddingTop: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", maxWidth: "80vh", minWidth:"40vh" }}>
 																<Box sx={{ display: 'flex', flexDirection: "row", gap: 1, textAlign: 'center' }}>
 																	<Typography variant='h6' gutterBottom> {card.question} </Typography>
 																</Box>
@@ -390,7 +399,7 @@ export default function FormPage() {
 																{card.selectedComponent === 'Input' && <InputCopmponent idQuestion={card.idQuestion} disabled={false} quest={card.question} required={card.isRequired} cardFormPageType={'card'} />}
 																{card.selectedComponent === 'Textarea' && <TextareaComponent idQuestion={card.idQuestion} disabled={false} quest={card.question} required={card.isRequired} cardFormPageType={'card'} />}
 																{card.selectedComponent === 'Radio' && <RadioComponent idQuestion={card.idQuestion} disabled={false} answers={card.answer} quest={card.question} required={card.isRequired} cardFormPageType={'card'} />}
-																{card.selectedComponent === 'Checkbox' && <CheckboxesComponent idQuestion={card.idQuestion} disabled={false} answers={card.answer} quest={card.question} required={card.isRequired} addLogic={card.addLogic} GetLogic={card.Logic} nowCheckboxChoose={handleCheckboxChooseChange} changeCardsLogic={card.changeCardsLogic} cardFormPageType={'card'} />}
+																{card.selectedComponent === 'Checkbox' && <CheckboxesComponent idQuestion={card.idQuestion} disabled={false} answers={card.answer} quest={card.question} required={card.isRequired} addLogic={card.addLogic} GetLogic={card.Logic} nowCheckboxChoose={(value) => handleCheckboxChooseChange(value, card.changeCardsLogic, card.idQuestion, card.subQuestions)} changeCardsLogic={card.changeCardsLogic} cardFormPageType={'card'} />}
 																{card.selectedComponent === 'Slider' && <SliderComponent idQuestion={card.idQuestion} disabled={false} answers={card.answer} quest={card.question} required={card.isRequired} nowSliderValue={(value) => handleSliderValueChange(value, card.changeCardsLogic, card.idQuestion, card.subQuestions)} changeCardsLogic={card.changeCardsLogic} cardFormPageType={'card'} />}
 																{card.selectedComponent === 'Data' && <DataComponent idQuestion={card.idQuestion} disabled={false} quest={card.question} required={card.isRequired} cardFormPageType={'card'} />}
 															</Paper>
@@ -398,9 +407,9 @@ export default function FormPage() {
 																return (
 																	<Box sx={{ mt: 3 }} key={subIndex}>
 																		{subCardVisibility[subQuestion.idSubQuestion] && (
-																			<Paper elevation={2} sx={{ p: 3, paddingTop: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: '100%' }}>
+																			<Paper elevation={2} sx={{ p: 3, paddingTop: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", maxWidth: "52vh" }}>
 																				<Box sx={{ display: 'flex', flexDirection: "row", width: "-webkit-fill-available", gap: 1, textAlign: 'center' }}>
-																					<Typography variant='subtitle1' gutterBottom> {subQuestion.question} </Typography>
+																					<Typography variant='h6' gutterBottom> {subQuestion.question} </Typography>
 																				</Box>
 																				{subQuestion.addImg && (
 																					// eslint-disable-next-line jsx-a11y/alt-text
@@ -409,24 +418,7 @@ export default function FormPage() {
 																				{subQuestion.selectedComponent === 'Input' && <InputCopmponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} required={subQuestion.isRequired} cardFormPageType={'subCard'} />}
 																				{subQuestion.selectedComponent === 'Textarea' && <TextareaComponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} required={subQuestion.isRequired} cardFormPageType={'subCard'} />}
 																				{subQuestion.selectedComponent === 'Radio' && <RadioComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} required={subQuestion.isRequired} cardFormPageType={'subCard'} />}
-																				{subQuestion.selectedComponent === 'Checkbox' && <CheckboxesComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} required={subQuestion.isRequired} addLogic={subQuestion.addLogic} GetLogic={subQuestion.Logic} cardFormPageType={'subCard'} resetStateOnOpen={resetStateOnOpen} />}
-																				{subQuestion.selectedComponent === 'Slider' && <SliderComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} required={subQuestion.isRequired} nowSliderValue={(value) => handleSliderValueChange(value, subQuestion.changeCardsLogic, subQuestion.idSubQuestion)} changeCardsLogic={subQuestion.changeCardsLogic} cardFormPageType={'subCard'} />}
-																				{subQuestion.selectedComponent === 'Data' && <DataComponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} required={subQuestion.isRequired} cardFormPageType={'subCard'} />}
-																			</Paper>
-																		)}
-																		{card.selectedComponent === 'Checkbox' && selectedSubQuestionIndexForCheckbox && ((checkboxChooseNow === checkboxChooseForSubQuestion)) && (selectedSubQuestionIndexForCheckbox - 1) === subIndex && (
-																			<Paper elevation={2} sx={{ p: 3, paddingTop: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: '100%' }}>
-																				<Box sx={{ display: 'flex', flexDirection: "row", width: "-webkit-fill-available", gap: 1, textAlign: 'center' }}>
-																					<Typography variant='subtitle1' gutterBottom> {subQuestion.question} </Typography>
-																				</Box>
-																				{subQuestion.addImg && (
-																					// eslint-disable-next-line jsx-a11y/alt-text
-																					<img src={Array.isArray(subQuestion.imageUrl) ? subQuestion.imageUrl[0] : subQuestion.imageUrl} style={{ maxWidth: "-webkit-fill-available", marginTop: 5 }} />
-																				)}
-																				{subQuestion.selectedComponent === 'Input' && <InputCopmponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} required={subQuestion.isRequired} cardFormPageType={'subCard'} />}
-																				{subQuestion.selectedComponent === 'Textarea' && <TextareaComponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} required={subQuestion.isRequired} cardFormPageType={'subCard'} />}
-																				{subQuestion.selectedComponent === 'Radio' && <RadioComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} required={subQuestion.isRequired} cardFormPageType={'subCard'} />}
-																				{subQuestion.selectedComponent === 'Checkbox' && <CheckboxesComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} required={subQuestion.isRequired} addLogic={subQuestion.addLogic} GetLogic={subQuestion.Logic} cardFormPageType={'subCard'} />}
+																				{subQuestion.selectedComponent === 'Checkbox' && <CheckboxesComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} required={subQuestion.isRequired} addLogic={subQuestion.addLogic} GetLogic={subQuestion.Logic} cardFormPageType={'subCard'} resetStateOnOpen={resetStateOnOpen} subCardVisibility={subCardVisibility} />}
 																				{subQuestion.selectedComponent === 'Slider' && <SliderComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} required={subQuestion.isRequired} nowSliderValue={(value) => handleSliderValueChange(value, subQuestion.changeCardsLogic, subQuestion.idSubQuestion)} changeCardsLogic={subQuestion.changeCardsLogic} cardFormPageType={'subCard'} />}
 																				{subQuestion.selectedComponent === 'Data' && <DataComponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} required={subQuestion.isRequired} cardFormPageType={'subCard'} />}
 																			</Paper>
