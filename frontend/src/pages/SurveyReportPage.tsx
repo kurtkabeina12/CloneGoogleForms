@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import '../styles/main.css';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { fetchGetReportForm } from '../store/action/actionGetReportForm';
 import { AppDispatch } from '../store/reducers/reducerRoot';
@@ -10,6 +10,7 @@ import CustomShedule from '../components/CustomShedule';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
+import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
 
 interface SubQuestion {
 	answers: { answers: string | string[] }[];
@@ -52,6 +53,7 @@ const SurveyReportPage: React.FC = () => {
 	const dispatch = useDispatch<AppDispatch>();
 	const [reportData, setReportData] = useState<ReportItem[]>([]);
 	const [formReportInfo, setFormReportInfo] = useState<formReportInfo>();
+  const navigate = useNavigate();
 
 	useEffect(() => {
 		const fetchReportForm = async () => {
@@ -207,12 +209,21 @@ const SurveyReportPage: React.FC = () => {
 		generateExcelFile(reportData);
 	}
 
+	const goHomePage = () => {
+		document.body.style.backgroundColor = "white";
+		navigate(-1);
+	}
+
 	return (
 		<>
 			{formReportInfo && (
 				<Box sx={{ flexGrow: 1 }}>
 					<AppBar position="static" sx={{ backgroundColor: "white" }}>
 						<Toolbar sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
+						<IconButton aria-label="goBack" color="default" size="small" onClick={() => goHomePage()}>
+								<KeyboardBackspaceIcon />
+								{/* <Typography variant='h6'>Назад</Typography> */}
+							</IconButton>
 							<Box>
 								<Typography variant='h6' color="black">Название опроса: {formReportInfo.formTitle}</Typography>
 							</Box>
