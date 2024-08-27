@@ -633,9 +633,9 @@ const CreateFormPage: React.FC = () => {
 							</Paper>
 							<DragDropContext onDragEnd={handleOnDragEnd}>
 								{sections.map((section, sectionIndex) => (
-									<Droppable droppableId={`droppable-${sectionIndex}`}>
-										{(provided) => (
-											<div ref={provided.innerRef} {...provided.droppableProps}>
+									// <Droppable droppableId={`droppable-${sectionIndex}`}>
+									// 	{(provided) => (
+									// 		<div ref={provided.innerRef} {...provided.droppableProps}>
 												<Box key={sectionIndex} sx={{ mb: 3, mt: 5 }}>
 													<Paper className="header-paper" elevation={2} sx={{ p: 3, borderTop: "8px solid #00862b" }}>
 														<TextField
@@ -651,11 +651,9 @@ const CreateFormPage: React.FC = () => {
 													</Paper>
 													<Grid container spacing={3} className='FormCenter'>
 														{section.cards.map((card, index) => (
-															<Draggable draggableId={`draggable-${sectionIndex}-${index}`} index={index}>
-																{(provided) => (
-																	<Grid item xs={12} ref={provided.innerRef}
-																		{...provided.draggableProps}
-																		{...provided.dragHandleProps}
+															// <Draggable draggableId={`draggable-${sectionIndex}-${index}`} index={index}>
+															// 	{(provided) => (
+																	<Grid item xs={12}
 																		onClick={() => handleCardClick(sectionIndex, index)} sm={8} md={6} className='body-card'  >
 																		<Box sx={{ mb: 3 }}>
 																			<Paper elevation={2} sx={{
@@ -671,9 +669,9 @@ const CreateFormPage: React.FC = () => {
 																				// backgroundPosition: 'center',
 																				// backgroundRepeat: 'no-repeat'
 																			}}>
-																				<div style={{ display: 'flex', alignItems: 'center', cursor: 'move' }}>
+																				{/* <div style={{ display: 'flex', alignItems: 'center', cursor: 'move' }}>
 																					<DragIndicatorIcon style={{ transform: "rotate(90deg)", marginBottom: '10px' }} />
-																				</div>
+																				</div> */}
 																				<Box sx={{ display: 'flex', flexDirection: "row", width: "-webkit-fill-available", gap: 1, mt: 3 }}>
 																					<TextField
 																						variant="standard"
@@ -949,8 +947,8 @@ const CreateFormPage: React.FC = () => {
 																			)}
 																		</Box>
 																	</Grid>
-																)}
-															</Draggable>
+															// 	)}
+															// </Draggable>
 														))}
 													</Grid>
 													<div>
@@ -964,10 +962,10 @@ const CreateFormPage: React.FC = () => {
 														</Fab>
 													</div>
 												</Box>
-												{provided.placeholder}
-											</div>
-										)}
-									</Droppable>
+									// 			{provided.placeholder}
+									// 		</div>
+									// 	)}
+									// </Droppable>
 								))}
 							</DragDropContext>
 							<div>

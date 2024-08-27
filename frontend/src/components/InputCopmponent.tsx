@@ -15,9 +15,10 @@ interface InputComponentProps {
   cardPoints?: number | string;
   cardCorrectAnswer?: string | string[];
   updateCorrectAnswer?: (sectionIndex: number, index: number, correctAnswer: string | string[], cardType: string, subQuestionIndex?: number) => void;
+  changeForm?: boolean;
 }
 
-const InputComponent: React.FC<InputComponentProps> = ({ disabled = false, required = false, quest, idQuestion, cardFormPageType, points, sectionIndex, cardIndex, cardType, cardPoints, cardCorrectAnswer, updateCorrectAnswer }) => {
+const InputComponent: React.FC<InputComponentProps> = ({ disabled = false, required = false, quest, idQuestion, cardFormPageType, points, sectionIndex, cardIndex, cardType, cardPoints, cardCorrectAnswer, updateCorrectAnswer, changeForm = false }) => {
   const { register, formState: { errors } } = useFormContext();
   const inputName = (idQuestion || 'defaultIdQuestionInput') + ':' + cardFormPageType;
   const { ref, onChange, onBlur } = register(inputName, { required: required ? "Заполните поле" : false });
@@ -31,7 +32,18 @@ const InputComponent: React.FC<InputComponentProps> = ({ disabled = false, requi
 
   return (
     <>
-      {disabled && !points && points !== 0 &&
+      {!changeForm && disabled && !points && points !== 0 &&
+        <TextField
+          variant="standard"
+          placeholder="Напишите ответ"
+          name="title"
+          type='text'
+          sx={{ mb: 3, marginTop: "1rem" }}
+          fullWidth
+          disabled
+        />
+      }
+      {changeForm && disabled && !points && points !== 0 &&
         <TextField
           variant="standard"
           placeholder="Напишите ответ"

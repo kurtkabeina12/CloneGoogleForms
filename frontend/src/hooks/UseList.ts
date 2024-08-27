@@ -15,6 +15,7 @@ const useList = <T extends string | number | boolean | string[] | number[] | boo
 
   // Функция для добавления нового элемента в список
   const addItem = (item: T) => {
+    console.log(item, ' item')
     setList([...list, item]);
   };
 

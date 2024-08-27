@@ -34,6 +34,8 @@ interface CheckboxesComponentProps {
   updateCorrectAnswer?: (sectionIndex: number, index: number, correctAnswer: string | string[], cardType: string, subQuestionIndex?: number) => void;
   isTest?: boolean;
   resetStateOnOpen?: boolean;
+  subCardVisibility?: Record<string, boolean>;
+  changeForm?: boolean;
 }
 
 const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
@@ -58,7 +60,9 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
   points,
   updateCorrectAnswer,
   isTest = false,
-  resetStateOnOpen = false
+  resetStateOnOpen = false,
+  subCardVisibility,
+  changeForm = false,
 }) => {
   const { list, addItem, updateItem, setList } = useList<string[]>([['']]);
 
@@ -87,40 +91,35 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
   const [checkboxIndex, setCheckboxIndex] = useState<string>('');
 
   const [selectedTestCheckboxes, setSelectedTestCheckboxes] = useState<CheckboxState>({});
-
   const [correctAnswer, setCorrectAnswer] = useState([]);
-
+  const [localAnswers, setLocalAnswers] = useState(answers);
 
   useEffect(() => {
     if (resetStateOnOpen) {
       // Сбрасываем состояние выбранных чекбоксов при изменении subQuestionIndexForCheckbox
       resetSelectedCheckboxes();
-
+      setValue(inputName, []);
       console.log(selectedCheckboxes, 'выбор чекбоксов после смены подкарточки')
     }
-  }, [resetStateOnOpen]);
+  }, [inputName, resetStateOnOpen, setValue]);
 
-  useEffect(() => {
-    if (nowCheckboxChoose) {
-      let selectedIndices = '';
-      Object.entries(nowSelectCheckbox).forEach(([key, value]) => {
-        if (value) {
-          selectedIndices += key + ', ';
-        }
-      });
-      // Удалить последнюю запятая и пробел из строки
-      if (selectedIndices.endsWith(',')) {
-        selectedIndices = selectedIndices.slice(0, -2);
-      }
+  // useEffect(() => {
+  //   if (nowCheckboxChoose) {
+  //     let selectedIndices = '';
+  //     Object.entries(nowSelectCheckbox).forEach(([key, value]) => {
+  //       if (value) {
+  //         selectedIndices += key + ', ';
+  //       }
+  //     });
+  //     // Удалить последнюю запятая и пробел из строки
+  //     if (selectedIndices.endsWith(',')) {
+  //       selectedIndices = selectedIndices.slice(0, -2);
+  //     }
 
-      setCheckboxIndex(selectedIndices);
-      nowCheckboxChoose(String(checkboxIndex), changeCardsLogic);
-    }
-  }, [changeCardsLogic, checkboxIndex, nowCheckboxChoose, nowSelectCheckbox]);
-
-  useEffect(() => {
-    console.log(selectedTestCheckboxes, 'selected UseEffect');
-  }, [selectedTestCheckboxes]);
+  //     setCheckboxIndex(selectedIndices);
+  //     nowCheckboxChoose(String(checkboxIndex), changeCardsLogic);
+  //   }
+  // }, [changeCardsLogic, checkboxIndex, nowCheckboxChoose, nowSelectCheckbox]);
 
   //отслеживаем кол-во ответов и число в input 
   useEffect(() => {
@@ -146,46 +145,69 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
     }
   }, [logicChangeBlocks, onChangeCardsLogic, addChangeCardsLogic]);
 
+  useEffect(() => {
+    const selectedIndices = Object.entries(selectedCheckboxes)
+      .filter(([_, value]) => value)
+      .map(([key]) => key)
+      .join(', ');
+
+    if (nowCheckboxChoose) {
+      nowCheckboxChoose(selectedIndices, changeCardsLogic);
+    }
+  }, [selectedCheckboxes, nowCheckboxChoose, changeCardsLogic]);
+
+
   const handleAddAnswer = () => {
-    addItem(['']);
+    if (localAnswers.length > 0) {
+      const newAnswers = [...localAnswers, ''];
+      setLocalAnswers(newAnswers);
+    } else {
+      addItem(['']);
+    }
   };
 
   const resetSelectedCheckboxes = () => {
     setSelectedCheckboxes(new Array(answers.length).fill(false));
-  };
 
-  const handleCheckboxChangeValue = (index: number, checked: boolean) => {
-    setSelectedCheckboxes(prevState => ({
-      ...prevState,
-      [index]: checked,
-    }));
-
-    if (nowCheckboxChoose) {
-      const selectedIndices = Object.entries(selectedCheckboxes)
-        .filter(([_, value]) => value)
-        .map(([key]) => key)
-        .join(', ');
-
-      nowCheckboxChoose(selectedIndices, changeCardsLogic);
-    }
   };
 
   //Добавить ответ
   const handleUpdateAnswer = (sectionIndex: number, index: number, value: string) => {
-    const newAnswers = [...list];
-    if (cardType === 'subQuestion' && subQuestionIndex !== undefined) {
-      console.log('Updating subQuestion answer:', sectionIndex, cardIndex || 0, subQuestionIndex, value);
-      newAnswers[index][subQuestionIndex] = value;
-      console.log('New answers:', newAnswers);
-      updateItem(index, [newAnswers[index][subQuestionIndex]]);
+    if (localAnswers.length > 0) {
+      const newAnswers = [...localAnswers];
+      
+      if (cardType === 'subQuestion' && subQuestionIndex !== undefined) {
+        const newAnswers = [[...localAnswers]];
+        console.log('Updating subQuestion answer:', sectionIndex, cardIndex || 0, subQuestionIndex, value);
+        newAnswers[index][subQuestionIndex] = value;
+        console.log('New answers:', newAnswers);
+      } else {
+        newAnswers[index] = value; // Обновляем ответ
+        console.log('Updated answers:', newAnswers);
+      }
+
+      setLocalAnswers(newAnswers);
+
       if (updateCardAnswers) {
         updateCardAnswers(sectionIndex, cardIndex || 0, newAnswers.map(answer => answer[0]), cardType, subQuestionIndex);
       }
     } else {
-      newAnswers[index] = [value];
-      updateItem(index, [newAnswers[index][0]]);
-      if (updateCardAnswers) {
-        updateCardAnswers(sectionIndex, cardIndex || 0, newAnswers.map(answer => answer[0]), cardType);
+      const newAnswers = [...list];
+      if (cardType === 'subQuestion' && subQuestionIndex !== undefined) {
+        console.log('Updating subQuestion answer:', sectionIndex, cardIndex || 0, subQuestionIndex, value);
+        newAnswers[index][subQuestionIndex] = value;
+        console.log('New answers:', newAnswers);
+        updateItem(index, [newAnswers[index][subQuestionIndex]]);
+        if (updateCardAnswers) {
+          updateCardAnswers(sectionIndex, cardIndex || 0, newAnswers.map(answer => answer[0]), cardType, subQuestionIndex);
+        }
+      } else {
+        newAnswers[index] = [value];
+        updateItem(index, [newAnswers[index][0]]);
+        console.log(index, [newAnswers[index][0]])
+        if (updateCardAnswers) {
+          updateCardAnswers(sectionIndex, cardIndex || 0, newAnswers.map(answer => answer[0]), cardType);
+        }
       }
     }
   };
@@ -230,18 +252,35 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
 
   //удалить ответ
   const handleRemoveAnswer = (sectionIndex: number, index: number) => {
-    if (list.length > 1) {
+    if (localAnswers.length > 0) {
       if (cardType === 'subQuestion' && subQuestionIndex !== undefined) {
-        const newList = list.filter((_, i) => i !== subQuestionIndex);
-        setList(newList);
+        const newList = localAnswers.filter((_, i) => i !== subQuestionIndex);
+        setLocalAnswers(newList);
         if (updateCardAnswers) {
           updateCardAnswers(sectionIndex, cardIndex || 0, newList.map(answer => answer[0]), cardType, subQuestionIndex);
         }
       } else {
-        const newList = list.filter((_, i) => i !== index);
-        setList(newList);
+        const newList = localAnswers.filter((_, i) => i !== index);
+        console.log(newList)
+        setLocalAnswers(newList);
         if (updateCardAnswers) {
           updateCardAnswers(sectionIndex, cardIndex || 0, newList.map(answer => answer[0]), cardType);
+        }
+      }
+    } else {
+      if (list.length > 1) {
+        if (cardType === 'subQuestion' && subQuestionIndex !== undefined) {
+          const newList = list.filter((_, i) => i !== subQuestionIndex);
+          setList(newList);
+          if (updateCardAnswers) {
+            updateCardAnswers(sectionIndex, cardIndex || 0, newList.map(answer => answer[0]), cardType, subQuestionIndex);
+          }
+        } else {
+          const newList = list.filter((_, i) => i !== index);
+          setList(newList);
+          if (updateCardAnswers) {
+            updateCardAnswers(sectionIndex, cardIndex || 0, newList.map(answer => answer[0]), cardType);
+          }
         }
       }
     }
@@ -295,8 +334,6 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
       setLogicChangeBlocks(logicChangeBlocks.filter((_, i) => i !== index));
     }
   };
-
-
 
   const handleToggleSelection = (sectionIndex: number, index: number) => {
     setSelectedTestCheckboxes(prevState => {
@@ -357,6 +394,42 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
     });
   };
 
+  const handleCheckboxChangeValue = (index: number, checked: boolean, inputName: string, answer: string) => {
+    if (idQuestion) {
+      if (cardFormPageType === 'subCard' && subCardVisibility && !subCardVisibility[idQuestion]) {
+        return;
+      }
+
+      setSelectedCheckboxes(prevState => ({
+        ...prevState,
+        [index]: checked
+      }));
+
+      const currentValues = getValues(inputName) || [];
+      let newValues;
+
+      if (nowCheckboxChoose) {
+        const selectedIndices = Object.entries(selectedCheckboxes)
+          .filter(([_, value]) => value)
+          .map(([key]) => key)
+          .join(', ');
+
+        nowCheckboxChoose(selectedIndices, changeCardsLogic);
+      }
+
+      if (checked) {
+        newValues = [...currentValues, answer];
+      } else {
+        newValues = currentValues.filter((value: string) => value !== answer);
+      }
+
+      setValue(inputName, newValues.length > 0 ? newValues : null);
+
+      if (newValues.length > 0) {
+        setErrorMessageNoLogic('');
+      }
+    }
+  };
   return (
     <FormGroup sx={{ width: '-webkit-fill-available', marginTop: '1rem' }}>
       {!disabled && answers.length > 0 && (
@@ -365,14 +438,15 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
             {!addLogic && !required && !isTest && (
               <>
                 {answers.map((answer, index) => (
-                  <FormControlLabel key={index} value={answer} control={
+                  <FormControlLabel key={index} sx={{ marginTop: "1rem" }} value={answer} control={
                     <Checkbox
                       color='success'
                       defaultChecked={false}
                       inputRef={ref}
+                      checked={selectedCheckboxes[index]}
                       // onChange={(e) => {
                       //   console.log([index], e.target.checked, 'checked');
-                      //   setValue(`${inputName}[${index}]`, answer);
+                      // setValue(`${inputName}[${index}]`, answer);
 
                       //   setNowSelectCheckbox(prevState => ({
                       //     ...prevState,
@@ -392,7 +466,24 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
                       //   }
                       //   console.log(nowSelectCheckbox, 'nowSelectCheck in OChange')
                       // }}
-                      onChange={(e) => handleCheckboxChangeValue(index, e.target.checked)}
+                      onChange={(e) => {
+                        // setValue(`${inputName}[${index}]`, answer);
+
+                        handleCheckboxChangeValue(index, e.target.checked, inputName, answer)
+
+                        // if (e.target.checked) {
+                        //   setValue(`${inputName}[${index}]`, answer);
+                        //   console.log(e.target.checked, 'checked');
+
+                        //   // Проверяем, были ли выбраны какие-либо чекбоксы, и обновляем состояние ошибки
+                        //   const selectedAnswers = getValues()[inputName] || [];
+                        //   // console.log(selectedAnswers.length)
+                        //   if (selectedAnswers.length > 0) {
+                        //     setErrorMessageNoLogic('  ');
+                        //   }
+                        // }
+                        // console.log(nowSelectCheckbox, 'nowSelectCheck in OChange')
+                      }}
                       onBlur={onBlur}
                     />
                   }
@@ -520,7 +611,7 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
           </>
         </FormGroup>
       )}
-      {disabled && (points === 0 || points) && (
+      {!changeForm && disabled && (points === 0 || points) && (
         <>
           <Typography variant='body1' color="black">Выберите правильные ответы:</Typography>
           {list.map((item, index) => (
@@ -604,7 +695,7 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
           )}
         </>
       )}
-      {disabled && !points && points !== 0 && (
+      {!changeForm && disabled && !points && points !== 0 && (
         <>
           {list.map((item, index) => (
             <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -665,6 +756,99 @@ const CheckboxesComponent: React.FC<CheckboxesComponentProps> = ({
                     }}
                   />
                   <Typography variant='body1' color='black' sx={{ mr: 2 }}>открыть карточку:</Typography>
+                  <TextField
+                    variant="standard"
+                    value={block.cardIndex}
+                    onChange={(e) => {
+                      const newLogicChangeBlocks = [...logicChangeBlocks];
+                      newLogicChangeBlocks[index].cardIndex = e.target.value;
+                      setLogicChangeBlocks(newLogicChangeBlocks);
+                    }}
+                  />
+                  {logicChangeBlocks.length > 1 && (
+                    <IconButton aria-label="removeNewLogicChange" size='small' onClick={() => handleRemoveNewLogicChange(index)}>
+                      <CloseIcon />
+                    </IconButton>
+                  )}
+                </Box>
+              ))}
+              <Box sx={{ marginTop: "1rem", display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
+                <Tooltip title="Добавить условие">
+                  <IconButton aria-label="addNewLogicChange" size='small' onClick={handleAddNewLogicChange}>
+                    <AddIcon />
+                  </IconButton>
+                </Tooltip>
+              </Box>
+            </>
+          )}
+        </>
+      )}
+      {changeForm && disabled && answers.length > 0 && (
+        <>
+          {localAnswers.map((answer, index) => (
+            <Box key={index} sx={{ display: 'flex', alignItems: 'center' }}>
+              <FormControlLabel
+                disabled={disabled}
+                control={<Checkbox color='success' />}
+                label={
+                  <Input
+                    placeholder='Ответ'
+                    value={answer}
+                    onChange={(e) => handleUpdateAnswer(sectionIndex || 0, index, e.target.value)}
+                  />
+                }
+              />
+              <IconButton onClick={() => handleRemoveAnswer(sectionIndex || 0, index)}>
+                <CloseIcon style={{ color: "rgb(0 0 0 / 42%)" }} />
+              </IconButton>
+            </Box>
+          ))}
+          <FormControlLabel
+            disabled={disabled}
+            sx={{ marginLeft: "0.8rem" }}
+            control={<Checkbox color='success' />}
+            label={
+              <Button color='success' variant="text" onClick={handleAddAnswer}>
+                Добавить вариант
+              </Button>
+            }
+          />
+          {addLogic && !addChangeCardsLogic && (
+            <Box sx={{ display: 'flex', alignItems: 'center', mt: 2, mb: 3 }}>
+              <CustomSelect value={selectValue} onChange={handleSelectChange} />
+              <TextField
+                variant="standard"
+                placeholder="Введите число"
+                name="addLogic"
+                type='number'
+                fullWidth
+                sx={{ ml: 1 }}
+                onChange={handleInputLogicChange}
+              />
+            </Box>
+          )}
+          {!isValidLogicInput && (
+            <Typography color="error">Число больше чем количество ответов.</Typography>
+          )}
+          {addChangeCardsLogic && (
+            <>
+              {logicChangeBlocks.map((block, index) => (
+                <Box key={index} sx={{ display: 'flex', flexDirection: 'row', flexWrap: 'nowrap', mt: 2 }}>
+                  <Typography variant='body1' color='black' sx={{ mr: 2 }}>
+                    При выборе ответа:
+                  </Typography>
+                  <TextField
+                    variant="standard"
+                    value={block.answer}
+                    onChange={(e) => {
+                      const newLogicChangeBlocks = [...logicChangeBlocks];
+                      newLogicChangeBlocks[index].answer = e.target.value;
+                      setLogicChangeBlocks(newLogicChangeBlocks);
+                    }}
+                  />
+                  <Typography variant='body1' color='black' sx={{ mr: 2 }}>
+                    открыть карточку:
+                  </Typography>
                   <TextField
                     variant="standard"
                     value={block.cardIndex}

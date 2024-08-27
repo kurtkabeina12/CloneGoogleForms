@@ -13,9 +13,10 @@ interface DataComponentProps {
   cardIndex?: number;
   cardType?: string;
 	updateCorrectAnswer?: (sectionIndex: number, index: number, correctAnswer: string | string[], cardType: string, subQuestionIndex?: number) => void;
+  changeForm?: boolean;
 }
 
-const DataComponent: React.FC<DataComponentProps> = ({ disabled = false, required = false, quest, idQuestion, cardFormPageType, points, sectionIndex, cardIndex, cardType, updateCorrectAnswer }) => {
+const DataComponent: React.FC<DataComponentProps> = ({ disabled = false, required = false, quest, idQuestion, cardFormPageType, points, sectionIndex, cardIndex, cardType, updateCorrectAnswer, changeForm=false }) => {
   const { control, formState: { errors } } = useFormContext(); // Исправлено использование register, так как оно не используется напрямую
 
   const inputName = (idQuestion || 'defaultIdQuestionData') + ':' + cardFormPageType;
@@ -36,7 +37,17 @@ const DataComponent: React.FC<DataComponentProps> = ({ disabled = false, require
 
   return (
     <FormGroup sx={{ width: "-webkit-fill-available", marginTop: "1rem" }}>
-      {disabled && !points && points !== 0 &&
+      {!changeForm && disabled && !points && points !== 0 &&
+        <TextField
+          type="date"
+          InputLabelProps={{
+            shrink: true,
+          }}
+          disabled
+          color='success'
+        />
+      }
+      {changeForm && disabled && !points && points !== 0 &&
         <TextField
           type="date"
           InputLabelProps={{

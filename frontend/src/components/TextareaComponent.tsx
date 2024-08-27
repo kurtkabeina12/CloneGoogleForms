@@ -15,6 +15,7 @@ interface TextareaComponentProps {
   cardIndex?: number;
   cardType?: string;
   updateCorrectAnswer?: (sectionIndex: number, index: number, correctAnswer: string | string[], cardType: string, subQuestionIndex?: number) => void;
+  changeForm?: boolean;
 }
 
 const green = {
@@ -68,7 +69,7 @@ const Textarea = styled(BaseTextareaAutosize)(
 `,
 );
 
-const TextareaComponent: React.FC<TextareaComponentProps> = ({ disabled = false, required = false, quest, idQuestion, cardFormPageType, points, sectionIndex, cardIndex, cardType, updateCorrectAnswer }) => {
+const TextareaComponent: React.FC<TextareaComponentProps> = ({ disabled = false, required = false, quest, idQuestion, cardFormPageType, points, sectionIndex, cardIndex, cardType, updateCorrectAnswer, changeForm = false }) => {
   const { register, formState: { errors } } = useFormContext();
 
   const inputName = (idQuestion || 'defaultIdQuestionTextarea') + ':' + cardFormPageType;
@@ -84,7 +85,10 @@ const TextareaComponent: React.FC<TextareaComponentProps> = ({ disabled = false,
   
   return (
     <>
-      {disabled && !points && points !== 0 &&
+      {!changeForm && disabled && !points && points !== 0 &&
+        <Textarea sx={{ width: "-webkit-fill-available", marginTop: "1rem" }} aria-label="minimum height" placeholder='Напишите ответ' disabled minRows={5} />
+      }
+      {changeForm && disabled && !points && points !== 0 &&
         <Textarea sx={{ width: "-webkit-fill-available", marginTop: "1rem" }} aria-label="minimum height" placeholder='Напишите ответ' disabled minRows={5} />
       }
       {disabled && (points === 0 || points) &&
