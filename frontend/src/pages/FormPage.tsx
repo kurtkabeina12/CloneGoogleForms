@@ -1,0 +1,481 @@
+import { Box, Button, Divider, Grid, Pagination, Paper, Typography } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import TextareaComponent from '../components/TextareaComponent';
+import InputCopmponent from '../components/InputCopmponent';
+import DataComponent from '../components/DataComponent';
+import RadioComponent from '../components/RadioComponent';
+import CheckboxesComponent from '../components/CheckboxesComponent';
+import SliderComponent from '../components/SliderComponent';
+import { FormProvider, useForm, useFormContext } from 'react-hook-form';
+import { useDispatch } from 'react-redux';
+import { AppDispatch } from '../store/reducers/reducerRoot';
+import { fetchGetForm } from '../store/action/actionGetForm';
+import { unwrapResult } from '@reduxjs/toolkit';
+import RegistrationComponent from '../components/RegistrationComponent';
+import SendIcon from '@mui/icons-material/Send';
+import { sendFormData } from '../store/action/actionSendPassedForm';
+import { FormData, SubQuestionFormData } from '../types/types';
+import '../styles/main.css';
+
+type SubCardVisibilityType = {
+	[key: string]: boolean;
+};
+
+
+export default function FormPage() {
+	const { formId } = useParams();
+	const dispatch = useDispatch<AppDispatch>();
+	const navigate = useNavigate();
+	const [currentSection, setCurrentSection] = useState(0);
+	const methods = useForm({
+		mode: 'all',
+	});
+	const [formData, setFormData] = useState<FormData | null>(null);
+	const [selectedSubQuestionIndexForCheckbox, setSelectedSubQuestionIndexForCheckbox] = useState<number | null>(null);
+	const [checkboxChooseNow, setChecboxChooseNow] = useState<number | null>(null)
+	const [checkboxChooseForSubQuestion, setCheckboxChooseForSubQuestion] = useState<number | null>(null)
+	const [dateForEndForm, setDateForEndForm] = useState<string | null>(null);
+	const LogoImage = require('../img/LogoVita.png');
+	const [subCardVisibility, setSubCardVisibility] = useState<SubCardVisibilityType>({});
+	const [resetStateOnOpen, setResetStateOnOpen] = useState<boolean>(false);
+
+	useEffect(() => {
+		const fetchFormData = async () => {
+			try {
+				const actionResult = await dispatch(fetchGetForm({ formId: formId ?? '' }));
+				const formData = unwrapResult(actionResult);
+				setDateForEndForm(formData?.formEndDate);
+				setFormData(formData);
+				console.log(formData);
+				const selectedColor = formData.selectedColor
+				document.body.style.backgroundColor = selectedColor;
+			} catch (error) {
+				console.error('Failed to fetch form:', error);
+			}
+		};
+
+		fetchFormData();
+	}, [dispatch, formId]);
+
+	const convertLocalPathToUrl = (localPath: string | string[]) => {
+		const baseUrl = 'http://172.20.15.13:8888/UsersImage/';
+		// Используем регулярное выражение с двойным обратным слешем для экранирования
+		const regex = /UsersImage\/(.*)/;
+		const result: string[] = [];
+
+		if (typeof localPath === 'string') {
+			// Заменяем обратные слеши на прямые слеши перед разделением строки
+			const processedPath = localPath.replace(/\\/g, '/');
+			localPath = processedPath;
+			localPath.split(',').forEach((path: string) => {
+				const match = path.match(regex);
+				if (match) {
+					result.push(`${baseUrl}${match[1]}`);
+				} else {
+					console.log(`No match found for path: ${path}`);
+				}
+			});
+		} else {
+			localPath.forEach((path: string) => {
+				// Заменяем обратные слеши на прямые слеши перед обработкой каждого пути
+				const processedPath = path.replace(/\\/g, '/');
+				path = processedPath;
+				const match = path.match(regex);
+				if (match) {
+					result.push(`${baseUrl}${match[1]}`);
+				} else {
+					console.log(`No match found for path: ${path}`);
+				}
+			});
+		}
+
+		return result;
+	};
+
+	const handleSliderValueChange = (value: number, changeCardsLogic: string | string[], idQuestion: string, subQuestions?: SubQuestionFormData[]) => {
+		// console.log("Current Value:", value, "ID Question:", idQuestion, "Change Cards Logic:", changeCardsLogic, 'SubQuestions:', subQuestions);
+
+		const updatedVisibility: SubCardVisibilityType = { ...subCardVisibility };
+		let conditionMet = false;
+
+		if (Array.isArray(changeCardsLogic) && changeCardsLogic.length > 0) {
+			changeCardsLogic.forEach((logicString) => {
+				const parts = logicString.split(':');
+				let showSubCard = false;
+				let subQuestionOrder = parseInt(parts[1], 10);
+
+				if (parts[0].includes('-')) {
+					const [startRangeStr, endRangeStr] = parts[0].split('-');
+					const startRange = parseInt(startRangeStr, 10);
+					const endRange = parseInt(endRangeStr, 10);
+					showSubCard = value >= startRange && value <= endRange;
+				} else {
+					showSubCard = parts[0] === value.toString();
+				}
+
+				conditionMet = conditionMet || showSubCard;
+
+				if (showSubCard && subQuestions) {
+					subQuestions.forEach(subQuestion => {
+						if (subQuestion.order === subQuestionOrder) {
+							updatedVisibility[subQuestion.idSubQuestion] = true;
+							setResetStateOnOpen(true);
+						} else {
+							updatedVisibility[subQuestion.idSubQuestion] = false;
+							if (subQuestions) {
+								subQuestions.forEach(subQuestion => {
+									if (!updatedVisibility[subQuestion.idSubQuestion]) {
+										methods.setValue(`${subQuestion.idSubQuestion}:subCard`, null);
+									}
+								});
+							}
+						}
+					});
+				}
+			});
+
+			if (!conditionMet && subQuestions) {
+				subQuestions.forEach(subQuestion => {
+					updatedVisibility[subQuestion.idSubQuestion] = false;
+				});
+			}
+		}
+
+		if (JSON.stringify(updatedVisibility) !== JSON.stringify(subCardVisibility)) {
+			setSubCardVisibility(updatedVisibility);
+		}
+	};
+
+
+	const handleCheckboxChooseChange = (value: string, changeCardsLogic: string | string[], idQuestion: string, subQuestions?: SubQuestionFormData[]) => {
+		const updatedVisibility: SubCardVisibilityType = { ...subCardVisibility };
+		let conditionMet = false;
+
+		if (Array.isArray(changeCardsLogic) && changeCardsLogic.length > 0) {
+			const valueArray = value.split("").filter(char => /^\d$/.test(char));
+
+			if (subQuestions) {
+				subQuestions.forEach(subQuestion => {
+					updatedVisibility[subQuestion.idSubQuestion] = false;
+				});
+			}
+
+			if (valueArray.length === 1) {
+				valueArray.forEach((checkboxValue) => {
+					const checkboxIndexInPage = Number(checkboxValue) + 1;
+
+					changeCardsLogic.forEach(logicString => {
+						const parts = logicString.split(':');
+						const logic = parts[0] === checkboxIndexInPage.toString();
+						let subQuestionOrder = parseInt(parts[1], 10);
+						console.log(parts, checkboxIndexInPage, checkboxValue,valueArray, valueArray.length)
+						if (logic && subQuestions) {
+							conditionMet = true;
+							const subQuestionToShow = subQuestions.find(subQuestion => subQuestion.order === subQuestionOrder);
+							if (subQuestionToShow) {
+								updatedVisibility[subQuestionToShow.idSubQuestion] = true;
+								setResetStateOnOpen(true);
+							}
+						}
+					});
+				});
+			}
+
+			if (!conditionMet && subQuestions) {
+				subQuestions.forEach(subQuestion => {
+					updatedVisibility[subQuestion.idSubQuestion] = false;
+					methods.setValue(`${subQuestion.idSubQuestion}:subCard`, null);
+				});
+			}
+
+		} else {
+			console.error('Invalid changeCardsLogic:', changeCardsLogic);
+		}
+
+		if (JSON.stringify(updatedVisibility) !== JSON.stringify(subCardVisibility)) {
+			setSubCardVisibility(updatedVisibility);
+		}
+	};
+
+	const isMandatory = formData?.isMandatoryAuth;
+
+	const moveToNextSection = (data: any) => {
+		setCurrentSection(currentSection + 1);
+	};
+
+	const isSurveyEnded = () => {
+		if (!dateForEndForm) return false;
+		const endDate = new Date(dateForEndForm);
+		const today = new Date();
+		return endDate.toDateString() === today.toDateString();
+	};
+
+	const onSubmit = async (data: any) => {
+		console.log(data, 'данные для отправки на сервер')
+		try {
+			const rezultSendData = await dispatch(sendFormData({ formData: data, formId: formId ?? '' }));
+			console.log(rezultSendData);
+			// navigate(`/stub/${formId}`, { state: { formId: formId } });
+			// navigate(`/form/${formId.formId}`, { state: { formId } });
+		} catch (error) {
+			console.error('Failed to send form data:', error);
+		}
+	};
+
+	return (
+		<>
+			{isSurveyEnded() ? (
+				<Box sx={{ mt: 3, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+					<Box
+						component="img"
+						src={LogoImage}
+						alt='Logo'
+						sx={{
+							marginTop: "5rem",
+							height: { xs: "50%", sm: "40%", md: "30%", lg: "20%", xl: "15%" },
+							width: { xs: "50%", sm: "40%", md: "30%", lg: "20%", xl: "15%" },
+						}}
+					/>
+					<Typography sx={{ mt: 3 }} variant='h3'>Опрос недоступен</Typography>
+				</Box>
+			) : (
+				<>
+					{isMandatory && (
+						<>
+							<FormProvider {...methods}>
+								<form onSubmit={methods.handleSubmit(onSubmit)} style={{ marginTop: 15 }} >
+									<Grid container spacing={3} className='FormCenter' >
+										<Paper className="header-paper" elevation={2} sx={{ p: 3, borderTop: "8px solid #00862b", mt: 3, maxWidth: "92vh" }}>
+											<Typography variant="h4" gutterBottom>
+												{formData?.formTitle}
+												<Divider />
+												<Typography variant="h6" gutterBottom> {formData?.formOverview} </Typography>
+											</Typography>
+											<Divider />
+											<RegistrationComponent />
+										</Paper>
+										{formData ? (
+											<>
+												<Box sx={{ marginTop: 1 }}>
+													{formData?.sections[currentSection].title &&
+														<Paper elevation={2} sx={{ p: 3, paddingTop: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", maxWidth:"90vh" }}>
+															<Box sx={{ display: 'flex', flexDirection: "row", gap: 1, textAlign: 'center' }}>
+																<Typography variant='h6' gutterBottom> {formData.sections[currentSection].title} </Typography>
+															</Box>
+														</Paper>
+													}
+													{formData.sections[currentSection].cards.map((card, index) => {
+														const imageUrl = convertLocalPathToUrl(card.imageUrl);
+														return (
+															<Box key={index} sx={{ mb: 3, mt: 2, minWidth: "300px" }}>
+																<Paper elevation={2} sx={{ p: 3, paddingTop: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", maxWidth:"80vh", minWidth:"40vh" }}>
+																	<Box sx={{ display: 'flex', flexDirection: "row", gap: 1, textAlign: 'center' }}>
+																		<Typography variant='h6' gutterBottom> {card.question} </Typography>
+																	</Box>
+																	{card.addImg && (
+																		<>
+																			{imageUrl.map((imgUrl, index) => (
+																				// eslint-disable-next-line jsx-a11y/alt-text
+																				<img key={index} src={imgUrl} style={{ maxWidth: "-webkit-fill-available", marginTop: 5 }} />
+																			))}
+																		</>
+																	)}
+																	{card.selectedComponent === 'Input' && <InputCopmponent idQuestion={card.idQuestion} disabled={false} quest={card.question} required={card.isRequired} cardFormPageType={'card'} />}
+																	{card.selectedComponent === 'Textarea' && <TextareaComponent idQuestion={card.idQuestion} disabled={false} quest={card.question} required={card.isRequired} cardFormPageType={'card'} />}
+																	{card.selectedComponent === 'Radio' && <RadioComponent idQuestion={card.idQuestion} disabled={false} answers={card.answer} quest={card.question} required={card.isRequired} cardFormPageType={'card'} />}
+																	{card.selectedComponent === 'Checkbox' && <CheckboxesComponent idQuestion={card.idQuestion} disabled={false} answers={card.answer} quest={card.question} required={card.isRequired} addLogic={card.addLogic} GetLogic={card.Logic} nowCheckboxChoose={(value) => handleCheckboxChooseChange(value, card.changeCardsLogic, card.idQuestion, card.subQuestions)} changeCardsLogic={card.changeCardsLogic} cardFormPageType={'card'} />}
+																	{card.selectedComponent === 'Slider' && <SliderComponent idQuestion={card.idQuestion} disabled={false} answers={card.answer} quest={card.question} required={card.isRequired} nowSliderValue={(value) => handleSliderValueChange(value, card.changeCardsLogic, card.idQuestion, card.subQuestions)} changeCardsLogic={card.changeCardsLogic} cardFormPageType={'card'} />}
+																	{card.selectedComponent === 'Data' && <DataComponent idQuestion={card.idQuestion} disabled={false} quest={card.question} required={card.isRequired} cardFormPageType={'card'} />}
+																</Paper>
+																{card.subQuestions && card.subQuestions.map((subQuestion, subIndex) => {
+																	return (
+																		<Box sx={{ mt: 3 }} key={subIndex}>
+																			{subCardVisibility[subQuestion.idSubQuestion] && (
+																				<Paper elevation={2} sx={{ p: 3, paddingTop: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", maxWidth:"52vh" }}>
+																					<Box sx={{ display: 'flex', flexDirection: "row", width: "-webkit-fill-available", gap: 1, textAlign: 'center' }}>
+																						<Typography variant='subtitle1' gutterBottom> {subQuestion.question} </Typography>
+																					</Box>
+																					{subQuestion.addImg && (
+																						// eslint-disable-next-line jsx-a11y/alt-text
+																						<img src={Array.isArray(subQuestion.imageUrl) ? subQuestion.imageUrl[0] : subQuestion.imageUrl} style={{ maxWidth: "-webkit-fill-available", marginTop: 5 }} />
+																					)}
+																					{subQuestion.selectedComponent === 'Input' && <InputCopmponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} required={subQuestion.isRequired} cardFormPageType={'subCard'} />}
+																					{subQuestion.selectedComponent === 'Textarea' && <TextareaComponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} required={subQuestion.isRequired} cardFormPageType={'subCard'} />}
+																					{subQuestion.selectedComponent === 'Radio' && <RadioComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} required={subQuestion.isRequired} cardFormPageType={'subCard'} />}
+																					{subQuestion.selectedComponent === 'Checkbox' && <CheckboxesComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} required={subQuestion.isRequired} addLogic={subQuestion.addLogic} GetLogic={subQuestion.Logic} cardFormPageType={'subCard'} />}
+																					{subQuestion.selectedComponent === 'Slider' && <SliderComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} required={subQuestion.isRequired} nowSliderValue={(value) => handleSliderValueChange(value, subQuestion.changeCardsLogic, subQuestion.idSubQuestion)} changeCardsLogic={subQuestion.changeCardsLogic} cardFormPageType={'subCard'} />}
+																					{subQuestion.selectedComponent === 'Data' && <DataComponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} required={subQuestion.isRequired} cardFormPageType={'subCard'} />}
+																				</Paper>
+																			)}
+																		</Box>
+																	)
+																})}
+															</Box>
+														);
+													})}
+
+													<Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+														{currentSection > 0 && (
+															<Button onClick={() => setCurrentSection(currentSection - 1)} color="success" variant="contained">
+																Назад
+															</Button>
+														)}
+
+														{currentSection !== formData.sections.length - 1 && (
+															<Button onClick={() => methods.handleSubmit(moveToNextSection)()} color="success" variant="contained">
+																Далее
+															</Button>
+														)}
+
+														{currentSection === formData.sections.length - 1 && (
+															<Button type="submit" variant="contained" endIcon={<SendIcon />} color="success">
+																Отправить
+															</Button>
+														)}
+
+													</Box>
+
+												</Box>
+
+												{/* <Box>
+													<Pagination
+														sx={{
+															'& .MuiPaginationItem-page.Mui-selected': {
+																backgroundColor: '#00862b !important',
+																color: '#ffffff !important',
+															},
+														}}
+														count={formData.sections.length}
+														page={currentSection + 1}
+														onChange={(event, value) => setCurrentSection(value - 1)}
+													/>
+												</Box> */}
+											</>
+										) : (
+											<p>Загружаем конечный вид формы...</p>
+										)}
+									</Grid>
+								</form >
+							</FormProvider>
+						</>
+					)}
+					{!isMandatory && (
+						<FormProvider {...methods}>
+							<form onSubmit={methods.handleSubmit(onSubmit)} style={{ marginTop: 15, marginLeft: "2rem", marginRight: "1rem" }}>
+								<Grid container spacing={3} className='FormCenter'>
+									<Paper className="header-paper" elevation={2} sx={{ p: 3, borderTop: "8px solid #00862b", mt: 3, maxWidth: "90vh" }}>
+										<Typography variant="h4" gutterBottom> {formData?.formTitle} </Typography>
+										<Divider />
+										<Typography variant="h6" gutterBottom> {formData?.formOverview} </Typography>
+									</Paper>
+									{formData ? (
+										<>
+											<Box sx={{ marginTop: 1 }}>
+												{formData?.sections[currentSection].title &&
+													<Paper elevation={2} sx={{ p: 3, paddingTop: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", maxWidth: "60vh" }}>
+														<Box sx={{ display: 'flex', flexDirection: "row", gap: 1, textAlign: 'center' }}>
+															<Typography variant='h6' gutterBottom> {formData.sections[currentSection].title} </Typography>
+														</Box>
+													</Paper>
+												}
+												{formData.sections[currentSection].cards.map((card, index) => {
+													// console.log(card, 'карточка')
+													const imageUrl = convertLocalPathToUrl(card.imageUrl);
+													return (
+														<Box key={index} sx={{ mb: 3, mt: 2 }}>
+															<Paper elevation={2} sx={{ p: 3, paddingTop: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", maxWidth: "80vh", minWidth:"40vh" }}>
+																<Box sx={{ display: 'flex', flexDirection: "row", gap: 1, textAlign: 'center' }}>
+																	<Typography variant='h6' gutterBottom> {card.question} </Typography>
+																</Box>
+																{card.addImg && (
+																	<>
+																		{imageUrl.map((imgUrl, index) => (
+																			// eslint-disable-next-line jsx-a11y/alt-text
+																			<img key={index} src={imgUrl} style={{ maxWidth: "-webkit-fill-available", marginTop: 5 }} />
+																		))}
+																	</>
+																)}
+																{card.selectedComponent === 'Input' && <InputCopmponent idQuestion={card.idQuestion} disabled={false} quest={card.question} required={card.isRequired} cardFormPageType={'card'} />}
+																{card.selectedComponent === 'Textarea' && <TextareaComponent idQuestion={card.idQuestion} disabled={false} quest={card.question} required={card.isRequired} cardFormPageType={'card'} />}
+																{card.selectedComponent === 'Radio' && <RadioComponent idQuestion={card.idQuestion} disabled={false} answers={card.answer} quest={card.question} required={card.isRequired} cardFormPageType={'card'} />}
+																{card.selectedComponent === 'Checkbox' && <CheckboxesComponent idQuestion={card.idQuestion} disabled={false} answers={card.answer} quest={card.question} required={card.isRequired} addLogic={card.addLogic} GetLogic={card.Logic} nowCheckboxChoose={(value) => handleCheckboxChooseChange(value, card.changeCardsLogic, card.idQuestion, card.subQuestions)} changeCardsLogic={card.changeCardsLogic} cardFormPageType={'card'} />}
+																{card.selectedComponent === 'Slider' && <SliderComponent idQuestion={card.idQuestion} disabled={false} answers={card.answer} quest={card.question} required={card.isRequired} nowSliderValue={(value) => handleSliderValueChange(value, card.changeCardsLogic, card.idQuestion, card.subQuestions)} changeCardsLogic={card.changeCardsLogic} cardFormPageType={'card'} />}
+																{card.selectedComponent === 'Data' && <DataComponent idQuestion={card.idQuestion} disabled={false} quest={card.question} required={card.isRequired} cardFormPageType={'card'} />}
+															</Paper>
+															{card.subQuestions && card.subQuestions.map((subQuestion, subIndex) => {
+																return (
+																	<Box sx={{ mt: 3 }} key={subIndex}>
+																		{subCardVisibility[subQuestion.idSubQuestion] && (
+																			<Paper elevation={2} sx={{ p: 3, paddingTop: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", maxWidth: "52vh" }}>
+																				<Box sx={{ display: 'flex', flexDirection: "row", width: "-webkit-fill-available", gap: 1, textAlign: 'center' }}>
+																					<Typography variant='h6' gutterBottom> {subQuestion.question} </Typography>
+																				</Box>
+																				{subQuestion.addImg && (
+																					// eslint-disable-next-line jsx-a11y/alt-text
+																					<img src={Array.isArray(subQuestion.imageUrl) ? subQuestion.imageUrl[0] : subQuestion.imageUrl} style={{ maxWidth: "-webkit-fill-available", marginTop: 5 }} />
+																				)}
+																				{subQuestion.selectedComponent === 'Input' && <InputCopmponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} required={subQuestion.isRequired} cardFormPageType={'subCard'} />}
+																				{subQuestion.selectedComponent === 'Textarea' && <TextareaComponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} required={subQuestion.isRequired} cardFormPageType={'subCard'} />}
+																				{subQuestion.selectedComponent === 'Radio' && <RadioComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} required={subQuestion.isRequired} cardFormPageType={'subCard'} />}
+																				{subQuestion.selectedComponent === 'Checkbox' && <CheckboxesComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} required={subQuestion.isRequired} addLogic={subQuestion.addLogic} GetLogic={subQuestion.Logic} cardFormPageType={'subCard'} resetStateOnOpen={resetStateOnOpen} subCardVisibility={subCardVisibility} />}
+																				{subQuestion.selectedComponent === 'Slider' && <SliderComponent idQuestion={subQuestion.idSubQuestion} disabled={false} answers={subQuestion.answer} quest={subQuestion.question} required={subQuestion.isRequired} nowSliderValue={(value) => handleSliderValueChange(value, subQuestion.changeCardsLogic, subQuestion.idSubQuestion)} changeCardsLogic={subQuestion.changeCardsLogic} cardFormPageType={'subCard'} />}
+																				{subQuestion.selectedComponent === 'Data' && <DataComponent idQuestion={subQuestion.idSubQuestion} disabled={false} quest={subQuestion.question} required={subQuestion.isRequired} cardFormPageType={'subCard'} />}
+																			</Paper>
+																		)}
+																	</Box>
+																)
+															})}
+														</Box>
+													);
+												})}
+
+												<Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+													{currentSection > 0 && (
+														<Button onClick={() => setCurrentSection(currentSection - 1)} color="success" variant="contained">
+															Назад
+														</Button>
+													)}
+
+													{currentSection !== formData.sections.length - 1 && (
+														<Button onClick={() => setCurrentSection(currentSection + 1)} color="success" variant="contained">
+															Далее
+														</Button>
+													)}
+
+													{currentSection === formData.sections.length - 1 && (
+														<Button type="submit" variant="contained" endIcon={<SendIcon />} color="success">
+															Отправить
+														</Button>
+													)}
+
+												</Box>
+
+											</Box>
+
+											{/* <Box>
+													<Pagination
+														sx={{
+															'& .MuiPaginationItem-page.Mui-selected': {
+																backgroundColor: '#00862b !important',
+																color: '#ffffff !important',
+															},
+														}}
+														count={formData.sections.length}
+														page={currentSection + 1}
+														onChange={(event, value) => setCurrentSection(value - 1)}
+													/>
+												</Box> */}
+										</>
+									) : (
+										<p>Загружаем конечный вид формы...</p>
+									)}
+								</Grid>
+							</form>
+						</FormProvider>
+					)}
+				</>
+			)}
+		</>
+	);
+}

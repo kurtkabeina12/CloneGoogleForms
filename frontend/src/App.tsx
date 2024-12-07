@@ -1,22 +1,39 @@
 import React from 'react';
-import { Provider } from 'react-redux';
-import HomePage from './components/HomePage';
-import CreateFormPage from './components/CreateFormPage';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import HomePage from './pages/HomePage';
+import CreateFormPage from './pages/CreateFormPage';
 import store from './store/reducers/reducerRoot';
+import { Provider } from 'react-redux';
+import FormPage from './pages/FormPage';
+import StubPage from './pages/StubPage';
+import SurveyReportPage from './pages/SurveyReportPage';
+import ChangeFormPage from './pages/ChangeFormPage';
+import CreateTestPage from './pages/CreateTestPage';
+import TestPage from './pages/TestPage';
+import StubTestPage from './pages/StubTestPage';
+import CheckTestAnswersPage from './pages/CheckTestAnswersPage';
+import AdminPage from './pages/AdminPage';
 
 function App() {
-  const [currentPage, setCurrentPage] = React.useState('HomePage');
-
-  const handleNavigation = (page: string) => {
-    setCurrentPage(page);
-  };
-  
   return (
     <Provider store={store}>
-      <div className='App'>
-        {currentPage === 'HomePage' && <HomePage onNavigate={handleNavigation} />}
-        {currentPage === 'CreateFormPage' && <CreateFormPage />}
-      </div>
+      <Router>
+        <div className='App'>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/adminPage" element={<AdminPage/>}/>
+            <Route path="/create-form" element={<CreateFormPage />} />
+            <Route path="/create-test" element={<CreateTestPage />} />
+            <Route path="/form/:formId" element={<FormPage />} />
+            <Route path="/stub/:formId" element={<StubPage />} />
+            <Route path="/report/:formId" element={<SurveyReportPage />} />
+            <Route path="/changeForm/:formId" element={<ChangeFormPage />} />
+            <Route path="/test/:testId" element={<TestPage />} />
+            <Route path="/stubTest/:testId" element={<StubTestPage />} />
+            <Route path="/checkTestAnswers/:testId/:userId" element={<CheckTestAnswersPage />} />
+          </Routes>
+        </div>
+      </Router>
     </Provider>
   );
 }

@@ -1,3 +1,13 @@
+body {
+    margin: 0;
+    padding: 0;
+    /* background-color: #9fe5ae87; */
+}
+
+.css-7dv1rb-MuiButtonBase-root-MuiFab-root-MuiSpeedDial-fab{
+    background-color:#00862b !important;
+}
+
 .home-page {
     /* background-image: url('../../public/фон.png'); */
     background-size: cover;
@@ -22,46 +32,61 @@
 }
 
 .home-body {
+    margin-top: 1rem;
     display: flex;
     justify-content: center;
 }
 
-.body-card{
-    padding-left: 30px !important;
-    margin-left: 15px !important;
+.body-card {
+    margin-top: 2rem !important;
+    max-width: 100% !important;
 }
 
-.header-CreateFormPage, .body-CreateFormPage {
+.body-cardFormPage {
+    margin-top: 1rem !important;
+    max-width: 100% !important;
+}
+
+.FormCenter {
     display: flex;
     justify-content: center;
     align-items: center;
-    height:  100%;
-}
-
-.header-CreateFormPage > .MuiGrid-item, .body-CreateFormPage > .MuiGrid-item {
-    flex:  1;
-}
-
-.css-1eed5fa-MuiInputBase-root-MuiInput-root::after{
-    border-bottom: 2px solid #299d2e !important;
-}
-
-.css-953pxc-MuiInputBase-root-MuiInput-root::after{
-    border-bottom: 2px solid #299d2e !important;
-}
-
-.css-bz5ng3-MuiInputBase-root-MuiInput-root::after{
-    border-bottom: 2px solid #299d2e !important;
-}
-
-.css-11u53oe-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input.css-11u53oe-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input.css-11u53oe-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input{
-    display: flex !important;
-}
-
-.css-11u53oe-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input.css-11u53oe-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input.css-11u53oe-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input{
-    display: flex !important;
-}
-
-.css-zow5z4-MuiGrid-root{
     flex-direction: column !important;
+    flex-wrap: nowrap;
+}
+
+.css-1eed5fa-MuiInputBase-root-MuiInput-root::after {
+    border-bottom: 2px solid #299d2e !important;
+}
+
+.css-953pxc-MuiInputBase-root-MuiInput-root::after {
+    border-bottom: 2px solid #299d2e !important;
+}
+
+.css-bz5ng3-MuiInputBase-root-MuiInput-root::after {
+    border-bottom: 2px solid #299d2e !important;
+}
+
+.css-11u53oe-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input.css-11u53oe-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input.css-11u53oe-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input {
+    display: flex !important;
+}
+
+.css-11u53oe-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input.css-11u53oe-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input.css-11u53oe-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input {
+    display: flex !important;
+}
+
+.MuiGrid-root.MuiGrid-container.MuiGrid-spacing-xs-3.body-CreateFormPage.css-zow5z4-MuiGrid-root {
+    flex-direction: column !important;
+}
+
+.MuiTabs-indicator {
+    background: #00862b !important;
+} 
+
+.css-81x57z{
+    margin-bottom: 0 !important;
+}
+
+.css-18eutzv-MuiGrid-root>.MuiGrid-item{
+    padding-left: 0 !important;
 }
